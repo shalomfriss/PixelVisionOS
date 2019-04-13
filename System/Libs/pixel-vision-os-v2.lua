@@ -106,13 +106,15 @@ function PixelVisionOS:ChangeTitle(text, titleIconName)
   self.editorUI:Invalidate(self.titleBar)
 end
 
-function PixelVisionOS:ShowAboutModal(toolTitle, optionalText)
+function PixelVisionOS:ShowAboutModal(toolTitle, optionalText, width)
+
+  width = width or 160
 
   optionalText = optionalText or ""
 
   local message = "Copyright (c) 2018, Jesse Freeman. All rights reserved. Licensed under the Microsoft Public License (MS-PL) License.\n\n"
 
-  self:ShowMessageModal("About " .. toolTitle .. " " .. self.version, message .. optionalText, 160, false)
+  self:ShowMessageModal("About " .. toolTitle .. " " .. self.version, message .. optionalText, width, false)
 
 end
 

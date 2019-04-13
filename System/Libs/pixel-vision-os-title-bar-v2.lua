@@ -333,7 +333,12 @@ function PixelVisionOS:UpdateTitleBar(data, timeDelta)
   -- Keep track of time passed since last frame
   data.time = data.time + timeDelta
 
-
+  -- Enable and disable elements based on the status of any active modals
+  if(self:IsModalActive() == true) then
+    self.editorUI:Enable(data.muteBtnData, false)
+  else
+    self.editorUI:Enable(data.muteBtnData, true)
+  end
 
   -- Update buttons
   self.editorUI:UpdateButton(data.iconButton)

@@ -160,12 +160,7 @@ function Init()
 
 
 
-  local aboutText = "The ".. toolName.. " offers you access to the underlying file system. \n\nTemporary files are stores on your computer at: \n\n" .. TmpPath()
-
-  if(runnerName == DrawVersion or runnerName == TuneVersion or runnerName == MakeVersion) then
-    aboutText = aboutText .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath()
-  end
-
+  local aboutText = "The ".. toolName.. " offers you access to the underlying file system. \n\nTemporary files are stores on your computer at: \n\n" .. TmpPath() .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath()
 
   -- TODO need to see if the log file actually exists
   local logExits = true
@@ -173,7 +168,7 @@ function Init()
   local menuOptions = 
   {
     -- About ID 1
-    {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName, aboutText) end, toolTip = "Learn about PV8."},
+    {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName, aboutText, 200) end, toolTip = "Learn about PV8."},
     -- Settings ID 2
     {name = "Settings", action = OnLaunchSettings, toolTip = "Learn about PV8."},
     -- Settings ID 3
@@ -590,7 +585,6 @@ function OnCopy()
 
     if(CanCopy(file)) then
 
-      print("Copy", file.path, file.name)
       -- Copy the file to the list
       table.insert(filesToCopy, file)
 
@@ -605,44 +599,8 @@ function OnCopy()
       -- Make sure we can't activate paste
       pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
 
-
     end
 
-    --
-    -- -- TODO Need to go through all of the items in the group and see which ones are selected
-    --
-    -- local selections = editorUI:ToggleGroupSelections(windowIconButtons)
-    -- local total = #selections
-    --
-    -- local errorFiles = {}
-    --
-    -- for i = 1, total do
-    --
-    --   local id = selections[i]
-    --   local file = files[id]
-    --
-    --   if(CanCopy(file)) then
-    --     table.insert(filesToCopy, file)
-    --
-    --     -- print("Copy path", file.name, file.path, file.type)
-    --
-    --   else
-    --
-    --     table.insert(errorFiles, file.name)
-    --   end
-    --
-    -- end
-
-
-
-    -- Create message on what can be copied
-    -- local validTotal = total - #errorFiles
-    --
-    -- pixelVisionOS:DisplayMessage(tostring(validTotal) .. " of " .. tostring(total) .. " selected items were copied.", 5)
-
-
-
-    -- MoveFile("/PixelVisionOS/bios.json", "/CanvasDemo/")
   end
 
 end
@@ -663,8 +621,6 @@ function OnPaste(dest)
 
   dest = dest or currentDirectory
 
-  print("Dest", dest)
-
   if(filesToCopy == nil) then
     return
   end
@@ -676,15 +632,7 @@ function OnPaste(dest)
 
   for i = 1, total do
 
-    -- local file =
-    --
     local file = filesToCopy[i]
-    --
-    -- local tmpPath = dest .. file.fullName
-    --
-    -- if(file.isDirectory) then
-    --   tmpPath = tmpPath .. "/"
-    -- end
 
     local tmpPath = GetPathToFile(dest, file)
 
@@ -724,13 +672,6 @@ function OnPaste(dest)
 
   end
 
-
-
-
-  -- pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
-
-
-
 end
 
 function TriggerFileCopy(dest)
@@ -740,12 +681,6 @@ function TriggerFileCopy(dest)
   for i = 1, #filesToCopy do
 
     local file = filesToCopy[i]
-    --
-    -- local tmpPath = dest .. file.fullName
-    --
-    -- if(file.isDirectory) then
-    --   tmpPath = "/"
-    -- end
 
     CopyFile(file.path, GetPathToFile(dest, file))
 
