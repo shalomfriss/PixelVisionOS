@@ -59,7 +59,7 @@ function Init()
 
       ResetDataValidation()
 
-      gameEditor:StartLoading()
+      -- gameEditor:StartLoading()
 
     else
 

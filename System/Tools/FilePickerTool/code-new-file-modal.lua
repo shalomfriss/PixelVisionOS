@@ -25,13 +25,16 @@ function NewFileModal:Init()
   _renameModal.currentSelection = 1
   _renameModal.message = message
 
+  _renameModal.editable = true
 
 
   return _renameModal
 
 end
 
-function NewFileModal:SetText(title, inputText, message)
+function NewFileModal:SetText(title, inputText, message, editable)
+
+  self.editable = editable
 
   self.title = title
   -- self.message = description
@@ -41,6 +44,7 @@ function NewFileModal:SetText(title, inputText, message)
 
   local wrap = WordWrap(message, (self.rect.w / 4) - 4)
   self.lines = SplitLines(wrap)
+
 
   -- self.editorUI:ChangeInputField(self.inputField, self.defaultText)
   -- Update the input field
@@ -112,6 +116,7 @@ function NewFileModal:Open()
     -- Restore the default text value
     self.editorUI:ChangeInputField(self.inputField, self.defaultText)
 
+
     -- Set value to true when cancel is pressed
     self.selectionValue = false
 
@@ -163,6 +168,8 @@ function NewFileModal:Open()
     self.editorUI:ChangeInputField(self.inputField, self.defaultText, false)
 
   end
+
+  self.editorUI:Enable(self.inputField, self.editable)
 
 end
 

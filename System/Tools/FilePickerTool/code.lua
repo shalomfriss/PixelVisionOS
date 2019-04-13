@@ -255,13 +255,13 @@ function Init()
   -- Add draw options
   if(runnerName ~= PlayVersion and runnerName ~= TuneVersion) then
 
-    table.insert(menuOptions, addAt, {name = "New Colors", action = function() OnNewFile("colors", "png", "colors") end, enabled = false, toolTip = "Run the current game.", file = "colors.png"})
+    table.insert(menuOptions, addAt, {name = "New Colors", action = function() OnNewFile("colors", "png", "colors", false) end, enabled = false, toolTip = "Run the current game.", file = "colors.png"})
     -- menuOffset = menuOffset + 1
     -- NewColorsShortcut = addAt
     table.insert(newFileOptions, {name = "New Colors", file = "colors.png"})
     addAt = addAt + 1
 
-    table.insert(menuOptions, addAt, {name = "New Sprites", action = function() OnNewFile("sprites", "png", "sprites") end, enabled = false, toolTip = "Run the current game.", file = "sprites.png"})
+    table.insert(menuOptions, addAt, {name = "New Sprites", action = function() OnNewFile("sprites", "png", "sprites", false) end, enabled = false, toolTip = "Run the current game.", file = "sprites.png"})
     -- menuOffset = menuOffset + 1
     -- NewSpritesShortcut = addAt
     table.insert(newFileOptions, {name = "New Sprites", file = "sprites.png"})
@@ -273,7 +273,7 @@ function Init()
     table.insert(newFileOptions, {name = "New Font"})
     addAt = addAt + 1
 
-    table.insert(menuOptions, addAt, {name = "New Tilemap", action = function() OnNewFile("tilemap", "json", "tilemap") end, enabled = false, toolTip = "Run the current game.", file = "tilemap.json"})
+    table.insert(menuOptions, addAt, {name = "New Tilemap", action = function() OnNewFile("tilemap", "json", "tilemap", false) end, enabled = false, toolTip = "Run the current game.", file = "tilemap.json"})
     -- menuOffset = menuOffset + 1
     -- NewTilemapShortcut = addAt
     table.insert(newFileOptions, {name = "New Tilemap", file = "tilemap.json"})
@@ -284,13 +284,13 @@ function Init()
   -- Add music options
   if(runnerName ~= PlayVersion and runnerName ~= DrawVersion) then
 
-    table.insert(menuOptions, addAt, {name = "New Sounds", action = function() OnNewFile("sounds", "json", "sounds") end, enabled = false, toolTip = "Run the current game.", file = "sounds.json"})
+    table.insert(menuOptions, addAt, {name = "New Sounds", action = function() OnNewFile("sounds", "json", "sounds", false) end, enabled = false, toolTip = "Run the current game.", file = "sounds.json"})
     -- menuOffset = menuOffset + 1
     -- NewSoundsShortcut = addAt
     table.insert(newFileOptions, {name = "New Sounds", file = "sounds.json"})
     addAt = addAt + 1
 
-    table.insert(menuOptions, addAt, {name = "New Music", action = function() OnNewFile("music", "json", "music") end, enabled = false, toolTip = "Run the current game.", file = "music.json"})
+    table.insert(menuOptions, addAt, {name = "New Music", action = function() OnNewFile("music", "json", "music", false) end, enabled = false, toolTip = "Run the current game.", file = "music.json"})
     -- menuOffset = menuOffset + 1
     -- NewMusicShortcut = addAt
     table.insert(newFileOptions, {name = "New Music", file = "music.json"})
@@ -401,7 +401,7 @@ function DrawWallpaper()
 end
 
 
-function OnNewFile(fileName, ext, type)
+function OnNewFile(fileName, ext, type, editable)
 
   if(type == nil) then
     type = ext
@@ -411,7 +411,7 @@ function OnNewFile(fileName, ext, type)
   --
   -- end
 
-  newFileModal:SetText("New ".. type, fileName, "Name " .. type .. " file")
+  newFileModal:SetText("New ".. type, fileName, "Name " .. type .. " file", editable == nil and true or false)
 
   pixelVisionOS:OpenModal(newFileModal,
     function()
