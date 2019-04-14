@@ -123,7 +123,7 @@ function CollisionManager:MouseInRect(rect)
 end
 
 function CollisionManager:StartDrag(source)
-  -- print(source.name, "Start Drag")
+  print(source.name, "Start Drag")
   self.currentDragSource = source
   self.dragTime = 0
   self.currentDragSource.dragging = true

@@ -325,7 +325,7 @@ function Init()
 
 
   -- TODO need to read bios to see if this was changed?
-  trashPath = "/Tmp/Trash/"
+  -- trashPath = "/Tmp/Trash/"
 
   -- trashButton.redrawBackground = true
 
@@ -509,7 +509,11 @@ end
 
 function RefreshWindow()
 
-  OpenWindow(currentDirectory, scrollTo, selection)
+  if(currentDirectory ~= "none") then
+    OpenWindow(currentDirectory, scrollTo, selection)
+
+  end
+
 
 end
 
@@ -720,7 +724,11 @@ function OnEjectDisk(diskName)
       if(pixelVisionOS.messageModal.selectionValue) then
 
         if(currentDirectory ~= "none") then
-          CloseWindow()
+
+          if(NewWorkspacePath(currentDirectory).GetDirectorySegments()[2] == diskName) then
+            CloseWindow()
+          end
+
         end
 
         EjectDisk(diskPath)
@@ -778,7 +786,8 @@ function RebuildDesktopIcons()
       sprite = "filedrive",
       tooltip = "This is the main drive",
       path = "/Workspace/",
-      type = "workspace"
+      type = "workspace",
+      dragDelay = -1
     })
   end
 
@@ -797,34 +806,12 @@ function RebuildDesktopIcons()
 
   end
 
-  --
-  -- print("Total disks", #disks)
-
-
   -- Draw desktop icons
-
   local startY = 16
 
   desktopIconButtons = editorUI:CreateIconGroup()
   desktopIconButtons.onTrigger = OnDesktopIconClick
   desktopIconButtons.onAction = OnDesktopIconSelected
-
-
-  --   local selectedItem = desktopIcons[value]
-  --
-  --   print("Can eject " .. selectedItem.name)
-  --
-  --   -- pixelVisionOS:EnableMenuItemByName(NewGameShortcut, false)
-  --   -- pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, false)
-  --   -- pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
-  --   -- pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
-  --   -- pixelVisionOS:EnableMenuItemByName(NewFileShortcut, false)
-  --
-  --   -- -- pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, selectedItem.name ~= "Trash")
-  --
-  --   editorUI:ClearIconGroupSelections(windowIconButtons)
-  --
-  -- end
 
   for i = 1, #desktopIcons do
 
@@ -836,14 +823,27 @@ function RebuildDesktopIcons()
     button.iconType = item.type
     button.iconPath = item.path
 
-    button.dragDelay = -1
+    if(item.dragDelay ~= nil) then
+      button.dragDelay = item.dragDelay
+    end
 
-    button.onDropTarget = function(source, dest)
+    button.onEndDrag = function(btn)
 
-
-      print("On Drop")
+      OnEndDrag(btn)
 
     end
+
+    -- button.onDropTarget = function(source, dest)
+    --
+    --
+    --   print("On Drop")
+    --
+    --   -- TODO need to check if inside the window to copy
+    --   -- TODO need to check if inside of another folder in window
+    --   -- TODO need to check if inside another disk
+    --   -- TODO warn before copying
+    --
+    -- end
 
 
     startY = startY + 32 + 8
@@ -871,7 +871,7 @@ function RebuildDesktopIcons()
     name = "Trash",
     sprite = #trashFiles > 0 and "filetrashfull" or "filetrashempty",
     tooltip = "The trash folder",
-    path = "/Tmp/Trash/",
+    path = trashPath,
     type = "trash"
   })
 
@@ -881,26 +881,30 @@ function RebuildDesktopIcons()
 
   local trashButton = editorUI:NewIconGroupButton(desktopIconButtons, {x = 216 - 8, y = 200 - 2}, item.sprite, item.name, item.tooltip, bgColor)
 
+  trashButton.iconName = item.name
+  trashButton.iconType = item.type
+  trashButton.iconPath = item.path
+
   -- Lock the trash from Dragging
   trashButton.dragDelay = -1
 
-  trashButton.onDropTarget = function(source, dest)
+  -- trashButton.onDropTarget = function(source, dest)
+  --
+  --
+  --   if(source.iconType == "disk") then
+  --
+  --     print("Eject disk", source.iconName)
+  --
+  --     OnEjectDisk(source.iconName)
+  --
+  --   else
+  --
+  --     OnDeleteFile(source.iconPath)
+  --
+  --     print("Delete file")
+  --   end
 
-
-    if(source.iconType == "disk") then
-
-      print("Eject disk", source.iconName)
-
-      OnEjectDisk(source.iconName)
-
-    else
-
-      OnDeleteFile(source.iconPath)
-
-      print("Delete file")
-    end
-
-  end
+  -- end
   -- end
 
 end
@@ -1625,6 +1629,8 @@ function OnWindowIconClick(id)
 
     LoadGame(path)
 
+
+
   elseif(type == "pv8") then
 
     -- TODO need to see if there is space to mount another disk
@@ -1652,6 +1658,21 @@ function OnWindowIconClick(id)
 
     -- Now we are ready to try to edit a file
   else
+
+    if(type == "installer") then
+
+      if(string.starts(currentDirectory, "/Disks/") == false) then
+
+        -- TODO need to see if there is space to mount another disk
+        -- TODO need to know if this disk is being mounted as read only
+        -- TODO don't run
+        pixelVisionOS:ShowMessageModal("Installer Error", "Installers can only be run from a disk.", 160, false)
+
+        return
+
+      end
+    end
+
 
     -- Find the correct editor from the list
     local editorPath = editorMapping[type]
@@ -1808,11 +1829,18 @@ function DrawWindow(files, startID, total)
       button.iconType = item.type
       button.iconPath = item.path
 
-      button.onEndDrag = function(btn)
+      -- Disable the drag on files that don't exist in the directory
+      if(item.type == "run" or item.type == "updirectory" or item.type == "unknown") then
+        button.dragDelay = -1
+      else
+        button.onEndDrag = function(btn)
 
-        OnEndDrag(btn, MousePosition())
+          OnEndDrag(btn)
 
+        end
       end
+
+
 
 
       -- TODO need to disable some icons from dragging here
@@ -1843,9 +1871,9 @@ end
 
 
 -- This method takes a source icon and the mouse position then looks for any icons it was released over
-function OnEndDrag(src, mousePos)
+function OnEndDrag(src)
 
-  print("OnEndDrag", src.iconName, "at", mousePos.x, mousePos.y)
+  print("OnEndDrag", src.iconName)
 
   local target = nil
 
@@ -1855,8 +1883,6 @@ function OnEndDrag(src, mousePos)
 
     local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
 
-    print("testing", btn.name, collision)
-
     if(collision == true) then
       target = btn
       break
@@ -1865,65 +1891,147 @@ function OnEndDrag(src, mousePos)
 
   end
 
-  -- Look at Window icons
-  for i = 1, #windowIconButtons.buttons do
-    local btn = windowIconButtons.buttons[i]
+  if(target == null and windowIconButtons ~= null) then
+    -- Look at Window icons
+    for i = 1, #windowIconButtons.buttons do
+      local btn = windowIconButtons.buttons[i]
 
-    local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
+      local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
 
-    print("testing", btn.iconName, btn.iconType, collision)
+      if(collision == true) then
+        target = btn
+        break
+      end
 
-    if(collision == true) then
-      target = btn
-      break
+
     end
-
-
   end
 
   if(target ~= nil) then
 
+    if(src.iconPath == target.iconPath) then
+      return
+    end
+
     local srcPath = NewWorkspacePath(src.iconPath)
 
-    if(target.iconType == "folder" or target.iconType == "disk" or target.iconType == "trash" or target.iconType == "workspace") then
+    if(src.iconType == "disk" and target.iconType == "trash") then
 
+      OnEjectDisk(srcPath.EntityName)
+      return
 
+    elseif(target.iconType == "folder" or target.iconType == "disk" or target.iconType == "trash" or target.iconType == "workspace" or target.iconType == "updirectory") then
 
       local destPath = NewWorkspacePath(target.iconPath)
 
+      if(target.iconType == "updirectory") then
+        destPath = NewWorkspacePath(currentDirectory).ParentPath
+      end
+
       destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
 
+      if(target.iconType == "trash") then
+        destPath = UniqueFilePath(destPath)
+      end
+
+      print("dest path", destPath)
+
       if(PathExists(destPath) == false) then
-        print("Move", srcPath.Path, "to", destPath)
 
-        MoveTo(srcPath, destPath)
+        -- Need to see if we are copying from a disk or to a disk
 
-        -- Refresh the window to show the new folder
-        RefreshWindow()
+
+        local useCopy = false
+
+        if(string.starts(srcPath.path, "/Disks/") or string.starts(destPath.path, "/Disks/")) then
+
+          local srcSegments = srcPath.GetDirectorySegments()
+          local destSegments = destPath.GetDirectorySegments()
+
+          useCopy = srcSegments[2] ~= destSegments[2]
+
+          if(destSegments[2] == "Trash") then
+            useCopy = false
+          end
+
+        end
+
+        if(useCopy) then
+
+          pixelVisionOS:ShowMessageModal(
+            "Copy Disk",
+            "Do you want to copy disk '".. srcPath.EntityName .. "' to '".. destPath.ParentPath.path .."'?",
+            200,
+            true,
+            function()
+
+              -- Only perform the copy if the user selects OK from the modal
+              if(pixelVisionOS.messageModal.selectionValue) then
+                print("Copy", srcPath.Path, "to", destPath.Path)
+                CopyTo(srcPath, destPath)
+                -- Refresh the window to show the new folder
+                RefreshWindow()
+              end
+
+            end
+          )
+
+        else
+
+          print("Move", srcPath.Path, "to", destPath.Path)
+
+          MoveTo(srcPath, destPath)
+
+          RebuildDesktopIcons()
+          -- Refresh the window to show the new folder
+          RefreshWindow()
+
+        end
+
+      else
+        pixelVisionOS:ShowMessageModal(
+          "File Path Conflict",
+          "'" ..destPath.path .."' already exits so this action can not be performed.",
+          200,
+          false
+        )
       end
 
     end
 
-    if(target.iconType == "updirectory") then
-
-      local destPath = NewWorkspacePath(currentDirectory).ParentPath
-
-      destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
-
-      if(PathExists(destPath) == false) then
-        print("Move", srcPath.Path, "to", destPath)
-
-        MoveTo(srcPath, destPath)
-
-        -- Refresh the window to show the new folder
-        RefreshWindow()
-      end
-
-
-    end
-
-    -- print("Drag", src.iconName, src.iconType, "to", target.iconName, target.iconType)
-
+    --   if(target.iconType == "updirectory") then
+    --
+    --     local destPath = NewWorkspacePath(currentDirectory).ParentPath
+    --
+    --     destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
+    --
+    --     if(PathExists(destPath) == false) then
+    --
+    --       if(src.iconType == "disk") then
+    --         print("Can't copy disk to this location")
+    --       else
+    --
+    --         print("Move", srcPath.Path, "to", destPath.Path)
+    --
+    --         -- MoveTo(srcPath, destPath)
+    --
+    --       end
+    --       -- Refresh the window to show the new folder
+    --       RefreshWindow()
+    --     else
+    --       pixelVisionOS:ShowMessageModal(
+    --         "File Path Conflict",
+    --         "'" ..destPath.path .."' already exits so this action can not be performed.",
+    --         200,
+    --         false
+    --       )
+    --     end
+    --
+    --
+    --   end
+    --
+    --   -- print("Drag", src.iconName, src.iconType, "to", target.iconName, target.iconType)
+    --
   end
 
 end
