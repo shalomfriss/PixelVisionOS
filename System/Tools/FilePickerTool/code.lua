@@ -637,7 +637,7 @@ function OnPaste(dest)
     local tmpPath = GetPathToFile(dest, file)
 
     -- Make sure file doesn't exist and the src path doesn't match the dest path
-    if(PathExists(tmpPath) and tmpPath ~= file.path) then
+    if(OldPathExists(tmpPath) and tmpPath ~= file.path) then
       table.insert(conflicts, tmpPath)
     end
 
@@ -772,7 +772,7 @@ function RebuildDesktopIcons()
   -- Build Desktop Icons
   desktopIcons = {}
 
-  if(PathExists("/Workspace/")) then
+  if(OldPathExists("/Workspace/")) then
     table.insert(desktopIcons, {
       name = "Workspace",
       sprite = "filedrive",
@@ -809,6 +809,7 @@ function RebuildDesktopIcons()
   desktopIconButtons.onTrigger = OnDesktopIconClick
   desktopIconButtons.onAction = OnDesktopIconSelected
 
+
   --   local selectedItem = desktopIcons[value]
   --
   --   print("Can eject " .. selectedItem.name)
@@ -834,6 +835,16 @@ function RebuildDesktopIcons()
     button.iconName = item.name
     button.iconType = item.type
     button.iconPath = item.path
+
+    button.dragDelay = -1
+
+    button.onDropTarget = function(source, dest)
+
+
+      print("On Drop")
+
+    end
+
 
     startY = startY + 32 + 8
 
@@ -878,7 +889,7 @@ function RebuildDesktopIcons()
 
     if(source.iconType == "disk") then
 
-      -- print("Eject disk", source.iconName)
+      print("Eject disk", source.iconName)
 
       OnEjectDisk(source.iconName)
 
@@ -948,12 +959,10 @@ function OnNewGame()
 
   -- print("defaultTemplate", defaultTemplate)
 
-  if(currentDirectory == "none" or PathExists(defaultTemplate) == false) then
+  if(currentDirectory == "none" or OldPathExists(defaultTemplate) == false) then
     pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false)
     return
   end
-
-
 
   newFileModal:SetText("New Project", "NewProject", "Folder Name")
 
@@ -964,11 +973,16 @@ function OnNewGame()
         return
       end
 
-      local newPath = UniqueFilePath(currentDirectory .. newFileModal.inputField.text .. "/")
-      --
-      local success = NewFolder(newPath)
+      -- Create a new workspace path
+      local newPath = NewWorkspacePath(currentDirectory .. newFileModal.inputField.text .. "/")
 
-      if(success == true) then
+      -- Make sure the path is unique
+      newPath = UniqueFilePath(newPath)
+
+      -- Make sure that the path exists
+      -- local success = NewFolder(newPath)
+
+      if(OldPathExists(newPath.Path) == true) then
 
         local files = GetDirectoryContents(defaultTemplate)
 
@@ -999,13 +1013,13 @@ function OnNewFolder(name)
     name = "Untitled"
   end
 
-  -- if(newFileModal == nil) then
-  --   newFileModal = NewFileModal:Init(editorUI)
-  --   newFileModal.editorUI = editorUI
-  -- end
+  -- Create a new unique workspace path for the folder
+  local newPath = UniqueFilePath(NewWorkspacePath(currentDirectory .. name .. "/"))
 
-  newFileModal:SetText("New Folder", name, "Folder Name")
+  -- Set the new file modal to show the folder name
+  newFileModal:SetText("New Folder", newPath.EntityName, "Folder Name", true)
 
+  -- Open the new file modal before creating the folder
   pixelVisionOS:OpenModal(newFileModal,
     function()
 
@@ -1013,16 +1027,22 @@ function OnNewFolder(name)
         return
       end
 
-      local filePath = currentDirectory .. newFileModal.inputField.text
+      -- Create a new workspace path
+      local filePath = NewWorkspacePath(currentDirectory .. newFileModal.inputField.text .. "/")
 
-      NewFolder(filePath.."/")
+      -- Make sure the path doesn't exist before trying to make a new directory
+      if(OldPathExists(filePath.Path) == false) then
 
-      RefreshWindow()
+        -- Create a new directory
+        CreateDirectory(filePath)
+
+        -- Refresh the window to show the new folder
+        RefreshWindow()
+
+      end
 
     end
   )
-
-
 
 end
 
@@ -1236,7 +1256,7 @@ function UpdateContextMenu(inFocus)
 
         if(option.file ~= nil) then
 
-          enable = not PathExists(currentDirectory .. option.file)
+          enable = not OldPathExists(currentDirectory .. option.file)
 
         end
 
@@ -1331,7 +1351,7 @@ function UpdateContextMenu(inFocus)
 
         if(option.file ~= nil) then
 
-          enable = not PathExists(currentDirectory .. option.file)
+          enable = not OldPathExists(currentDirectory .. option.file)
 
         end
 
@@ -1656,7 +1676,7 @@ function OnWindowIconClick(id)
     }
 
     -- Check to see if the path to the editor exists
-    if(PathExists(editorPath)) then
+    if(OldPathExists(editorPath)) then
 
       -- Load the tool
       LoadGame(editorPath, metaData)
@@ -1788,6 +1808,12 @@ function DrawWindow(files, startID, total)
       button.iconType = item.type
       button.iconPath = item.path
 
+      button.onEndDrag = function(btn)
+
+        OnEndDrag(btn, MousePosition())
+
+      end
+
 
       -- TODO need to disable some icons from dragging here
 
@@ -1812,6 +1838,93 @@ function DrawWindow(files, startID, total)
 
   end
 
+
+end
+
+
+-- This method takes a source icon and the mouse position then looks for any icons it was released over
+function OnEndDrag(src, mousePos)
+
+  print("OnEndDrag", src.iconName, "at", mousePos.x, mousePos.y)
+
+  local target = nil
+
+  -- Look at desktop icons
+  for i = 1, #desktopIconButtons.buttons do
+    local btn = desktopIconButtons.buttons[i]
+
+    local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
+
+    print("testing", btn.name, collision)
+
+    if(collision == true) then
+      target = btn
+      break
+    end
+
+
+  end
+
+  -- Look at Window icons
+  for i = 1, #windowIconButtons.buttons do
+    local btn = windowIconButtons.buttons[i]
+
+    local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
+
+    print("testing", btn.iconName, btn.iconType, collision)
+
+    if(collision == true) then
+      target = btn
+      break
+    end
+
+
+  end
+
+  if(target ~= nil) then
+
+    local srcPath = NewWorkspacePath(src.iconPath)
+
+    if(target.iconType == "folder" or target.iconType == "disk" or target.iconType == "trash" or target.iconType == "workspace") then
+
+
+
+      local destPath = NewWorkspacePath(target.iconPath)
+
+      destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
+
+      if(PathExists(destPath) == false) then
+        print("Move", srcPath.Path, "to", destPath)
+
+        MoveTo(srcPath, destPath)
+
+        -- Refresh the window to show the new folder
+        RefreshWindow()
+      end
+
+    end
+
+    if(target.iconType == "updirectory") then
+
+      local destPath = NewWorkspacePath(currentDirectory).ParentPath
+
+      destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
+
+      if(PathExists(destPath) == false) then
+        print("Move", srcPath.Path, "to", destPath)
+
+        MoveTo(srcPath, destPath)
+
+        -- Refresh the window to show the new folder
+        RefreshWindow()
+      end
+
+
+    end
+
+    -- print("Drag", src.iconName, src.iconType, "to", target.iconName, target.iconType)
+
+  end
 
 end
 

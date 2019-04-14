@@ -37,6 +37,8 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
   data.productName = product or SystemName()
   data.title = title or "Untitled"
 
+  data.debugTime = ReadBiosData("DebugTime") == "True"
+
   data.productDrawArgs = {
     data.productName,
     20,
@@ -442,7 +444,7 @@ function PixelVisionOS:UpdateTitleBar(data, timeDelta)
 
   if(data.time > data.timeDelay) then
 
-    local newTimeStamp = ReadBiosData("DebugTime") == "True" and "08:00AM" or string.upper(os.date("%I:%M%p"))
+    local newTimeStamp = data.debugTime == true and "08:00AM" or string.upper(os.date("%I:%M%p"))
 
     if(newTimeStamp ~= data.lastTimeStamp) then
 

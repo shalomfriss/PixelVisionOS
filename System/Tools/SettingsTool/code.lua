@@ -322,10 +322,12 @@ function Init()
 
   usedShortcutKeys = {}
 
+  print("Test", ReadMetaData("Sharpness"))
+
   for i = 1, #shortcutFields do
     local field = shortcutFields[i]
     field.type = field.toolTip
-
+    print("Type", field.type .. "Key", ReadMetaData(field.type .. "Key"))
     local keyValue = ConvertKeyCodeToChar(tonumber(ReadMetaData(field.type .. "Key")))
 
     editorUI:ChangeInputField(field, keyValue)
@@ -423,6 +425,18 @@ function Init()
   editorUI:SelectToggleButton(playerButtonGroupData, 1)
 
   -- RebuildUsedKeys()
+
+end
+
+function RemapKey(keyName, keyCode)
+
+  -- Make sure that the key code is valid
+  if (keyCode == -1) then
+    return
+  end
+
+  -- Save the new mapped key to the bios
+  WriteBiosData(keyName, tostring(keyCode));
 
 end
 

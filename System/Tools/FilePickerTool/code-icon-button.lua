@@ -546,7 +546,7 @@ function EditorUI:UpdateIconGroup(data)
 
       if(self.collisionManager.mouseDown == false) then
         btn.dragging = false
-        -- print("Release dragging icon")
+        print("Release dragging icon")
 
         if(btn.onEndDrag ~= nil) then
           -- print("On End Drag")

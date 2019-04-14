@@ -142,7 +142,7 @@ end
 
 function PixelVisionOS:ValidateGameInDir(path, requiredFiles)
 
-  if (PathExists(path) == false) then
+  if (OldPathExists(path) == false) then
     return false
   end
 
@@ -156,7 +156,7 @@ function PixelVisionOS:ValidateGameInDir(path, requiredFiles)
   local total = #requiredFiles
 
   for i = 1, total do
-    if(PathExists(path .. requiredFiles[i]) == true) then
+    if(OldPathExists(path .. requiredFiles[i]) == true) then
       flag = flag + 1
     end
   end
