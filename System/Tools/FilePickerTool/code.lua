@@ -536,7 +536,7 @@ function OnEmptyTrash()
 
   -- Loop through all the files in the root of the trash and delete them
   for i = 1, #files do
-    DeleteFile(files[i].path, true)
+    DeleteFile(NewWorkspacePath(files[i].path), true)
   end
 
   -- Need to rebuild the desktop to change the trash icon
@@ -617,23 +617,27 @@ function GetPathToFile(parent, file)
     tmpPath = tmpPath .. "/"
   end
 
-  return tmpPath
+  return NewWorkspacePath(tmpPath)
 
 end
 
 function OnPaste(dest)
 
+  -- Get the destination directory
   dest = dest or currentDirectory
 
+  -- If there are no files to copy, exit out of this function
   if(filesToCopy == nil) then
     return
   end
 
+  -- Look for the total files to copy
   local total = #filesToCopy
 
-  -- Loop through all of the files to make sure there aren't any conflicts
-  local conflicts = {}
+  -- Set up a table to story any conflicting files
+  local conflicts = false
 
+  -- Loop through all of the files to see if there are conflicts at the destination
   for i = 1, total do
 
     local file = filesToCopy[i]
@@ -641,13 +645,17 @@ function OnPaste(dest)
     local tmpPath = GetPathToFile(dest, file)
 
     -- Make sure file doesn't exist and the src path doesn't match the dest path
-    if(OldPathExists(tmpPath) and tmpPath ~= file.path) then
-      table.insert(conflicts, tmpPath)
+    if(PathExists(tmpPath) and tmpPath.Path ~= file.path) then
+      -- Set the conflict flag
+      conflicts = true
+      -- exit out of the loop
+      break
     end
 
   end
 
-  if(#conflicts > 0) then
+  -- Check to see if there was a conflict
+  if(conflicts) then
 
     pixelVisionOS:ShowMessageModal(
       "Paste Files",
@@ -659,10 +667,7 @@ function OnPaste(dest)
         -- Only perform the copy if the user selects OK from the modal
         if(pixelVisionOS.messageModal.selectionValue) then
 
-          for i = 1, #conflicts do
-            DeleteFile(conflicts[i], false)
-          end
-
+          -- Trigger the file copy
           TriggerFileCopy(dest)
 
         end
@@ -672,6 +677,7 @@ function OnPaste(dest)
 
   else
 
+    -- Trigger the file copy
     TriggerFileCopy(dest)
 
   end
@@ -682,18 +688,21 @@ function TriggerFileCopy(dest)
 
   -- This function assumes all the copy action has been checked and can be performed
 
+  -- Loop through all the files to copy
   for i = 1, #filesToCopy do
 
+    -- Get the next file
     local file = filesToCopy[i]
 
-    CopyFile(file.path, GetPathToFile(dest, file))
+    -- Copy the file to the new location, if a file with the same name exists it will be overwritten
+    CopyTo(NewWorkspacePath(file.path), GetPathToFile(dest, file))
 
   end
 
+  -- Clear the files to copy variable
   filesToCopy = nil
 
-  -- TODO Clear window selection?
-
+  -- Refresh the window
   RefreshWindow()
 
 end
@@ -777,6 +786,26 @@ function RebuildDesktopIcons()
   -- TODO clear desktop with background color
   DrawRect(216, 16, 39, 216, BackgroundColor(), DrawMode.TilemapCache)
 
+  -- Place holder for the old selction
+  local oldOpen = -1
+
+  -- See if there are any desktop buttons
+  if(desktopIconButtons ~= nil) then
+
+    -- Find the total buttons
+    local total = #desktopIconButtons.buttons
+
+    -- Loop through all of the desktop buttons
+    for i = 1, total do
+
+      -- See if any of the desktop buttons are open before redrawing them
+      if(desktopIconButtons.buttons[i].open) then
+        oldOpen = i
+      end
+    end
+
+  end
+
   -- Build Desktop Icons
   desktopIcons = {}
 
@@ -833,36 +862,15 @@ function RebuildDesktopIcons()
 
     end
 
-    -- button.onDropTarget = function(source, dest)
-    --
-    --
-    --   print("On Drop")
-    --
-    --   -- TODO need to check if inside the window to copy
-    --   -- TODO need to check if inside of another folder in window
-    --   -- TODO need to check if inside another disk
-    --   -- TODO warn before copying
-    --
-    -- end
-
-
     startY = startY + 32 + 8
 
-    -- button.redrawBackground = true
-    -- table.insert(desktopItems, button)
+  end
 
-    -- button.onAction = function(doubleClick)
-    --
-    --   if(doubleClick == true) then
-    --     OpenWindow(item.path)
-    --     button.selected = true
-    --     editorUI:Invalidate(button)
-    --
-    --     activeButton = button
-    --   end
-    --
-    -- end
+  -- See if the trash exists
+  local trashWorkspacePath = NewWorkspacePath(trashPath)
 
+  if(PathExists(trashWorkspacePath) == false) then
+    CreateDirectory(trashWorkspacePath)
   end
 
   local trashFiles = GetDirectoryContents(trashPath)
@@ -888,24 +896,10 @@ function RebuildDesktopIcons()
   -- Lock the trash from Dragging
   trashButton.dragDelay = -1
 
-  -- trashButton.onDropTarget = function(source, dest)
-  --
-  --
-  --   if(source.iconType == "disk") then
-  --
-  --     print("Eject disk", source.iconName)
-  --
-  --     OnEjectDisk(source.iconName)
-  --
-  --   else
-  --
-  --     OnDeleteFile(source.iconPath)
-  --
-  --     print("Delete file")
-  --   end
-
-  -- end
-  -- end
+  -- Restore old open value
+  if(oldOpen > - 1) then
+    editorUI:OpenIconButton(desktopIconButtons.buttons[oldOpen])
+  end
 
 end
 
@@ -1072,7 +1066,7 @@ function OnDeleteFile(path)
         if(currentDirectory:sub(1, #trashPath) ~= trashPath) then
 
           -- Delete the file
-          DeleteFile(path)
+          DeleteFile(NewWorkspacePath(path))
 
           -- TODO should only do this if the trash is empty
           -- Rebuild the desktop if we need to change the trash icon
@@ -1093,6 +1087,27 @@ function OnDeleteFile(path)
       end
     end
   )
+
+end
+
+-- Helper utility to delete files by moving them to the trash
+function DeleteFile(path)
+
+  -- Create the base trash path for the file
+  local newPath = NewWorkspacePath(trashPath)
+
+  -- See if this is a directory or a file and add the entity name
+  if(path.IsDirectory) then
+    newPath = newPath.AppendDirectory(path.EntityName)
+  else
+    newPath = newPath.AppendFile(path.EntityName)
+  end
+
+  -- Make sure the path is unique
+  newPath = UniqueFilePath(newPath)
+
+  -- Move to the new trash path
+  MoveTo(path, newPath)
 
 end
 
