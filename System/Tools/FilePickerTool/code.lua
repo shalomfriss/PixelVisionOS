@@ -1189,7 +1189,7 @@ function OpenWindow(path, scrollTo, selection)
 
   end
 
-  local parentDirectory = ParentDirectory(path)
+  local parentDirectory = NewWorkspacePath(path).ParentPath.Path
 
 
   -- Check to see if this is a root directory
