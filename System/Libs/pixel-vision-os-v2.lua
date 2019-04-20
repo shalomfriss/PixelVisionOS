@@ -240,7 +240,7 @@ function PixelVisionOS:FindEditors()
                 --       else
                 --         editors[key] = folder.Path;
                 --
-                print("Editor Found ", key, " ", folder.Path);
+                -- print("Editor Found ", key, " ", folder.Path);
               end
             end
           end

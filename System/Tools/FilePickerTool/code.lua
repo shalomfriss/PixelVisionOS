@@ -80,10 +80,14 @@ local extToTypeMap =
 }
 
 local rootPath = ReadMetaData("RootPath", "/")
+local gameName = ReadMetaData("GameName", "FilePickerTool")
 
 local windowScrollHistory = {}
 
 local newFileModal = nil
+
+local fileTemplatePath = NewWorkspacePath(rootPath .. gameName .. "/FileTemplates/")
+
 
 -- local editors = {
 --   colors = {name = "ColorEditor", path = rootPath .."ColorTool/"},
@@ -405,15 +409,17 @@ function DrawWallpaper()
 end
 
 
+
 function OnNewFile(fileName, ext, type, editable)
 
   if(type == nil) then
     type = ext
   end
-  --
-  -- if(newFileModal == nil) then
-  --
-  -- end
+
+  -- if(PathExists(fileTemplatePath)) then
+
+  -- if(fileTemplatePath.AppendFile(fileName .. "." .. ext)) then
+  print("Found file templates", fileName, ext)
 
   newFileModal:SetText("New ".. type, fileName, "Name " .. type .. " file", editable == nil and true or false)
 
@@ -424,13 +430,49 @@ function OnNewFile(fileName, ext, type, editable)
         return
       end
 
-      local filePath = currentDirectory .. newFileModal.inputField.text .. "." .. ext
+      local filePath = UniqueFilePath(NewWorkspacePath(currentDirectory .. newFileModal.inputField.text .. "." .. ext))
 
-      NewFile(filePath)
+      local tmpPath = fileTemplatePath.AppendFile(filePath.EntityName)
+
+      -- Check for lua files first since we always want to make them empty
+      if(ext == "lua") then
+        SaveText(filePath, "-- Empty code file")
+
+        -- Check for any files in the template folder we can copy over
+      elseif(PathExists(tmpPath)) then
+
+        CopyTo(tmpPath, filePath)
+        -- print("Copy from template", tmpPath.Path)
+
+        -- Create an empty text file
+      elseif( ext == "txt") then
+        SaveText(filePath, "")
+
+        -- Create an empty json file
+      elseif(ext == "json") then
+        SaveText(filePath, "{}")
+      else
+        -- TODO need to display an error message that the file couldn't be created
+        return
+      end
+
+      -- NewFile(filePath)
       RefreshWindow()
 
     end
   )
+  -- end
+
+  -- else
+  --   print("No template path", fileTemplatePath.Path)
+  -- end
+
+  --
+  -- if(newFileModal == nil) then
+  --
+  -- end
+
+
 
 
 end
@@ -538,21 +580,30 @@ end
 
 function OnEmptyTrash()
 
-  -- Get all the files in the trash
-  local files = GetDirectoryContents(trashPath)
+  pixelVisionOS:ShowMessageModal("Empty Trash", "Are you sure you want to empty the trash? This can not be undone.", 160, true,
+    function()
+      if(pixelVisionOS.messageModal.selectionValue == true) then
 
-  -- Loop through all the files in the root of the trash and delete them
-  for i = 1, #files do
-    DeleteFile(NewWorkspacePath(files[i].path), true)
-  end
+        -- Get all the files in the trash
+        local files = GetEntities(NewWorkspacePath(trashPath))
 
-  -- Need to rebuild the desktop to change the trash icon
-  RebuildDesktopIcons()
+        -- Loop through all the files in the root of the trash and delete them
+        for i = 1, #files do
+          Delete(files[i])
+        end
 
-  -- If we are in the trash, redraw the window at the root of the trash
-  if(TrashOpen()) then
-    OpenWindow(trashPath)
-  end
+        -- Need to rebuild the desktop to change the trash icon
+        RebuildDesktopIcons()
+
+        -- If we are in the trash, redraw the window at the root of the trash
+        if(TrashOpen()) then
+          OpenWindow(trashPath)
+        end
+
+      end
+
+    end
+  )
 
 end
 
@@ -959,17 +1010,12 @@ end
 
 function OnNewGame()
 
-  -- TODO should see if this is defined in the bios
-  local defaultTemplate = ReadBiosData("DefaultTemplate") or "/Disks/PixelVisionOS/Templates/PV8System/"
-
-  -- print("defaultTemplate", defaultTemplate)
-
-  if(currentDirectory == "none" or OldPathExists(defaultTemplate) == false) then
+  if(PathExists(fileTemplatePath) == false) then
     pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false)
     return
   end
 
-  newFileModal:SetText("New Project", "NewProject", "Folder Name")
+  newFileModal:SetText("New Project", "NewProject", "Folder Name", true)
 
   pixelVisionOS:OpenModal(newFileModal,
     function()
@@ -981,30 +1027,13 @@ function OnNewGame()
       -- Create a new workspace path
       local newPath = NewWorkspacePath(currentDirectory .. newFileModal.inputField.text .. "/")
 
-      -- Make sure the path is unique
-      newPath = UniqueFilePath(newPath)
+      -- Copy the contents of the template path to the new unique path
+      CopyTo(fileTemplatePath, UniqueFilePath(newPath))
 
-      -- Make sure that the path exists
-      -- local success = NewFolder(newPath)
-
-      if(OldPathExists(newPath.Path) == true) then
-
-        local files = GetDirectoryContents(defaultTemplate)
-
-        for i = 1, #files do
-          CopyFile(files[i].path, newPath)
-        end
-
-        -- TODO need a way to select the new game and find its scroll option
-        OpenWindow(currentDirectory, scrollTo, selection)
-
-      else
-        pixelVisionOS:DisplayMessage("Failed to create a new game", 5)
-      end
+      RefreshWindow()
 
     end
   )
-
 
 end
 
@@ -2063,6 +2092,7 @@ function UpdateFileType(item, isGameFile)
   local key = item.type--item.isDirectory and item.type or item.ext
 
   -- Look for installer script
+  print(item.name, item.type)
 
   -- Only convert file types when we are in a game directory
   if(isGameFile == true) then
@@ -2072,23 +2102,32 @@ function UpdateFileType(item, isGameFile)
     -- TODO support legacy files
     if(key == "png") then
 
-      if(item.name == "sprites") then
+      if(item.name == "sprites" and editorMapping["sprites"] ~= nil) then
         key = "sprites"
         -- elseif(item.name == "tilemap") then
         --   key = "tilemap"
-      elseif(item.name == "colors") then
+      elseif(item.name == "colors" and editorMapping["colors"] ~= nil) then
         key = "colors"
+        -- elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
+        --   key = "tilemap"
+      end
+    elseif(key == "font.png") then
+
+      if(editorMapping["font"] == nil) then
+        key = "png"
+      else
+        key = "font"
       end
 
     elseif(key == "json") then
 
-      if(item.name == "sounds")then
+      if(item.name == "sounds" and editorMapping["sounds"] ~= nil)then
         key = "sounds"
-      elseif(item.name == "tilemap") then
+      elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
         key = "tilemap"
-      elseif(item.name == "music") then
+      elseif(item.name == "music" and editorMapping["music"] ~= nil) then
         key = "music"
-      elseif(item.name == "data") then
+      elseif(item.name == "data" and editorMapping["data"] ~= nil) then
         key = "system"
       elseif(item.name == "info") then
         key = "info"
@@ -2096,22 +2135,6 @@ function UpdateFileType(item, isGameFile)
 
     end
 
-    -- Specific mapping
-    if(key == "font.png") then
-
-      key = "font"
-
-      --print("Found font")
-
-    elseif(key == "sprite.png" or key == "sprites.json") then
-
-      key = "sprite"
-
-    elseif(key == "tilemap.png" or key == "tilemap.json") then
-
-      key = "tilemap"
-
-    end
 
   end
 

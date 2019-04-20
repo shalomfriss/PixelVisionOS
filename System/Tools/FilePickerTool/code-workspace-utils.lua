@@ -1,19 +1,5 @@
 -- private readonly List<string> ignoreFiles = new List<string>();
 
-local supportedExportFiles = 
-{
-  "sprites.png",
-  "tilemap.png",
-  "tilemap.json",
-  "info.json",
-  "data.json",
-  "colors.png",
-  "color-map.png",
-  "music.json",
-  "sounds.json",
-  "saves.json"
-}
-
 local validFiles = 
 {
   ".png",
