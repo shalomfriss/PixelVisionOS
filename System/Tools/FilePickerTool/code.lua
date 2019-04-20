@@ -129,7 +129,7 @@ local desktopIcons = {
 NewFolderShortcut, EditShortcut, RenameShortcut, CopyShortcut, PasteShortcut, DeleteShortcut, RunShortcut, BuildShortcut, EmptyTrashShortcut, EjectDiskShortcut = "New Folder", "Edit", "Rename", "Copy", "Paste", "Delete", "Run", "Build", "Empty Trash", "Eject Disk"
 
 -- Get all of the available editors
-local editorMapping = FindEditors()
+local editorMapping = {}
 
 -- local messageModal = nil
 -- TODO need menu constants to make updating them easier if things change later on
@@ -155,6 +155,9 @@ function Init()
 
   newFileModal = NewFileModal:Init(editorUI)
   newFileModal.editorUI = editorUI
+
+  -- Find all the editors
+  editorMapping = pixelVisionOS:FindEditors()
 
   -- Create modals
   -- messageModal = MessageModal:Init("Warning Modal", "This is a warning message which should show a lot of text in a small window on top of the main UI.", 100)
@@ -449,7 +452,7 @@ function OnTriggerRename(callback)
 
   local file = CurrentlySelectedFile()
 
-  newFileModal:SetText("Rename File", file.name, "Name " .. file.type)
+  newFileModal:SetText("Rename File", file.name, "Name " .. file.type, true)
 
   pixelVisionOS:OpenModal(newFileModal,
     function()
@@ -495,14 +498,17 @@ function OnRenameFile(text)
       end
 
       -- Add the new ext to the file
-      text = text .. "." .. tmpExt
+      text = text .. tmpExt
 
     end
 
+    -- print("Rename", )
+
+    MoveTo(NewWorkspacePath(file.path), NewWorkspacePath(file.parentPath .. text))
     -- Rename the file by moving it and giving it a new name
-    if(MoveFile(file.path, file.parentPath .. text)) then
-      RefreshWindow()
-    end
+    -- if(MoveFile(file.path, file.parentPath .. text)) then
+    RefreshWindow()
+    -- end
 
   end
 
@@ -553,7 +559,7 @@ end
 function OnRun()
 
   -- Only try to run if the directory is a game
-  if(currentDirectory == nil or currentDirectory == "none" or pixelVisionOS:ValidateGameInDir(currentDirectory) == false) then
+  if(currentDirectory == nil or currentDirectory == "none" or pixelVisionOS:ValidateGameInDir(NewWorkspacePath(currentDirectory)) == false) then
     return
   end
 
@@ -821,7 +827,7 @@ function RebuildDesktopIcons()
     })
   end
 
-  local disks = DisksPaths()
+  local disks = DiskPaths()
 
   for k, v in pairs(disks) do
     -- print(k, v)
@@ -1172,7 +1178,7 @@ function OpenWindow(path, scrollTo, selection)
   if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
 
     -- Check to see if this is a game directory
-    if(pixelVisionOS:ValidateGameInDir(path, {"code.lua"}) and TrashOpen() == false) then
+    if(pixelVisionOS:ValidateGameInDir(NewWorkspacePath(path), {"code.lua"}) and TrashOpen() == false) then
 
       table.insert(
         files,
@@ -1254,7 +1260,7 @@ function UpdateContextMenu(inFocus)
 
   if(inFocus == WindowFocus) then
 
-    local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory) and not TrashOpen()
+    local canRun = pixelVisionOS:ValidateGameInDir(NewWorkspacePath(currentDirectory)) and not TrashOpen()
 
     if(runnerName == DrawVersion or runnerName == TuneVersion) then
       canRun = false
@@ -1344,7 +1350,7 @@ function UpdateContextMenu(inFocus)
     local specialFile = currentSelection.name == ".." or currentSelection.name == "Run"
 
     -- Check to see if currentDirectory is a game
-    local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory) and not TrashOpen()
+    local canRun = pixelVisionOS:ValidateGameInDir(NewWorkspacePath(currentDirectory)) and not TrashOpen()
 
     if(runnerName == DrawVersion or runnerName == TuneVersion) then
       canRun = false
@@ -1786,7 +1792,7 @@ function DrawWindow(files, startID, total)
   local height = 40
   local bgColor = 11
 
-  local isGameDir = pixelVisionOS:ValidateGameInDir(currentDirectory)
+  local isGameDir = pixelVisionOS:ValidateGameInDir(NewWorkspacePath(currentDirectory)) and currentDirectory ~= trashPath
 
   local dirSplit = string.split(currentDirectory, "/")
 

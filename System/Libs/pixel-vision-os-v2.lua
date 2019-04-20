@@ -140,23 +140,145 @@ function PixelVisionOS:ShowMessageModal(title, message, width, showCancel, onClo
 
 end
 
-function PixelVisionOS:ValidateGameInDir(path, requiredFiles)
+-- function PixelVisionOS:ValidateGameInDir(path, requiredFiles)
+--
+--   if (OldPathExists(path) == false) then
+--     return false
+--   end
+--
+--   requiredFiles = requiredFiles or {}
+--
+--   -- Make sure a data file is part of the list
+--   table.insert(requiredFiles, "data.json")
+--
+--   local flag = 0
+--
+--   local total = #requiredFiles
+--
+--   for i = 1, total do
+--     if(OldPathExists(path .. requiredFiles[i]) == true) then
+--       flag = flag + 1
+--     end
+--   end
+--
+--   return flag == total
+--
+-- end
 
-  if (OldPathExists(path) == false) then
+function PixelVisionOS:FindEditors()
+
+  local editors = {}--new Dictionary<string, string>();
+
+
+
+  local paths = 
+  {
+    NewWorkspacePath("/PixelVisionOS/System/Tools/")
+
+  }
+
+  -- Add disk paths
+  local disks = DiskPaths();
+
+  for k, v in pairs(disks) do
+    local diskPath = NewWorkspacePath(v).AppendDirectory("System").AppendDirectory("Tools")
+
+    table.insert(paths, diskPath)
+
+  end
+
+  local total = #paths--.Count;
+
+  for i = 1, total do
+
+    local path = paths[i];
+
+    -- try
+    -- {
+    if (PathExists(path)) then
+      -- {
+      -- print("Look for editors in", path.Path)
+      --    /  / Console.WriteLine("Look for editors in " + path);
+      --
+      local folders = GetEntities(path);
+      --
+      for i = 1, #folders do
+        -- body...
+        local folder = folders[i]
+        --   foreach (var folder in folders)
+        if (folder.IsDirectory) then
+
+          if (self:ValidateGameInDir(folder)) then
+            --   {
+            --      /  / Console.WriteLine("Reading from game folder " + folder);
+            --
+            --
+            local jsonData = ReadJson(folder.AppendFile("info.json"))
+
+            -- print("Reading game from", jsonData["editType"])
+
+            --      /  / var metaData = workspace.ReadGameMetaData(folder.AppendFile("info.json"));
+            --
+            --     var data = workspace.ReadTextFromFile(folder.AppendFile("info.json")); /  / ReadTextFromFile(filePath);
+            --
+            --      /  / parse the json data into a dictionary the engine can use
+            --     var jsonData = Json.Deserialize(data) as Dictionary < string, object > ;
+            --
+            if (jsonData["editType"] ~= nil) then
+              --     {
+              local split = string.split(jsonData["editType"], ",")
+              --
+              local totalTypes = #split
+              for j = 1, totalTypes do
+                -- body...
+
+
+                local key = split[j];
+                --
+                -- if (!editors.ContainsKey(key))
+                editors[key] = folder.Path
+                --       else
+                --         editors[key] = folder.Path;
+                --
+                print("Editor Found ", key, " ", folder.Path);
+              end
+            end
+          end
+        end
+      end
+    end
+    -- catch
+    -- {
+    --    /  / runner.DisplayWarning("Couldn't find editor path " + path);
+    -- }
+    -- }
+
+  end
+  -- return editors;
+
+  return editors
+
+end
+
+function PixelVisionOS:ValidateGameInDir(workspacePath, requiredFiles)
+
+  if (PathExists(workspacePath) == false) then
     return false
   end
 
-  requiredFiles = requiredFiles or {}
+  requiredFiles = requiredFiles or {"data.json", "info.json"}
 
-  -- Make sure a data file is part of the list
-  table.insert(requiredFiles, "data.json")
+  -- if(table.indexOf(requiredFiles, "data.json") == -1) then
+  --   -- Make sure a data file is part of the list
+  --   table.insert(requiredFiles, "data.json")
+  -- end
 
   local flag = 0
 
   local total = #requiredFiles
 
   for i = 1, total do
-    if(OldPathExists(path .. requiredFiles[i]) == true) then
+    if(PathExists(workspacePath.AppendFile(requiredFiles[i])) == true) then
       flag = flag + 1
     end
   end

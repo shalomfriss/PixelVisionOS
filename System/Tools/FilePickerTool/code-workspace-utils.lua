@@ -72,7 +72,7 @@ function GetDirectoryContents(path)
 
       else
 
-        tmpFile.ext = string.sub(tmpEntity.GetExtension(), 1)
+        tmpFile.ext = tmpEntity.GetExtension()
 
         if(table.indexOf(validFiles, tmpFile.ext) > - 1) then
 
