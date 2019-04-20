@@ -15,6 +15,7 @@ LoadScript("sb-sprites")
 LoadScript("pixel-vision-os-v2")
 LoadScript("code-icon-button")
 LoadScript("code-new-file-modal")
+LoadScript("code-workspace-utils")
 
 
 local toolName = "Workspace Explorer"
