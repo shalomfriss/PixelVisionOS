@@ -25,6 +25,7 @@ local rootDirectory = nil
 local showLines = false
 local lineWidth = 0
 local totalLines = 0
+local codeMode = false
 
 function Init()
 
@@ -44,6 +45,15 @@ function Init()
   -- Get the target file
   targetFile = ReadMetaData("file", nil)
 
+  targetFilePath = NewWorkspacePath(targetFile)
+
+  codeMode = targetFilePath.GetExtension() == ".lua"
+  -- if() then
+  --
+  --   print("Code Mode")
+  --
+  -- end
+
   -- targetFile = "/Workspace/Games/GGSystem/code.lua"
 
   if(targetFile ~= nil) then
@@ -60,15 +70,28 @@ function Init()
       {divider = true},
       {name = "New", action = OnNewSound, enabled = false, key = Keys.N, toolTip = "Create a new text file."}, -- Reset all the values
       {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the text file."}, -- Reset all the values
-      {name = "Revert", action = nil, enabled = false, key = Keys.R, toolTip = "Revert the text file to its previous state."}, -- Reset all the values
+      {name = "Revert", action = nil, enabled = false, toolTip = "Revert the text file to its previous state."}, -- Reset all the values
       {divider = true},
       {name = "Cut", action = OnCopyColor, enabled = false, key = Keys.X, toolTip = "Cut the currently selected text."}, -- Reset all the values
       {name = "Copy", action = OnCopyColor, enabled = false, key = Keys.C, toolTip = "Copy the currently selected text."}, -- Reset all the values
       {name = "Paste", action = OnPasteColor, enabled = false, key = Keys.V, toolTip = "Paste the last copied text."}, -- Reset all the values
-      {name = "Toggle Lines", action = ToggleLineNumbers, key = Keys.L, toolTip = "Toggle the line numbers for the editor."}, -- Reset all the values
-      {divider = true},
-      {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
+
     }
+
+    if(codeMode == true) then
+
+      table.insert(menuOptions, {divider = true})
+      table.insert(menuOptions, {name = "Toggle Lines", action = ToggleLineNumbers, key = Keys.L, toolTip = "Toggle the line numbers for the editor."})
+
+      -- TODO need to test if you are in a game directory?
+
+      table.insert(menuOptions, {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."})
+
+    end
+
+    -- Add the last part of the menu options
+    table.insert(menuOptions, {divider = true})
+    table.insert(menuOptions, {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}) -- Quit the current game
 
     pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
@@ -117,6 +140,15 @@ function Init()
       end
     )
   end
+
+end
+
+function OnRunGame()
+
+  local parentPath = targetFilePath.ParentPath
+
+  -- TODO should check that this is a game directory or that this file is at least a code.lua file
+  LoadGame(parentPath.Path)
 
 end
 

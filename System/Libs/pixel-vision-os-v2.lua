@@ -174,7 +174,6 @@ function PixelVisionOS:FindEditors()
   local paths = 
   {
     NewWorkspacePath("/PixelVisionOS/System/Tools/")
-
   }
 
   -- Add disk paths

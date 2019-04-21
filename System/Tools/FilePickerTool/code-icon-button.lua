@@ -487,6 +487,11 @@ function EditorUI:IconGroupAddButton(data, buttonData, id)
     -- Clear
     buttonData.dragging = false
 
+    -- End the drag
+    if(data.onEndDrag ~= nil) then
+      data.onEndDrag(data)
+    end
+
   end
 
   buttonData.onTrigger = function()
@@ -542,61 +547,61 @@ function EditorUI:UpdateIconGroup(data)
     btn = data.buttons[i]
 
 
-    if(btn.dragging == true and btn.dragDelay > 0 and self.collisionManager.dragTime > btn.dragDelay) then
+    if(btn.dragging == true) then
 
-      if(self.collisionManager.mouseDown == false) then
-        btn.dragging = false
-        print("Release dragging icon")
+      -- if(self.collisionManager.mouseDown == false) then
+      --   btn.dragging = false
+      --   print("Release dragging icon")
+      --
+      --   if(btn.onEndDrag ~= nil) then
+      --     -- print("On End Drag")
+      --     btn.onEndDrag(btn)
+      --   end
+      --
+      -- else
 
-        if(btn.onEndDrag ~= nil) then
-          -- print("On End Drag")
-          btn.onEndDrag(btn)
+      -- TODO need to only select the amount of pixel data we need to avoid wrapping
+
+      if(self.collisionManager.mousePos.x > - 1 and self.collisionManager.mousePos.y > - 1) then
+        local clipSize = {x = 0, y = 0, w = 48, h = 40}
+
+        -- Calculate mask
+        local displaySize = Display()
+
+        displaySize.x = displaySize.x - 1
+        -- TODO think this is a bug in the display size, it shouldn't need to subtract 9, just 1 like the width
+        displaySize.y = displaySize.y - 9
+        -- displaySize.width = displaySize.width - 1
+        -- displaySize.y = displaySize.y - 9
+
+        if((self.collisionManager.mousePos.x + (clipSize.w / 2)) > displaySize.x) then
+          clipSize.w = clipSize.w - ((self.collisionManager.mousePos.x + (clipSize.w / 2)) - displaySize.x)
+        elseif((self.collisionManager.mousePos.x - (clipSize.w / 2)) < 1) then
+          clipSize.w = 0 -- TODO need to figure out what to crop
         end
 
-      else
-
-        -- TODO need to only select the amount of pixel data we need to avoid wrapping
-
-        if(self.collisionManager.mousePos.x > - 1 and self.collisionManager.mousePos.y > - 1) then
-          local clipSize = {x = 0, y = 0, w = 48, h = 40}
-
-          -- Calculate mask
-          local displaySize = Display()
-
-          displaySize.x = displaySize.x - 1
-          -- TODO think this is a bug in the display size, it shouldn't need to subtract 9, just 1 like the width
-          displaySize.y = displaySize.y - 9
-          -- displaySize.width = displaySize.width - 1
-          -- displaySize.y = displaySize.y - 9
-
-          if((self.collisionManager.mousePos.x + (clipSize.w / 2)) > displaySize.x) then
-            clipSize.w = clipSize.w - ((self.collisionManager.mousePos.x + (clipSize.w / 2)) - displaySize.x)
-          elseif((self.collisionManager.mousePos.x - (clipSize.w / 2)) < 1) then
-            clipSize.w = 0 -- TODO need to figure out what to crop
-          end
-
-          if((self.collisionManager.mousePos.y + (clipSize.h / 2)) > displaySize.y) then
-            clipSize.h = clipSize.h - ((self.collisionManager.mousePos.y + (clipSize.h / 2)) - displaySize.y)
-          elseif((self.collisionManager.mousePos.y - (clipSize.h / 2)) < 0) then
-            clipSize.h = 0
-          end
-
-          data.drawIconArgs[1] = btn.cachedPixelData["dragging"]:SamplePixels(clipSize.x, clipSize.y, clipSize.w, clipSize.h)
-          data.drawIconArgs[2] = self.collisionManager.mousePos.x - 24
-          data.drawIconArgs[3] = self.collisionManager.mousePos.y - 12
-          data.drawIconArgs[4] = clipSize.w
-          data.drawIconArgs[5] = clipSize.h
-
-          -- DrawPixels(btn.cachedPixelData["up"], 0,0)
-          self:NewDraw("DrawPixels", data.drawIconArgs)
+        if((self.collisionManager.mousePos.y + (clipSize.h / 2)) > displaySize.y) then
+          clipSize.h = clipSize.h - ((self.collisionManager.mousePos.y + (clipSize.h / 2)) - displaySize.y)
+        elseif((self.collisionManager.mousePos.y - (clipSize.h / 2)) < 0) then
+          clipSize.h = 0
         end
 
-        -- TODO need to see if we are over another icon button and temporarily select it
-        -- self:ClearIconGroupSelections(data)
-        -- -- Automatically select any button we are dragging
-        -- self:SelectIconButton(data, btn.id, false)
+        data.drawIconArgs[1] = btn.cachedPixelData["dragging"]:SamplePixels(clipSize.x, clipSize.y, clipSize.w, clipSize.h)
+        data.drawIconArgs[2] = self.collisionManager.mousePos.x - 24
+        data.drawIconArgs[3] = self.collisionManager.mousePos.y - 12
+        data.drawIconArgs[4] = clipSize.w
+        data.drawIconArgs[5] = clipSize.h
 
+        -- DrawPixels(btn.cachedPixelData["up"], 0,0)
+        self:NewDraw("DrawPixels", data.drawIconArgs)
       end
+
+      -- TODO need to see if we are over another icon button and temporarily select it
+      -- self:ClearIconGroupSelections(data)
+      -- -- Automatically select any button we are dragging
+      -- self:SelectIconButton(data, btn.id, false)
+
+      -- end
 
       -- print("Dragging", btn.name, btn.dragging)
 

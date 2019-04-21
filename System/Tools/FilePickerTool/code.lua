@@ -689,8 +689,16 @@ function OnPaste(dest)
     return
   end
 
+  OnFileAction(filesToCopy, dest, "copy")
+
+  -- Clear the files to copy variable
+  filesToCopy = nil
+end
+
+function OnFileAction(srcFiles, dest, action)
+
   -- Look for the total files to copy
-  local total = #filesToCopy
+  local total = #srcFiles
 
   -- Set up a table to story any conflicting files
   local conflicts = false
@@ -698,7 +706,7 @@ function OnPaste(dest)
   -- Loop through all of the files to see if there are conflicts at the destination
   for i = 1, total do
 
-    local file = filesToCopy[i]
+    local file = srcFiles[i]
 
     local tmpPath = GetPathToFile(dest, file)
 
@@ -726,7 +734,7 @@ function OnPaste(dest)
         if(pixelVisionOS.messageModal.selectionValue) then
 
           -- Trigger the file copy
-          TriggerFileCopy(dest)
+          TriggerFileAction(srcFiles, dest, action)
 
         end
 
@@ -736,29 +744,30 @@ function OnPaste(dest)
   else
 
     -- Trigger the file copy
-    TriggerFileCopy(dest)
+    TriggerFileAction(srcFiles, dest, action)
 
   end
 
 end
 
-function TriggerFileCopy(dest)
+function TriggerFileAction(srcFiles, dest)
 
   -- This function assumes all the copy action has been checked and can be performed
 
   -- Loop through all the files to copy
-  for i = 1, #filesToCopy do
+  for i = 1, #srcFiles do
 
     -- Get the next file
-    local file = filesToCopy[i]
+    local file = srcFiles[i]
 
     -- Copy the file to the new location, if a file with the same name exists it will be overwritten
-    CopyTo(NewWorkspacePath(file.path), GetPathToFile(dest, file))
+    if(action == "copy") then
+      CopyTo(NewWorkspacePath(file.path), GetPathToFile(dest, file))
+    elseif(action == "move") then
+      MoveTo(NewWorkspacePath(file.path), GetPathToFile(dest, file))
+    end
 
   end
-
-  -- Clear the files to copy variable
-  filesToCopy = nil
 
   -- Refresh the window
   RefreshWindow()
@@ -871,7 +880,7 @@ function RebuildDesktopIcons()
     table.insert(desktopIcons, {
       name = "Workspace",
       sprite = "filedrive",
-      tooltip = "This is the main drive",
+      tooltip = "This is the 'Workspace' drive",
       path = "/Workspace/",
       type = "workspace",
       dragDelay = -1
@@ -886,7 +895,8 @@ function RebuildDesktopIcons()
     table.insert(desktopIcons, {
       name = k,
       sprite = "diskempty",
-      tooltip = "This is a disk.",
+      tooltip = "Double click to open the '".. k .. "' disk.",
+      tooltipDrag = "You are dragging the '".. k .. "' disk.",
       path = v,
       type = "disk"
     })
@@ -914,9 +924,19 @@ function RebuildDesktopIcons()
       button.dragDelay = item.dragDelay
     end
 
-    button.onEndDrag = function(btn)
+    button.toolTipDragging = item.tooltipDrag
 
-      OnEndDrag(btn)
+    button.onDropTarget = function(src, dest)
+
+      -- TODO need to find the base path
+      local srcPath = NewWorkspacePath(src.iconPath)
+      local destPath = NewWorkspacePath(dest.iconPath)
+
+      if(srcPath.IsChildOf(destPath)) then
+        print("Move", srcPath, "to", destPath)
+      else
+        print("Copy", srcPath, "to", destPath)
+      end
 
     end
 
@@ -953,6 +973,20 @@ function RebuildDesktopIcons()
 
   -- Lock the trash from Dragging
   trashButton.dragDelay = -1
+
+  trashButton.onDropTarget = function(src, dest)
+
+    print("OnDropTarget", "Trash Icon", src.name, dest.name)
+    if(src.iconType == "disk") then
+
+      OnEjectDisk(src.iconName)
+
+    else
+      OnDeleteFile(src.iconPath)
+      -- print("Move To", src.iconPath, dest.iconPath)
+    end
+
+  end
 
   -- Restore old open value
   if(oldOpen > - 1) then
@@ -1065,7 +1099,7 @@ function OnNewFolder(name)
       local filePath = NewWorkspacePath(currentDirectory .. newFileModal.inputField.text .. "/")
 
       -- Make sure the path doesn't exist before trying to make a new directory
-      if(OldPathExists(filePath.Path) == false) then
+      if(PathExists(filePath) == false) then
 
         -- Create a new directory
         CreateDirectory(filePath)
@@ -1181,7 +1215,12 @@ function OpenWindow(path, scrollTo, selection)
   closeButton.hitRect = {x = closeButton.rect.x + 2, y = closeButton.rect.y + 2, w = 10, h = 10}
   closeButton.onAction = CloseWindow
 
-
+  -- Need to clear the previous button drop targets
+  if(windowIconButtons ~= nil) then
+    for i = 1, #windowIconButtons.buttons do
+      editorUI.collisionManager:RemoveDragTarget(windowIconButtons.buttons[i])
+    end
+  end
 
   -- Create a icon button group for all of the files
   windowIconButtons = editorUI:CreateIconGroup()
@@ -1259,7 +1298,7 @@ function OpenWindow(path, scrollTo, selection)
 
   -- Select file
 
-  editorUI:SelectIconButton(windowIconButtons, selection, false)
+  editorUI:SelectIconButton(windowIconButtons, selection, true)
 
   -- We need to use a global file system API so append disk to it
   -- Enable creating a new game only when not inside of another game
@@ -1273,7 +1312,7 @@ function OpenWindow(path, scrollTo, selection)
   -- Enable all the editor functions
 
 
-  UpdateContextMenu(WindowFocus)
+  -- UpdateContextMenu(selection == 0 and WindowFocus or WindowIconFocus)
 
   -- Update the window's title
 
@@ -1881,14 +1920,48 @@ function DrawWindow(files, startID, total)
       button.iconPath = item.path
 
       -- Disable the drag on files that don't exist in the directory
-      if(item.type == "run" or item.type == "updirectory" or item.type == "unknown") then
-        button.dragDelay = -1
-      else
-        button.onEndDrag = function(btn)
+      if(item.type == "updirectory" or item.type == "folder") then
 
-          OnEndDrag(btn)
+        -- updirectory and folder share the same code but we don't want to drag updirectory
+        if(item.type == "updirectory") then
+          button.dragDelay = -1
+        end
+
+        -- Add on drop target code to each folder type
+        button.onDropTarget = function(src, dest)
+
+          print("Folder action", src.iconType, dest.iconType)
+
+          -- if(dest.iconType == "folder") then
+          --   return
+          -- end
+
+          local srcPath = NewWorkspacePath(src.iconPath)
+          local destPath = NewWorkspacePath(dest.iconPath)
+
+          -- local srcSegments = srcPath.GetDirectorySegments()
+          -- local destSegments = srcPath.GetDirectorySegments()
+
+          -- if(dest.iconType == "updirectory") then
+          --   print("Dropped on updirectory")
+          --
+          --   destPath = srcPath.ParentPath.ParentPath
+          --
+          -- end
+
+          if(srcPath.IsChildOf(destPath) or srcPath.ParentPath == destPath.ParentPath) then
+            print("Move", srcPath, "to", destPath)
+          else
+            print("Copy", srcPath, "to", destPath)
+          end
 
         end
+
+      elseif(item.type == "run" or item.type == "unknown") then
+
+        editorUI.collisionManager:DisableDragging(button)
+        button.onDropTarget = nil
+
       end
 
 
@@ -1922,221 +1995,195 @@ end
 
 
 -- This method takes a source icon and the mouse position then looks for any icons it was released over
-function OnEndDrag(src)
-
-  print("OnEndDrag", src.iconName)
-
-  local target = nil
-
-  -- Look at desktop icons
-  for i = 1, #desktopIconButtons.buttons do
-    local btn = desktopIconButtons.buttons[i]
-
-    local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
-
-    if(collision == true) then
-      target = btn
-      break
-    end
-
-
-  end
-
-  if(target == null and windowIconButtons ~= null) then
-    -- Look at Window icons
-    for i = 1, #windowIconButtons.buttons do
-      local btn = windowIconButtons.buttons[i]
-
-      local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
-
-      if(collision == true) then
-        target = btn
-        break
-      end
-
-
-    end
-  end
-
-  if(target ~= nil) then
-
-    if(src.iconPath == target.iconPath) then
-      return
-    end
-
-    local srcPath = NewWorkspacePath(src.iconPath)
-
-    if(src.iconType == "disk" and target.iconType == "trash") then
-
-      OnEjectDisk(srcPath.EntityName)
-      return
-
-    elseif(target.iconType == "folder" or target.iconType == "disk" or target.iconType == "trash" or target.iconType == "workspace" or target.iconType == "updirectory") then
-
-      local destPath = NewWorkspacePath(target.iconPath)
-
-      if(target.iconType == "updirectory") then
-        destPath = NewWorkspacePath(currentDirectory).ParentPath
-      end
-
-      destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
-
-      if(target.iconType == "trash") then
-        destPath = UniqueFilePath(destPath)
-      end
-
-      print("dest path", destPath)
-
-      if(PathExists(destPath) == false) then
-
-        -- Need to see if we are copying from a disk or to a disk
-
-
-        local useCopy = false
-
-        if(string.starts(srcPath.path, "/Disks/") or string.starts(destPath.path, "/Disks/")) then
-
-          local srcSegments = srcPath.GetDirectorySegments()
-          local destSegments = destPath.GetDirectorySegments()
-
-          useCopy = srcSegments[2] ~= destSegments[2]
-
-          if(destSegments[2] == "Trash") then
-            useCopy = false
-          end
-
-        end
-
-        if(useCopy) then
-
-          pixelVisionOS:ShowMessageModal(
-            "Copy Disk",
-            "Do you want to copy disk '".. srcPath.EntityName .. "' to '".. destPath.ParentPath.path .."'?",
-            200,
-            true,
-            function()
-
-              -- Only perform the copy if the user selects OK from the modal
-              if(pixelVisionOS.messageModal.selectionValue) then
-                print("Copy", srcPath.Path, "to", destPath.Path)
-                CopyTo(srcPath, destPath)
-                -- Refresh the window to show the new folder
-                RefreshWindow()
-              end
-
-            end
-          )
-
-        else
-
-          print("Move", srcPath.Path, "to", destPath.Path)
-
-          MoveTo(srcPath, destPath)
-
-          RebuildDesktopIcons()
-          -- Refresh the window to show the new folder
-          RefreshWindow()
-
-        end
-
-      else
-        pixelVisionOS:ShowMessageModal(
-          "File Path Conflict",
-          "'" ..destPath.path .."' already exits so this action can not be performed.",
-          200,
-          false
-        )
-      end
-
-    end
-
-    --   if(target.iconType == "updirectory") then
-    --
-    --     local destPath = NewWorkspacePath(currentDirectory).ParentPath
-    --
-    --     destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
-    --
-    --     if(PathExists(destPath) == false) then
-    --
-    --       if(src.iconType == "disk") then
-    --         print("Can't copy disk to this location")
-    --       else
-    --
-    --         print("Move", srcPath.Path, "to", destPath.Path)
-    --
-    --         -- MoveTo(srcPath, destPath)
-    --
-    --       end
-    --       -- Refresh the window to show the new folder
-    --       RefreshWindow()
-    --     else
-    --       pixelVisionOS:ShowMessageModal(
-    --         "File Path Conflict",
-    --         "'" ..destPath.path .."' already exits so this action can not be performed.",
-    --         200,
-    --         false
-    --       )
-    --     end
-    --
-    --
-    --   end
-    --
-    --   -- print("Drag", src.iconName, src.iconType, "to", target.iconName, target.iconType)
-    --
-  end
-
-end
+-- function OnEndDrag(src)
+--
+--   if(true) then
+--
+--
+--     print("OnEndDrag", src.iconName)
+--
+--     return
+--
+--   end
+--
+--   local target = nil
+--
+--   -- Look at desktop icons
+--   for i = 1, #desktopIconButtons.buttons do
+--     local btn = desktopIconButtons.buttons[i]
+--
+--     local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
+--
+--     if(collision == true) then
+--       target = btn
+--       break
+--     end
+--
+--
+--   end
+--
+--   if(target == null and windowIconButtons ~= null) then
+--     -- Look at Window icons
+--     for i = 1, #windowIconButtons.buttons do
+--       local btn = windowIconButtons.buttons[i]
+--
+--       local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
+--
+--       if(collision == true) then
+--         target = btn
+--         break
+--       end
+--
+--
+--     end
+--   end
+--
+--   if(target ~= nil) then
+--
+--     if(src.iconPath == target.iconPath) then
+--       return
+--     end
+--
+--     local srcPath = NewWorkspacePath(src.iconPath)
+--
+--     if(src.iconType == "disk" and target.iconType == "trash") then
+--
+--       OnEjectDisk(srcPath.EntityName)
+--       return
+--
+--     elseif(target.iconType == "folder" or target.iconType == "disk" or target.iconType == "trash" or target.iconType == "workspace" or target.iconType == "updirectory") then
+--
+--       local destPath = NewWorkspacePath(target.iconPath)
+--
+--       if(target.iconType == "updirectory") then
+--         destPath = NewWorkspacePath(currentDirectory).ParentPath
+--       end
+--
+--       destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
+--
+--       if(target.iconType == "trash") then
+--         destPath = UniqueFilePath(destPath)
+--       end
+--
+--       print("dest path", destPath)
+--
+--       if(PathExists(destPath) == false) then
+--
+--         -- Need to see if we are copying from a disk or to a disk
+--
+--
+--         local useCopy = false
+--
+--         if(string.starts(srcPath.path, "/Disks/") or string.starts(destPath.path, "/Disks/")) then
+--
+--           local srcSegments = srcPath.GetDirectorySegments()
+--           local destSegments = destPath.GetDirectorySegments()
+--
+--           useCopy = srcSegments[2] ~= destSegments[2]
+--
+--           if(destSegments[2] == "Trash") then
+--             useCopy = false
+--           end
+--
+--         end
+--
+--         if(useCopy) then
+--
+--           pixelVisionOS:ShowMessageModal(
+--             "Copy Disk",
+--             "Do you want to copy disk '".. srcPath.EntityName .. "' to '".. destPath.ParentPath.path .."'?",
+--             200,
+--             true,
+--             function()
+--
+--               -- Only perform the copy if the user selects OK from the modal
+--               if(pixelVisionOS.messageModal.selectionValue) then
+--                 print("Copy", srcPath.Path, "to", destPath.Path)
+--                 CopyTo(srcPath, destPath)
+--                 -- Refresh the window to show the new folder
+--                 RefreshWindow()
+--               end
+--
+--             end
+--           )
+--
+--         else
+--
+--           print("Move", srcPath.Path, "to", destPath.Path)
+--
+--           MoveTo(srcPath, destPath)
+--
+--           RebuildDesktopIcons()
+--           -- Refresh the window to show the new folder
+--           RefreshWindow()
+--
+--         end
+--
+--       else
+--         pixelVisionOS:ShowMessageModal(
+--           "File Path Conflict",
+--           "'" ..destPath.path .."' already exits so this action can not be performed.",
+--           200,
+--           false
+--         )
+--       end
+--
+--     end
+--
+--   end
+--
+-- end
 
 function UpdateFileType(item, isGameFile)
 
   local key = item.type--item.isDirectory and item.type or item.ext
 
-  -- Look for installer script
-  print(item.name, item.type)
+  -- print(item.name, item.type)
 
   -- Only convert file types when we are in a game directory
-  if(isGameFile == true) then
+  -- if(isGameFile == true) then
 
-    key = item.type
+  key = item.type
 
-    -- TODO support legacy files
-    if(key == "png") then
+  -- TODO support legacy files
+  if(key == "png" and isGameFile == true) then
+    -- print("Is PNG")
+    if(item.name == "sprites" and editorMapping["sprites"] ~= nil) then
+      key = "sprites"
+      -- elseif(item.name == "tilemap") then
+      --   key = "tilemap"
+    elseif(item.name == "colors" and editorMapping["colors"] ~= nil) then
+      key = "colors"
+      -- elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
+      --   key = "tilemap"
+    end
+  elseif(key == "font.png") then
 
-      if(item.name == "sprites" and editorMapping["sprites"] ~= nil) then
-        key = "sprites"
-        -- elseif(item.name == "tilemap") then
-        --   key = "tilemap"
-      elseif(item.name == "colors" and editorMapping["colors"] ~= nil) then
-        key = "colors"
-        -- elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
-        --   key = "tilemap"
-      end
-    elseif(key == "font.png") then
-
-      if(editorMapping["font"] == nil) then
-        key = "png"
-      else
-        key = "font"
-      end
-
-    elseif(key == "json") then
-
-      if(item.name == "sounds" and editorMapping["sounds"] ~= nil)then
-        key = "sounds"
-      elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
-        key = "tilemap"
-      elseif(item.name == "music" and editorMapping["music"] ~= nil) then
-        key = "music"
-      elseif(item.name == "data" and editorMapping["data"] ~= nil) then
-        key = "system"
-      elseif(item.name == "info") then
-        key = "info"
-      end
-
+    -- print("Is font")
+    if(isGameFile == false or editorMapping["font"] == nil) then
+      key = "png"
+    else
+      key = "font"
     end
 
+  elseif(key == "json" and isGameFile == true) then
+
+    if(item.name == "sounds" and editorMapping["sounds"] ~= nil)then
+      key = "sounds"
+    elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
+      key = "tilemap"
+    elseif(item.name == "music" and editorMapping["music"] ~= nil) then
+      key = "music"
+    elseif(item.name == "data" and editorMapping["data"] ~= nil) then
+      key = "system"
+    elseif(item.name == "info") then
+      key = "info"
+    end
 
   end
+
+
+  -- end
 
   if(item.isDirectory == false and item.name ~= "Run") then
 

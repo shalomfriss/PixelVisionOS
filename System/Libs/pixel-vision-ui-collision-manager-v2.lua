@@ -89,20 +89,24 @@ function CollisionManager:Update(timeDelta)
 
   if(self.currentDragSource ~= nil) then
 
-    self.dragTime = self.dragTime + timeDelta
+    -- Check to see if the mouse was released
+    if(self.mouseReleased) then
 
-    -- Capture mouse release outside of the component
-    if(self.mouseReleased == true and self.currentDragSource.inFocus == false) then
+      print("Mouse up while dragging")
 
-      -- print(self.currentDragSource.name, "Released Outside Focus")
-
+      -- Call the on end drag function
       if(self.currentDragSource.onEndDrag ~= nil) then
         self.currentDragSource.onEndDrag(self.currentDragSource)
-      else
-        -- Clear drag state
-        self.currentDragSource = nil
-        self.dragTime = 0
       end
+
+      -- If the mouse is still down, we need to handle the drag
+    else
+
+      -- Increase the drag delay
+      self.dragTime = self.dragTime + timeDelta
+
+      -- Set the drag value equal to true if the time is greater than the delay
+      self.currentDragSource.dragging = self.dragTime > self.currentDragSource.dragDelay
 
     end
 
@@ -123,45 +127,54 @@ function CollisionManager:MouseInRect(rect)
 end
 
 function CollisionManager:StartDrag(source)
-  print(source.name, "Start Drag")
-  self.currentDragSource = source
-  self.dragTime = 0
-  self.currentDragSource.dragging = true
-end
 
-function CollisionManager:EndDrag(source)
-  -- print("End Drag Call", #self.dragTargets)
-  if(self.currentDragSource == nil) then
+  -- Switch out the tool tip when dragging
+  if(source.toolTipDragging ~= nil) then
+    self.currentDragSourceToolTip = source.toolTip
+    source.toolTip = source.toolTipDragging
+  end
+  -- If drag delay is set to -1, dragging is disabled
+  if(source.dragDelay == -1) then
     return
   end
 
-  -- print(source.name, "End Drag", #self.dragTargets)
+  print("Collision Manager", source.name, "Start Drag", source.dragDelay)
+  self.currentDragSource = source
+  self.dragTime = 0
+  -- self.currentDragSource.dragging = true
+end
 
-  if(source.dragging == true) then
-    -- Look for drop targets
-    for i = 1, #self.dragTargets do
+function CollisionManager:EndDrag(source)
 
-      local dest = self.dragTargets[i]
-      if(self:MouseInRect(dest.rect)) then
+  print("Collision Manager", source.name, "End Drag", "Targets", #self.dragTargets)
 
-        if(dest.onDropTarget ~= nil) then
-          -- print(source.name, "Drop On", dest.name)
-          dest.onDropTarget(source, dest)
-        end
+  -- Look for drop targets
+  for i = 1, #self.dragTargets do
 
+    local dest = self.dragTargets[i]
+
+    if(self:MouseInRect(dest.hitRect)) then
+
+      if(dest.onDropTarget ~= nil) then
+        -- print(source.name, "Drop On", dest.name)
+        dest.onDropTarget(source, dest)
       end
 
     end
 
-    source.dragging = false
-
   end
 
-
+  if(self.currentDragSourceToolTip ~= nil) then
+    -- Restore the previous tooltip
+    source.toolTip = self.currentDragSourceToolTip
+  end
 
   -- Clear drag state
+  self.currentDragSourceToolTip = nil
   self.currentDragSource = nil
   self.dragTime = 0
+  source.dragging = false
+
 end
 
 function CollisionManager:EnableDragging(target, dragDelay, type)
@@ -179,6 +192,16 @@ function CollisionManager:EnableDragging(target, dragDelay, type)
   end
 
   self:RegisterDragTarget(target, type)
+
+end
+
+function CollisionManager:DisableDragging(target)
+
+  target.onStartDrag = nil
+
+  target.onEndDrag = nil
+
+  self:RemoveDragTarget(target)
 
 end
 
