@@ -163,6 +163,7 @@ function CollisionManager:EndDrag(source)
         if(dest.onDropTarget ~= nil) then
           -- print(source.name, "Drop On", dest.name)
           dest.onDropTarget(source, dest)
+          break
         end
 
       end

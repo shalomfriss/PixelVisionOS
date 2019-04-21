@@ -681,55 +681,56 @@ end
 
 function OnPaste(dest)
 
-
-
   -- Get the destination directory
   dest = dest or currentDirectory
+
+  local destPath = NewWorkspacePath(dest)
 
   -- If there are no files to copy, exit out of this function
   if(filesToCopy == nil) then
     return
   end
 
-  print("Paste", #filesToCopy)
-
-  OnFileAction(filesToCopy, dest, "copy")
+  -- Perform the file action validation
+  OnSingleFileAction(NewWorkspacePath(filesToCopy[1].path), destPath, "copy")
 
   -- Clear the files to copy variable
   filesToCopy = nil
+
 end
 
-function OnFileAction(srcFiles, dest, action)
+function OnSingleFileAction(srcPath, destPath, action)
 
-  -- Look for the total files to copy
-  local total = #srcFiles
+  print("OnSingleFileAction", srcPath, destPath, action)
 
-  -- Set up a table to story any conflicting files
-  local conflicts = false
+  local tmpDest = (srcPath.IsDirectory == true) and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
 
-  -- Loop through all of the files to see if there are conflicts at the destination
-  for i = 1, total do
+  --- Need to make sure we can do the action
 
-    local file = srcFiles[i]
-
-    local tmpPath = GetPathToFile(dest, file)
+  if(srcPath.Path == tmpDest.path) then
+    pixelVisionOS:ShowMessageModal(
+      "Workspace Path Conflict",
+      "You can not perform this action. The source and destination paths are the same.",
+      128 + 16
+    )
+    return
 
     -- Make sure file doesn't exist and the src path doesn't match the dest path
-    if(PathExists(tmpPath) and tmpPath.Path ~= file.path) then
-      -- Set the conflict flag
-      conflicts = true
-      -- exit out of the loop
-      break
-    end
-
-  end
-
-  -- Check to see if there was a conflict
-  if(conflicts) then
+  elseif(tmpDest.IsChildOf(srcPath)) then
 
     pixelVisionOS:ShowMessageModal(
-      "Paste Files",
-      "Looks like there is an existing file with the same name in '".. dest .. "'. Do you want to overwrite that file?",
+      "Workspace Path Conflict",
+      "Can't perform a file action on a path that is the child of the destination path.",
+      128 + 16
+    )
+
+    return
+
+  elseif(PathExists(tmpDest)) then
+
+    pixelVisionOS:ShowMessageModal(
+      "Workspace Path Conflict",
+      "Looks like there is an existing file with the same name in '".. destPath.Path .. "'. Do you want to overwrite that file?",
       128 + 16,
       true,
       function()
@@ -737,46 +738,166 @@ function OnFileAction(srcFiles, dest, action)
         -- Only perform the copy if the user selects OK from the modal
         if(pixelVisionOS.messageModal.selectionValue) then
 
+          Delete(tmpDest)
+
           -- Trigger the file copy
-          TriggerFileAction(srcFiles, dest, action)
+          TriggerSingleFileAction(srcPath, tmpDest, action)
 
         end
 
       end
     )
 
-  else
-
-    -- Trigger the file copy
-    TriggerFileAction(srcFiles, dest, action)
+    return
 
   end
 
+  TriggerSingleFileAction(srcPath, tmpDest, action)
+
 end
 
-function TriggerFileAction(srcFiles, dest)
+function TriggerSingleFileAction(srcPath, destPath, action)
 
-  -- This function assumes all the copy action has been checked and can be performed
-
-  -- Loop through all the files to copy
-  for i = 1, #srcFiles do
-
-    -- Get the next file
-    local file = srcFiles[i]
-
-    -- Copy the file to the new location, if a file with the same name exists it will be overwritten
-    if(action == "copy") then
-      CopyTo(NewWorkspacePath(file.path), GetPathToFile(dest, file))
-    elseif(action == "move") then
-      MoveTo(NewWorkspacePath(file.path), GetPathToFile(dest, file))
-    end
-
+  -- Copy the file to the new location, if a file with the same name exists it will be overwritten
+  if(action == "copy") then
+    CopyTo(srcPath, destPath)
+  elseif(action == "move") then
+    MoveTo(srcPath, destPath)
+  else
+    -- nothing happened so exit before we refresh the window
+    return
   end
 
   -- Refresh the window
   RefreshWindow()
 
 end
+
+-- function OnFileAction(srcFiles, dest, action)
+--
+--   print("OnFileAction", srcFiles[1], dest, action)
+--
+--
+--   -- Look for the total files to copy
+--   local total = #srcFiles
+--
+--   -- Set up a table to story any conflicting files
+--   local conflicts = false
+--   local samePath = false
+--   local inParent = false
+--   -- Loop through all of the files to see if there are conflicts at the destination
+--
+--   local destPath = NewWorkspacePath(dest)
+--
+--   for i = 1, total do
+--
+--     local file = srcFiles[i]
+--
+--     print("File", i, file.path)
+--
+--     local srcPath = NewWorkspacePath(file.path)
+--
+--     local tmpDest = (srcPath.IsDirectory == true) and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
+--
+--     -- local tmpPath = NewWorkspacePath(file.path)--GetPathToFile(dest, file)
+--
+--     -- print("File", PathExists(tmpPath), tmpPath.Path, file.path)
+--
+--     if(srcPath.Path == tmpDest.path) then
+--       samePath = true
+--       break
+--
+--       -- Make sure file doesn't exist and the src path doesn't match the dest path
+--     elseif(PathExists(tmpDest)) then
+--
+--       -- Set the conflict flag
+--       conflicts = true
+--       -- exit out of the loop
+--       break
+--     elseif(tmpDest.IsChildOf(srcPath)) then
+--
+--       inParent = true
+--       break
+--     end
+--
+--   end
+--
+--   -- Check to see if there was a conflict
+--   if(samePath) then
+--
+--     pixelVisionOS:ShowMessageModal(
+--       "Workspace Path Conflict",
+--       "You can not perform this action. The source and destination paths are the same.",
+--       128 + 16
+--     )
+--   elseif(inParent) then
+--
+--     pixelVisionOS:ShowMessageModal(
+--       "Workspace Path Conflict",
+--       "Can't perform a file action on a path that is the child of the destination path.",
+--       128 + 16
+--     )
+--
+--   elseif(conflicts) then
+--
+--     pixelVisionOS:ShowMessageModal(
+--       "Workspace Path Conflict",
+--       "Looks like there is an existing file with the same name in '".. dest .. "'. Do you want to overwrite that file?",
+--       128 + 16,
+--       true,
+--       function()
+--
+--         -- Only perform the copy if the user selects OK from the modal
+--         if(pixelVisionOS.messageModal.selectionValue) then
+--
+--           -- Trigger the file copy
+--           TriggerFileAction(srcFiles, dest, action)
+--
+--         end
+--
+--       end
+--     )
+--   else
+--
+--     -- Trigger the file copy
+--     TriggerFileAction(srcFiles, dest, action)
+--
+--   end
+--
+-- end
+--
+-- function TriggerFileAction(srcFiles, dest, action)
+--
+--   -- This function assumes all the copy action has been checked and can be performed
+--
+--   local destPath = NewWorkspacePath(dest)
+--
+--   -- Loop through all the files to copy
+--   for i = 1, #srcFiles do
+--
+--     -- Get the next file
+--     local file = srcFiles[i]
+--
+--     local srcPath = NewWorkspacePath(file.path)
+--
+--     local tmpDest = (srcPath.IsDirectory == true) and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
+--
+--     -- Copy the file to the new location, if a file with the same name exists it will be overwritten
+--     if(action == "copy") then
+--       CopyTo(srcPath, tmpDest)
+--     elseif(action == "move") then
+--       MoveTo(srcPath, tmpDest)
+--     else
+--       -- nothing happened so exit before we refresh the window
+--       return
+--     end
+--
+--   end
+--
+--   -- Refresh the window
+--   RefreshWindow()
+--
+-- end
 
 function CanCopy(file)
 
@@ -936,11 +1057,15 @@ function RebuildDesktopIcons()
       local srcPath = NewWorkspacePath(src.iconPath)
       local destPath = NewWorkspacePath(dest.iconPath)
 
-      if(srcPath.IsChildOf(destPath)) then
-        print("Move", srcPath, "to", destPath)
-      else
-        print("Copy", srcPath, "to", destPath)
+      local action = "copy"
+
+      -- Test to see if we should move the entity
+      if(srcPath.IsChildOf(destPath) or string.starts(srcPath.Path, trashPath)) then
+        action = "move"
       end
+
+      -- Perform the file action
+      OnSingleFileAction(srcPath, destPath, action)
 
     end
 
@@ -1953,11 +2078,16 @@ function DrawWindow(files, startID, total)
           --
           -- end
 
+          -- Default action is copy
+          local action = "copy"
+
+          -- Test to see if we should move the entity
           if(srcPath.IsChildOf(destPath) or srcPath.ParentPath == destPath.ParentPath) then
-            print("Move", srcPath, "to", destPath)
-          else
-            print("Copy", srcPath, "to", destPath)
+            action = "move"
           end
+
+          -- Perform the file action
+          OnSingleFileAction(srcPath, destPath, action)
 
         end
 
