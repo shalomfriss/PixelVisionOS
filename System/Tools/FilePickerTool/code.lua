@@ -681,6 +681,8 @@ end
 
 function OnPaste(dest)
 
+
+
   -- Get the destination directory
   dest = dest or currentDirectory
 
@@ -688,6 +690,8 @@ function OnPaste(dest)
   if(filesToCopy == nil) then
     return
   end
+
+  print("Paste", #filesToCopy)
 
   OnFileAction(filesToCopy, dest, "copy")
 

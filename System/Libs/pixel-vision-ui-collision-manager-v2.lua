@@ -92,8 +92,6 @@ function CollisionManager:Update(timeDelta)
     -- Check to see if the mouse was released
     if(self.mouseReleased) then
 
-      print("Mouse up while dragging")
-
       -- Call the on end drag function
       if(self.currentDragSource.onEndDrag ~= nil) then
         self.currentDragSource.onEndDrag(self.currentDragSource)
@@ -128,11 +126,12 @@ end
 
 function CollisionManager:StartDrag(source)
 
-  -- Switch out the tool tip when dragging
-  if(source.toolTipDragging ~= nil) then
-    self.currentDragSourceToolTip = source.toolTip
-    source.toolTip = source.toolTipDragging
-  end
+  -- -- Switch out the tool tip when dragging
+  -- if(source.toolTipDragging ~= nil) then
+  --   self.currentDragSourceToolTip = source.toolTip
+  --   source.toolTip = source.toolTipDragging
+  -- end
+
   -- If drag delay is set to -1, dragging is disabled
   if(source.dragDelay == -1) then
     return
@@ -146,34 +145,44 @@ end
 
 function CollisionManager:EndDrag(source)
 
-  print("Collision Manager", source.name, "End Drag", "Targets", #self.dragTargets)
+  if(source.dragging == true) then
 
-  -- Look for drop targets
-  for i = 1, #self.dragTargets do
+    print("Collision Manager", source.name, "End Drag", "Targets", #self.dragTargets)
 
-    local dest = self.dragTargets[i]
+    -- Look for drop targets
+    for i = 1, #self.dragTargets do
 
-    if(self:MouseInRect(dest.hitRect)) then
+      local dest = self.dragTargets[i]
 
-      if(dest.onDropTarget ~= nil) then
-        -- print(source.name, "Drop On", dest.name)
-        dest.onDropTarget(source, dest)
+      -- Only find drop targets not equal to the source
+      -- if(dest.name ~= source.name) then
+
+      -- Look for a collision with the dest
+      if(self:MouseInRect(dest.hitRect ~= nil and dest.hitRect or dest.rect)) then
+
+        if(dest.onDropTarget ~= nil) then
+          -- print(source.name, "Drop On", dest.name)
+          dest.onDropTarget(source, dest)
+        end
+
       end
+      -- end
 
     end
 
-  end
+    if(self.currentDragSourceToolTip ~= nil) then
+      -- Restore the previous tooltip
+      source.toolTip = self.currentDragSourceToolTip
+    end
 
-  if(self.currentDragSourceToolTip ~= nil) then
-    -- Restore the previous tooltip
-    source.toolTip = self.currentDragSourceToolTip
-  end
+    source.dragging = false
 
+  end
   -- Clear drag state
   self.currentDragSourceToolTip = nil
   self.currentDragSource = nil
   self.dragTime = 0
-  source.dragging = false
+
 
 end
 
