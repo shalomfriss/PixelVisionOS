@@ -4,8 +4,7 @@ $readme=Welcome to the Pixel Vision OS installer. This will install the OS into 
 
 # bios values
 # $bios=WorkspaceDir:"Workspace"
-$bios=AutoRun|/Workspace/System/Tools/FilePickerTool/
-$bios=DefaultTemplate|/Workspace/Templates/PV8System/
+$bios=AutoRun|/PixelVisionOS/Tools/FilePickerTool/
 
 # files to copy
 /Artpacks/ReaperBoy/

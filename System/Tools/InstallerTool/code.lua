@@ -34,7 +34,7 @@ function Init()
   editorUI = pixelVisionOS.editorUI
 
   -- Get a list of all the editors
-  local editorMapping = FindEditors()
+  local editorMapping = pixelVisionOS:FindEditors()
 
   -- Find the json editor
   textEditorPath = editorMapping["json"]
@@ -350,12 +350,27 @@ function OnInstallNextStep()
     -- print("Name", nameInputData.text)
     -- local destFolderName = nameInputData.text:lower() == "workspace" and "" or nameInputData.text
 
-    local dest = installRoot .. path
+    local dest = NewWorkspacePath(installRoot .. path)
 
     -- Combine the root directory and path but remove the first slash from the path
-    path = rootDirectory .. string.sub(path, 2)
+    path = NewWorkspacePath(rootDirectory .. string.sub(path, 2))
 
-    CopyFile(path, dest)
+    local parentPath = dest
+
+    -- Need to make sure the directory path exists before doing the copy
+    if(dest.IsDirectory == false) then
+      parentPath = dest.ParentPath
+    end
+
+    -- Test if the parent path exists
+    if(PathExists(parentPath) == false) then
+
+      -- Recursively create the parent path
+      CreateDirectory(parentPath)
+
+    end
+
+    CopyTo(path, dest)
 
     installingModal:UpdateMessage(installingCounter, installingTotal)
 

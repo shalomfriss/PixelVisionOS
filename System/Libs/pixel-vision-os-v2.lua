@@ -169,11 +169,9 @@ function PixelVisionOS:FindEditors()
 
   local editors = {}--new Dictionary<string, string>();
 
-
-
   local paths = 
   {
-    NewWorkspacePath("/PixelVisionOS/System/Tools/")
+    NewWorkspacePath("/PixelVisionOS/Tools/"),
   }
 
   -- Add disk paths
@@ -186,74 +184,46 @@ function PixelVisionOS:FindEditors()
 
   end
 
-  local total = #paths--.Count;
+  local total = #paths
 
   for i = 1, total do
 
     local path = paths[i];
 
-    -- try
-    -- {
+    -- print("Tool Path", path, "exists", PathExists(path))
     if (PathExists(path)) then
-      -- {
-      -- print("Look for editors in", path.Path)
-      --    /  / Console.WriteLine("Look for editors in " + path);
-      --
+
       local folders = GetEntities(path);
-      --
+
       for i = 1, #folders do
-        -- body...
+
         local folder = folders[i]
-        --   foreach (var folder in folders)
+
         if (folder.IsDirectory) then
 
           if (self:ValidateGameInDir(folder)) then
-            --   {
-            --      /  / Console.WriteLine("Reading from game folder " + folder);
-            --
-            --
+
             local jsonData = ReadJson(folder.AppendFile("info.json"))
 
-            -- print("Reading game from", jsonData["editType"])
-
-            --      /  / var metaData = workspace.ReadGameMetaData(folder.AppendFile("info.json"));
-            --
-            --     var data = workspace.ReadTextFromFile(folder.AppendFile("info.json")); /  / ReadTextFromFile(filePath);
-            --
-            --      /  / parse the json data into a dictionary the engine can use
-            --     var jsonData = Json.Deserialize(data) as Dictionary < string, object > ;
-            --
             if (jsonData["editType"] ~= nil) then
               --     {
               local split = string.split(jsonData["editType"], ",")
               --
               local totalTypes = #split
               for j = 1, totalTypes do
-                -- body...
-
 
                 local key = split[j];
-                --
-                -- if (!editors.ContainsKey(key))
+
                 editors[key] = folder.Path
-                --       else
-                --         editors[key] = folder.Path;
-                --
-                -- print("Editor Found ", key, " ", folder.Path);
+
               end
             end
           end
         end
       end
     end
-    -- catch
-    -- {
-    --    /  / runner.DisplayWarning("Couldn't find editor path " + path);
-    -- }
-    -- }
 
   end
-  -- return editors;
 
   return editors
 
