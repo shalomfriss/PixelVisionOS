@@ -563,6 +563,9 @@ function EditorUI:UpdateIconGroup(data)
       -- TODO need to only select the amount of pixel data we need to avoid wrapping
 
       if(self.collisionManager.mousePos.x > - 1 and self.collisionManager.mousePos.y > - 1) then
+
+        local mouseOffset = {x = 24, y = 12}
+
         local clipSize = {x = 0, y = 0, w = 48, h = 40}
 
         -- Calculate mask
@@ -576,19 +579,34 @@ function EditorUI:UpdateIconGroup(data)
 
         if((self.collisionManager.mousePos.x + (clipSize.w / 2)) > displaySize.x) then
           clipSize.w = clipSize.w - ((self.collisionManager.mousePos.x + (clipSize.w / 2)) - displaySize.x)
-        elseif((self.collisionManager.mousePos.x - (clipSize.w / 2)) < 1) then
-          clipSize.w = 0 -- TODO need to figure out what to crop
+        elseif((self.collisionManager.mousePos.x - (clipSize.w / 2)) < 0) then
+
+          local tmp = clipSize.w - ((self.collisionManager.mousePos.x + (clipSize.w / 2))) + 1
+
+          clipSize.x = tmp
+          clipSize.w = clipSize.w - tmp
+
+          mouseOffset.x = mouseOffset.x - clipSize.x
+
         end
 
         if((self.collisionManager.mousePos.y + (clipSize.h / 2)) > displaySize.y) then
           clipSize.h = clipSize.h - ((self.collisionManager.mousePos.y + (clipSize.h / 2)) - displaySize.y)
-        elseif((self.collisionManager.mousePos.y - (clipSize.h / 2)) < 0) then
-          clipSize.h = 0
+        elseif((self.collisionManager.mousePos.y - (clipSize.h / 2)) < 4) then
+          -- clipSize.h = 0
+
+          local tmp = clipSize.h - ((self.collisionManager.mousePos.y + (clipSize.h / 2))) + 3
+
+          clipSize.y = tmp
+          clipSize.h = clipSize.h - tmp
+
+          mouseOffset.y = mouseOffset.y - clipSize.y
+
         end
 
         data.drawIconArgs[1] = btn.cachedPixelData["dragging"]:SamplePixels(clipSize.x, clipSize.y, clipSize.w, clipSize.h)
-        data.drawIconArgs[2] = self.collisionManager.mousePos.x - 24
-        data.drawIconArgs[3] = self.collisionManager.mousePos.y - 12
+        data.drawIconArgs[2] = self.collisionManager.mousePos.x - mouseOffset.x
+        data.drawIconArgs[3] = self.collisionManager.mousePos.y - mouseOffset.y
         data.drawIconArgs[4] = clipSize.w
         data.drawIconArgs[5] = clipSize.h
 

@@ -773,139 +773,9 @@ function TriggerSingleFileAction(srcPath, destPath, action)
 
 end
 
--- function OnFileAction(srcFiles, dest, action)
---
---   print("OnFileAction", srcFiles[1], dest, action)
---
---
---   -- Look for the total files to copy
---   local total = #srcFiles
---
---   -- Set up a table to story any conflicting files
---   local conflicts = false
---   local samePath = false
---   local inParent = false
---   -- Loop through all of the files to see if there are conflicts at the destination
---
---   local destPath = NewWorkspacePath(dest)
---
---   for i = 1, total do
---
---     local file = srcFiles[i]
---
---     print("File", i, file.path)
---
---     local srcPath = NewWorkspacePath(file.path)
---
---     local tmpDest = (srcPath.IsDirectory == true) and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
---
---     -- local tmpPath = NewWorkspacePath(file.path)--GetPathToFile(dest, file)
---
---     -- print("File", PathExists(tmpPath), tmpPath.Path, file.path)
---
---     if(srcPath.Path == tmpDest.path) then
---       samePath = true
---       break
---
---       -- Make sure file doesn't exist and the src path doesn't match the dest path
---     elseif(PathExists(tmpDest)) then
---
---       -- Set the conflict flag
---       conflicts = true
---       -- exit out of the loop
---       break
---     elseif(tmpDest.IsChildOf(srcPath)) then
---
---       inParent = true
---       break
---     end
---
---   end
---
---   -- Check to see if there was a conflict
---   if(samePath) then
---
---     pixelVisionOS:ShowMessageModal(
---       "Workspace Path Conflict",
---       "You can not perform this action. The source and destination paths are the same.",
---       128 + 16
---     )
---   elseif(inParent) then
---
---     pixelVisionOS:ShowMessageModal(
---       "Workspace Path Conflict",
---       "Can't perform a file action on a path that is the child of the destination path.",
---       128 + 16
---     )
---
---   elseif(conflicts) then
---
---     pixelVisionOS:ShowMessageModal(
---       "Workspace Path Conflict",
---       "Looks like there is an existing file with the same name in '".. dest .. "'. Do you want to overwrite that file?",
---       128 + 16,
---       true,
---       function()
---
---         -- Only perform the copy if the user selects OK from the modal
---         if(pixelVisionOS.messageModal.selectionValue) then
---
---           -- Trigger the file copy
---           TriggerFileAction(srcFiles, dest, action)
---
---         end
---
---       end
---     )
---   else
---
---     -- Trigger the file copy
---     TriggerFileAction(srcFiles, dest, action)
---
---   end
---
--- end
---
--- function TriggerFileAction(srcFiles, dest, action)
---
---   -- This function assumes all the copy action has been checked and can be performed
---
---   local destPath = NewWorkspacePath(dest)
---
---   -- Loop through all the files to copy
---   for i = 1, #srcFiles do
---
---     -- Get the next file
---     local file = srcFiles[i]
---
---     local srcPath = NewWorkspacePath(file.path)
---
---     local tmpDest = (srcPath.IsDirectory == true) and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
---
---     -- Copy the file to the new location, if a file with the same name exists it will be overwritten
---     if(action == "copy") then
---       CopyTo(srcPath, tmpDest)
---     elseif(action == "move") then
---       MoveTo(srcPath, tmpDest)
---     else
---       -- nothing happened so exit before we refresh the window
---       return
---     end
---
---   end
---
---   -- Refresh the window
---   RefreshWindow()
---
--- end
-
 function CanCopy(file)
 
   return (file.name ~= "Run" and file.type ~= "updirectory")
-
-end
-
-function CanDelete(file)
 
 end
 
@@ -1053,6 +923,11 @@ function RebuildDesktopIcons()
 
     button.onDropTarget = function(src, dest)
 
+      -- if src and dest paths are the same, exit
+      if(src == dest) then
+        return
+      end
+
       -- TODO need to find the base path
       local srcPath = NewWorkspacePath(src.iconPath)
       local destPath = NewWorkspacePath(dest.iconPath)
@@ -1105,7 +980,7 @@ function RebuildDesktopIcons()
 
   trashButton.onDropTarget = function(src, dest)
 
-    print("OnDropTarget", "Trash Icon", src.name, dest.name)
+    -- print("OnDropTarget", "Trash Icon", src.name, dest.name)
     if(src.iconType == "disk") then
 
       OnEjectDisk(src.iconName)
@@ -1143,10 +1018,6 @@ local currentOpenIconButton = nil
 
 function OnDesktopIconClick(value, doubleClick)
 
-
-
-  -- print("Desktop Icon Click", value, doubleClick)
-
   -- Close the currently open button
   if(currentOpenIconButton ~= nil) then
     editorUI:CloseIconButton(currentOpenIconButton)
@@ -1157,16 +1028,6 @@ function OnDesktopIconClick(value, doubleClick)
 
   OpenWindow(desktopIcons[value].path)
 
-
-
-  -- Force a single selection if shift key is not down
-  -- if(#editorUI:ToggleGroupSelections(desktopIconButtons) > 0) then
-  --
-  --   editorUI:ClearGroupSelections(desktopIconButtons)
-  --
-  --   editorUI:SelectToggleButton(desktopIconButtons, value, true)
-  --
-  -- end
 
 end
 
@@ -1428,24 +1289,6 @@ function OpenWindow(path, scrollTo, selection)
   -- Select file
 
   editorUI:SelectIconButton(windowIconButtons, selection, true)
-
-  -- We need to use a global file system API so append disk to it
-  -- Enable creating a new game only when not inside of another game
-  -- pixelVisionOS:EnableMenuItemByName(NewGameShortcut, not pixelVisionOS:ValidateGameInDir(currentDirectory))
-
-  -- Enable the new folder option when the window is open
-  -- pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, true)
-
-  -- -- pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
-
-  -- Enable all the editor functions
-
-
-  -- UpdateContextMenu(selection == 0 and WindowFocus or WindowIconFocus)
-
-  -- Update the window's title
-
-
 
   ChangeWindowTitle(path, "toolbaricontool")
 
@@ -1744,12 +1587,6 @@ function CloseWindow()
 
   UpdateContextMenu(NoFocus)
 
-  -- pixelVisionOS:EnableMenuItemByName(NewGameShortcut, false)
-  -- pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, false)
-  -- pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
-  -- pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
-  -- pixelVisionOS:EnableMenuItemByName(NewFileShortcut, false)
-
 end
 
 
@@ -1896,16 +1733,6 @@ function OnWindowIconClick(id)
     -- Find the correct editor from the list
     local editorPath = editorMapping[type]
 
-    -- Make sure there is an editor for the file
-    -- if(editorPath ~= nil) then
-    --
-    --   -- Get the path to the editor from the bios
-    --   local bioPath = ReadBiosData(editors[type].name)
-    --
-    --   if(newPath ~= nil) then
-    --     editorPath = bioPath
-    --   end
-
     -- Set up the meta data for the editor
     local metaData = {
       directory = currentDirectory,
@@ -1920,16 +1747,6 @@ function OnWindowIconClick(id)
 
       -- Load the tool
       LoadGame(editorPath, metaData)
-
-      -- else
-      --
-      --   -- Display message if the editor isn't found
-      --   pixelVisionOS:DisplayMessage("The editor for this file is not installed.", 3)
-      -- else
-      --
-      --   pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no tool installed to edit this file." .. editorPath, 160, false)
-      --
-      -- end
 
     end
 
@@ -2059,24 +1876,13 @@ function DrawWindow(files, startID, total)
         -- Add on drop target code to each folder type
         button.onDropTarget = function(src, dest)
 
-          print("Folder action", src.iconType, dest.iconType)
-
-          -- if(dest.iconType == "folder") then
-          --   return
-          -- end
+          -- if src and dest paths are the same, exit
+          if(src == dest) then
+            return
+          end
 
           local srcPath = NewWorkspacePath(src.iconPath)
           local destPath = NewWorkspacePath(dest.iconPath)
-
-          -- local srcSegments = srcPath.GetDirectorySegments()
-          -- local destSegments = srcPath.GetDirectorySegments()
-
-          -- if(dest.iconType == "updirectory") then
-          --   print("Dropped on updirectory")
-          --
-          --   destPath = srcPath.ParentPath.ParentPath
-          --
-          -- end
 
           -- Default action is copy
           local action = "copy"
@@ -2127,146 +1933,6 @@ function DrawWindow(files, startID, total)
 
 end
 
-
--- This method takes a source icon and the mouse position then looks for any icons it was released over
--- function OnEndDrag(src)
---
---   if(true) then
---
---
---     print("OnEndDrag", src.iconName)
---
---     return
---
---   end
---
---   local target = nil
---
---   -- Look at desktop icons
---   for i = 1, #desktopIconButtons.buttons do
---     local btn = desktopIconButtons.buttons[i]
---
---     local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
---
---     if(collision == true) then
---       target = btn
---       break
---     end
---
---
---   end
---
---   if(target == null and windowIconButtons ~= null) then
---     -- Look at Window icons
---     for i = 1, #windowIconButtons.buttons do
---       local btn = windowIconButtons.buttons[i]
---
---       local collision = editorUI.collisionManager:MouseInRect(btn.hitRect)
---
---       if(collision == true) then
---         target = btn
---         break
---       end
---
---
---     end
---   end
---
---   if(target ~= nil) then
---
---     if(src.iconPath == target.iconPath) then
---       return
---     end
---
---     local srcPath = NewWorkspacePath(src.iconPath)
---
---     if(src.iconType == "disk" and target.iconType == "trash") then
---
---       OnEjectDisk(srcPath.EntityName)
---       return
---
---     elseif(target.iconType == "folder" or target.iconType == "disk" or target.iconType == "trash" or target.iconType == "workspace" or target.iconType == "updirectory") then
---
---       local destPath = NewWorkspacePath(target.iconPath)
---
---       if(target.iconType == "updirectory") then
---         destPath = NewWorkspacePath(currentDirectory).ParentPath
---       end
---
---       destPath = srcPath.IsDirectory == true and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
---
---       if(target.iconType == "trash") then
---         destPath = UniqueFilePath(destPath)
---       end
---
---       print("dest path", destPath)
---
---       if(PathExists(destPath) == false) then
---
---         -- Need to see if we are copying from a disk or to a disk
---
---
---         local useCopy = false
---
---         if(string.starts(srcPath.path, "/Disks/") or string.starts(destPath.path, "/Disks/")) then
---
---           local srcSegments = srcPath.GetDirectorySegments()
---           local destSegments = destPath.GetDirectorySegments()
---
---           useCopy = srcSegments[2] ~= destSegments[2]
---
---           if(destSegments[2] == "Trash") then
---             useCopy = false
---           end
---
---         end
---
---         if(useCopy) then
---
---           pixelVisionOS:ShowMessageModal(
---             "Copy Disk",
---             "Do you want to copy disk '".. srcPath.EntityName .. "' to '".. destPath.ParentPath.path .."'?",
---             200,
---             true,
---             function()
---
---               -- Only perform the copy if the user selects OK from the modal
---               if(pixelVisionOS.messageModal.selectionValue) then
---                 print("Copy", srcPath.Path, "to", destPath.Path)
---                 CopyTo(srcPath, destPath)
---                 -- Refresh the window to show the new folder
---                 RefreshWindow()
---               end
---
---             end
---           )
---
---         else
---
---           print("Move", srcPath.Path, "to", destPath.Path)
---
---           MoveTo(srcPath, destPath)
---
---           RebuildDesktopIcons()
---           -- Refresh the window to show the new folder
---           RefreshWindow()
---
---         end
---
---       else
---         pixelVisionOS:ShowMessageModal(
---           "File Path Conflict",
---           "'" ..destPath.path .."' already exits so this action can not be performed.",
---           200,
---           false
---         )
---       end
---
---     end
---
---   end
---
--- end
 
 function UpdateFileType(item, isGameFile)
 
@@ -2411,17 +2077,6 @@ function Draw()
   if(shuttingDown == true) then
     return
   end
-
-  -- if(desktopIconButtons.dragTarget ~= nil) then
-  --   print("Drag Icon", desktopIconButtons.dragTarget.name)
-  --
-  --   dragIcon[1] = desktopIconButtons.dragTarget.cachedSpriteData.up-- The current icon state
-  --
-  --   data.picker.overDrawArgs[2] = self.editorUI.collisionManager.mousePos.x - 10
-  --   data.picker.overDrawArgs[3] = self.editorUI.collisionManager.mousePos.y - 10
-  --
-  --
-  -- end
 
   -- The UI should be the last thing to draw after your own custom draw calls
   pixelVisionOS:Draw()
