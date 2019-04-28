@@ -137,7 +137,7 @@ function CollisionManager:StartDrag(source)
     return
   end
 
-  print("Collision Manager", source.name, "Start Drag", source.dragDelay)
+  -- print("Collision Manager", source.name, "Start Drag", source.dragDelay)
   self.currentDragSource = source
   self.dragTime = 0
   -- self.currentDragSource.dragging = true
@@ -147,7 +147,7 @@ function CollisionManager:EndDrag(source)
 
   if(source.dragging == true) then
 
-    print("Collision Manager", source.name, "End Drag", "Targets", #self.dragTargets)
+    -- print("Collision Manager", source.name, "End Drag", "Targets", #self.dragTargets)
 
     -- Look for drop targets
     for i = 1, #self.dragTargets do

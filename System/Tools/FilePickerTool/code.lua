@@ -39,7 +39,6 @@ local refreshTime = 0
 local refreshDelay = 5
 local fileCount = 0
 
-
 local fileTypeMap = 
 {
   folder = "filefolder",
@@ -923,6 +922,8 @@ function RebuildDesktopIcons()
 
     button.onDropTarget = function(src, dest)
 
+      print("Drop", src, dest)
+
       -- if src and dest paths are the same, exit
       if(src == dest) then
         return
@@ -1179,9 +1180,6 @@ function OpenWindow(path, scrollTo, selection)
 
   refreshTime = 0
 
-
-  -- print("OpenWindow", path, scrollTo)
-
   -- Clear the previous file list
   files = {}
 
@@ -1191,6 +1189,9 @@ function OpenWindow(path, scrollTo, selection)
   -- Set a default scrollTo value if none is provided
   scrollTo = scrollTo or 0
   selection = selection or 0
+
+  print("OpenWindow", path, scrollTo, selection)
+
 
   -- Draw the window chrome
   DrawSprites(windowchrome.spriteIDs, 8, 16, windowchrome.width, false, false, DrawMode.TilemapCache)
@@ -1571,12 +1572,6 @@ function CloseWindow()
 
   DrawWallpaper()
 
-  if(activeButton ~= nil) then
-    activeButton.selected = false
-    editorUI:Invalidate(activeButton)
-    activeButton = nil
-  end
-
   editorUI:ClearGroupSelections(desktopIconButtons)
 
   if(currentOpenIconButton ~= nil) then
@@ -1589,20 +1584,29 @@ function CloseWindow()
 
 end
 
-
 function OnWindowIconSelect(id)
+
+  if(currentSelectedFile ~= nil) then
+    currentSelectedFile.selected = false
+  end
 
   local index = id + (lastStartID)-- TODO need to add the scrolling offset
 
   local tmpItem = files[index]
+
+  -- Select file
+  tmpItem.selected = true
 
   local type = tmpItem.type
   local path = tmpItem.path
 
   -- pixelVisionOS:EnableMenuItemByName(PasteShortcut, type ~= "updirectory" and tmpItem.name ~= "Run")
 
+  print("Window Icon Selected", tmpItem.selected)
+  -- Set new selected file
   currentSelectedFile = tmpItem
 
+  -- Clear desktop selection
   editorUI:ClearIconGroupSelections(desktopIconButtons)
 
 
@@ -1637,11 +1641,21 @@ end
 
 function CurrentlySelectedFile()
 
-  local index = windowIconButtons.currentSelection + lastStartID
+  -- TODO need to return an array to support multiple selections
 
-  local tmpItem = files[index]
-
-  return tmpItem
+  local file = nil
+  for i = 1, #files do
+    file = files[i]
+    if(file.selected) then
+      return file
+    end
+  end
+  --
+  -- local index = windowIconButtons.currentSelection + lastStartID
+  --
+  -- local tmpItem = files[index]
+  --
+  -- return tmpItem
 
 end
 
@@ -1652,7 +1666,7 @@ function OnWindowIconClick(id)
 
   -- local index = id + (lastStartID)-- TODO need to add the scrolling offset
 
-  local tmpItem = CurrentlySelectedFile()-- files[index]
+  local tmpItem = files[id + lastStartID]--CurrentlySelectedFile()-- files[index]
 
   local type = tmpItem.type
   local path = tmpItem.path
@@ -1865,6 +1879,8 @@ function DrawWindow(files, startID, total)
       button.iconType = item.type
       button.iconPath = item.path
 
+      button.selected = item.selected
+
       -- Disable the drag on files that don't exist in the directory
       if(item.type == "updirectory" or item.type == "folder") then
 
@@ -1876,8 +1892,10 @@ function DrawWindow(files, startID, total)
         -- Add on drop target code to each folder type
         button.onDropTarget = function(src, dest)
 
+          -- print("Drop", src, dest)
+
           -- if src and dest paths are the same, exit
-          if(src == dest) then
+          if(src.iconPath == dest.iconPath) then
             return
           end
 
