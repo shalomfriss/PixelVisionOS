@@ -51,6 +51,7 @@ local fileTypeMap =
   installer = "fileinstaller", -- TODO need a custom icon
   info = "fileinfo",
   pv8 = "diskempty",
+  wav = "filewav",
 
   -- TODO these are not core file types
   unknown = "fileunknown",
@@ -76,6 +77,7 @@ local extToTypeMap =
   tilemap = "json",
   installer = "txt",
   info = "json",
+  wav = "wav"
 }
 
 local rootPath = ReadMetaData("RootPath", "/")
@@ -378,19 +380,19 @@ function DrawWallpaper()
   -- end
 
   -- Set up logo values
-  local logoSpriteData = _G["logoplay"]
+  local logoSpriteData = _G["logo"]
   local colorOffset = 0
   local backgroundColor = 5
 
   -- Set logo
   if(not runningFromDisk) then
-    logoSpriteData = _G["logomake"]
+    --   logoSpriteData = _G["logomake"]
     -- colorOffset = 0
     -- backgroundColor = 5
     -- elseif(runnerName == DrawVersion) then
     --   logoSpriteData = _G["logodraw"]
-    --   colorOffset = 5
-    --   backgroundColor = 1
+    colorOffset = 5
+    backgroundColor = 1
     -- elseif(runnerName == TuneVersion) then
     --   logoSpriteData = _G["logotune"]
     --   -- colorOffset = 0
@@ -1720,6 +1722,10 @@ function OnWindowIconClick(id)
       end
     )
 
+  elseif(type == "wav") then
+
+    PlayWav(NewWorkspacePath(path))
+
     -- Check to see if there is an editor for the type or if the type is unknown
   elseif(editorMapping[type] == nil or type == "unknown") then
 
@@ -2000,6 +2006,11 @@ function UpdateFileType(item, isGameFile)
 
   end
 
+  if(key == "wav") then
+    print("Found wav", item.ext, fileTypeMap["wav"])
+    item.ext = "wav"
+
+  end
 
   -- end
 

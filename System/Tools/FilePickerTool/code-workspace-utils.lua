@@ -6,7 +6,8 @@ local validFiles =
   ".json",
   ".txt",
   ".lua",
-  ".pv8"
+  ".pv8",
+  ".wav"
 }
 
 function GetDirectoryContents(path)
