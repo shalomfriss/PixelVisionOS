@@ -51,6 +51,7 @@ local fileTypeMap =
   installer = "fileinstaller", -- TODO need a custom icon
   info = "fileinfo",
   pv8 = "diskempty",
+  pvr = "disksystem",
   wav = "filewav",
 
   -- TODO these are not core file types
@@ -420,7 +421,7 @@ function OnNewFile(fileName, ext, type, editable)
   -- if(PathExists(fileTemplatePath)) then
 
   -- if(fileTemplatePath.AppendFile(fileName .. "." .. ext)) then
-  print("Found file templates", fileName, ext)
+  -- print("Found file templates", fileName, ext)
 
   newFileModal:SetText("New ".. type, fileName, "Name " .. type .. " file", editable == nil and true or false)
 
@@ -702,7 +703,7 @@ end
 
 function OnSingleFileAction(srcPath, destPath, action)
 
-  print("OnSingleFileAction", srcPath, destPath, action)
+  -- print("OnSingleFileAction", srcPath, destPath, action)
 
   local tmpDest = (srcPath.IsDirectory == true) and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
 
@@ -872,7 +873,7 @@ function RebuildDesktopIcons()
   -- Build Desktop Icons
   desktopIcons = {}
 
-  if(OldPathExists("/Workspace/")) then
+  if(PathExists(NewWorkspacePath("/Workspace/"))) then
     table.insert(desktopIcons, {
       name = "Workspace",
       sprite = "filedrive",
@@ -924,7 +925,7 @@ function RebuildDesktopIcons()
 
     button.onDropTarget = function(src, dest)
 
-      print("Drop", src, dest)
+      -- print("Drop", src, dest)
 
       -- if src and dest paths are the same, exit
       if(src == dest) then
@@ -1192,7 +1193,7 @@ function OpenWindow(path, scrollTo, selection)
   scrollTo = scrollTo or 0
   selection = selection or 0
 
-  print("OpenWindow", path, scrollTo, selection)
+  -- print("OpenWindow", path, scrollTo, selection)
 
 
   -- Draw the window chrome
@@ -1225,7 +1226,6 @@ function OpenWindow(path, scrollTo, selection)
   -- Reset the last start id
   lastStartID = -1
 
-
   -- Parse files
 
   -- Get the list of files from the Lua Service
@@ -1249,7 +1249,8 @@ function OpenWindow(path, scrollTo, selection)
           type = "run",
           ext = "run",
           path = path,
-          isDirectory = false
+          isDirectory = false,
+          selected = false
         }
 
       )
@@ -1258,7 +1259,6 @@ function OpenWindow(path, scrollTo, selection)
   end
 
   local parentDirectory = NewWorkspacePath(path).ParentPath.Path
-
 
   -- Check to see if this is a root directory
   if(parentDirectory ~= "/Disks/" and parentDirectory ~= "/Tmp/" and parentDirectory ~= "/") then
@@ -1275,7 +1275,8 @@ function OpenWindow(path, scrollTo, selection)
         name = "..",
         type = "updirectory",
         path = parentDirectory,
-        isDirectory = true
+        isDirectory = true,
+        selected = false
       }
 
     )
@@ -1290,8 +1291,11 @@ function OpenWindow(path, scrollTo, selection)
   OnValueChange(scrollTo)
 
   -- Select file
-
-  editorUI:SelectIconButton(windowIconButtons, selection, true)
+  if(selection > 0) then
+    editorUI:SelectIconButton(windowIconButtons, selection, true)
+  else
+    UpdateContextMenu(WindowFocus)
+  end
 
   ChangeWindowTitle(path, "toolbaricontool")
 
@@ -1325,7 +1329,7 @@ function UpdateContextMenu(inFocus)
 
         if(option.file ~= nil) then
 
-          enable = not OldPathExists(currentDirectory .. option.file)
+          enable = not PathExists(NewWorkspacePath(currentDirectory .. option.file))
 
         end
 
@@ -1420,7 +1424,7 @@ function UpdateContextMenu(inFocus)
 
         if(option.file ~= nil) then
 
-          enable = not OldPathExists(currentDirectory .. option.file)
+          enable = not PathExists(NewWorkspacePath(currentDirectory .. option.file))
 
         end
 
@@ -1588,8 +1592,25 @@ end
 
 function OnWindowIconSelect(id)
 
+
   if(currentSelectedFile ~= nil) then
     currentSelectedFile.selected = false
+    currentSelectedFile.open = false
+
+    -- TODO this is not optimized, force old selected button to reset
+    for i = 1, #windowIconButtons.buttons do
+      local btn = windowIconButtons.buttons[i]
+      if(btn.iconName == currentSelectedFile.name) then
+
+        btn.selected = false
+        editorUI:Invalidate(btn)
+      end
+    end
+
+    editorUI:RedrawIconButton(currentOpenIconButton)
+
+    -- TODO clearing this doesn't always redraw the button
+    -- currentSelectedFile.invalid = true
   end
 
   local index = id + (lastStartID)-- TODO need to add the scrolling offset
@@ -1602,18 +1623,15 @@ function OnWindowIconSelect(id)
   local type = tmpItem.type
   local path = tmpItem.path
 
-  -- pixelVisionOS:EnableMenuItemByName(PasteShortcut, type ~= "updirectory" and tmpItem.name ~= "Run")
+  -- TODO need a way to clear any stuck icons that are selected
 
-  print("Window Icon Selected", tmpItem.selected)
   -- Set new selected file
   currentSelectedFile = tmpItem
 
   -- Clear desktop selection
   editorUI:ClearIconGroupSelections(desktopIconButtons)
 
-
   UpdateContextMenu(WindowIconFocus)
-
 
 end
 
@@ -1763,7 +1781,7 @@ function OnWindowIconClick(id)
     }
 
     -- Check to see if the path to the editor exists
-    if(OldPathExists(editorPath)) then
+    if(PathExists(NewWorkspacePath(editorPath))) then
 
       -- Load the tool
       LoadGame(editorPath, metaData)
@@ -1885,6 +1903,7 @@ function DrawWindow(files, startID, total)
       button.iconType = item.type
       button.iconPath = item.path
 
+      -- TODO this is keeping the updir and run from selecting
       button.selected = item.selected
 
       -- Disable the drag on files that don't exist in the directory
@@ -1928,19 +1947,6 @@ function DrawWindow(files, startID, total)
 
       end
 
-
-
-
-      -- TODO need to disable some icons from dragging here
-
-      --
-      -- if(item.type ~= "updirectory" and item.type ~= "folder" and item.type ~= "run") then
-      --   editorUI:Enable(button, not TrashOpen())
-      -- end
-
-
-      -- button.cachedSpriteData.empty = windowemptyicon
-
       if (column == (maxColumns - 1)) then
         row = row + 1
       end
@@ -1948,7 +1954,6 @@ function DrawWindow(files, startID, total)
     else
 
       DrawRect(newX, newY, 48, 48 - 8, bgColor, DrawMode.TilemapCache)
-      -- DrawSprites(windowemptyicon.spriteIDs, newX, newY, windowemptyicon.width, false, false, DrawMode.TilemapCache)
 
     end
 
@@ -2007,9 +2012,7 @@ function UpdateFileType(item, isGameFile)
   end
 
   if(key == "wav") then
-    print("Found wav", item.ext, fileTypeMap["wav"])
     item.ext = "wav"
-
   end
 
   -- end
@@ -2022,6 +2025,11 @@ function UpdateFileType(item, isGameFile)
       key = fileTypeMap[item.ext] and item.ext or "unknown"
     end
 
+  end
+
+  -- Fix type for pv8 and runner templates
+  if(item.type == "pv8" or item.type == "pvr") then
+    key = item.type
   end
 
   -- Last chance to fix any special edge cases like the installer and info which share text file extensions
@@ -2135,27 +2143,43 @@ end
 
 function OnExportGame()
 
-  print("Build tool", editorMapping["build"])
-
   local buildTool = editorMapping["build"]
 
-  if(editorMapping["build"] ~= nil) then
+  -- Look to see if there is a build tool
+  if(buildTool ~= nil) then
 
-    -- Need to pass in the paths
-
+    -- Pass in the current directory
     local metaData = {
       directory = currentDirectory,
     }
 
-    LoadGame(editorMapping["build"], metaData)
+    -- Load the build tool and pass the current directory
+    LoadGame(buildTool, metaData)
+
   else
-    local response = ExportGame(currentDirectory)
+
+    local srcPath = NewWorkspacePath(currentDirectory)
+    local destPath = srcPath.AppendDirectory("Builds")
+
+    -- TODO need to read game name from info file
+
+    local metaData = ReadJson(srcPath.AppendFile("info.json"))
+
+    local gameName = metaData["name"] or srcPath.EntityName
+
+    -- Manually create a game disk from the current folder's files
+    local gameFiles = GetEntities(srcPath)
+
+    local response = CreateDisk(gameName, gameFiles, destPath)
+
+    print(response["message"])
+
+    -- local response = ExportGame(currentDirectory)
 
     pixelVisionOS:ShowMessageModal("Build " .. (response.success == true and "Complete" or "Failed"), response.message, 160, false, function()
       if(response.success == true) then
-      OpenWindow(response.path)
+      OpenWindow(NewWorkspacePath(response.path).ParentPath)
     end
-
   end)
 end
 

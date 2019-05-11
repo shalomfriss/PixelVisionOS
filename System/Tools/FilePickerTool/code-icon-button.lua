@@ -338,20 +338,6 @@ function EditorUI:RedrawIconButton(data)
     -- Test to see if the sprite data exist before updating the tiles
     if(data.cachedPixelData ~= nil and data.cachedPixelData[state] ~= nil and data.tilePixelArgs ~= nil) then
 
-
-
-      -- Color offset
-      -- data.tileDrawArgs[6] = data.cachedSpriteData[state].colorOffset or 0
-
-      -- if(data.redrawBackground == true) then
-      --
-      --   -- Make sure we always have the current BG color
-      --   data.bgDrawArgs[5] = data.bgColorOverride ~= nil and data.bgColorOverride or BackgroundColor()
-      --
-      --   -- self:NewDraw("DrawRect", data.bgDrawArgs)
-      --
-      -- end
-
       -- Update the tile draw arguments
       data.tilePixelArgs[1] = data.cachedPixelData[state]
 

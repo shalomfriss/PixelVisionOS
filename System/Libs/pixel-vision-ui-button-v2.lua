@@ -80,7 +80,6 @@ function EditorUI:UpdateButtonSizeFromCache(data)
 
   -- Calculate rect and hit rect
   if(spriteData ~= nil) then
-
     -- Update the UI tile width and height
     data.tiles.w = spriteData.width
     data.tiles.h = math.floor(#spriteData.spriteIDs / spriteData.width)

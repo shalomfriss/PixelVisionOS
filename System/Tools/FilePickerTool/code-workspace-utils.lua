@@ -7,6 +7,7 @@ local validFiles =
   ".txt",
   ".lua",
   ".pv8",
+  ".pvr",
   ".wav"
 }
 
@@ -81,6 +82,6 @@ function GetDirectoryContents(path)
 
   end
 
-  return entities;
+  return entities
 
 end

@@ -63,7 +63,7 @@ function EditorUI:CreateInputArea(rect, text, toolTip, pattern, font, forceDraw,
   data.inputTime = 0
   data.inputDelay = .15
 
-  data.keyInvalidation =
+  data.keyInvalidation = 
   {
 
   }
@@ -300,9 +300,9 @@ function EditorUI:InputAreaKeyCapture(data)
     data.inputTime = 0
     if(Key(data.keys.Backspace)) then
 
-        if(data.onBackspace ~= nil) then
-          data.onBackspace(data)
-        end
+      if(data.onBackspace ~= nil) then
+        data.onBackspace(data)
+      end
 
     elseif(Key(data.keys.Delete)) then
 
@@ -483,7 +483,7 @@ function EditorUI:InputAreaBackspaceChar(data)
     end
 
   else
-    data.lines[r] = line:sub(0, c-1) ..line:sub(c + 1)
+    data.lines[r] = line:sub(0, c - 1) ..line:sub(c + 1)
     -- Move cursor to the left
     self:InputAreaMoveCursorInDirection(data, - 1, 0)
   end
@@ -517,7 +517,7 @@ function EditorUI:InputAreaDeleteChar(data)
       data.totalLines = #data.lines
 
     end
-  --
+    --
   else
     data.lines[r] = line:sub(0, c ) ..line:sub(c + 2)
     -- Move cursor to the left
