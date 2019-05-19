@@ -170,7 +170,7 @@ function Init()
 
 
 
-  local aboutText = "The ".. toolName.. " offers you access to the underlying file system. \n\nTemporary files are stores on your computer at: \n\n" .. TmpPath() .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath()
+  local aboutText = "The ".. toolName.. " offers you access to the underlying file system. "--"\n\nTemporary files are stores on your computer at: \n\n" .. TmpPath() .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath()
 
   -- TODO need to see if the log file actually exists
   local logExits = true
@@ -351,7 +351,7 @@ function Init()
 
   -- print("!New Path", newPath, "lastScrollPos", lastScrollPos, ReadSaveData("sessionID", ""))
 
-  if(SessionID() == ReadSaveData("sessionID", "") and newPath ~= "none") then
+  if(SessionID() == ReadSaveData("sessionID", "") and newPath ~= "none" and PathExists(NewWorkspacePath(newPath))) then
 
     OpenWindow(newPath, tonumber(ReadSaveData("scrollPos", "0")), tonumber(ReadSaveData("selection", "0")))
 
@@ -1290,6 +1290,8 @@ function OpenWindow(path, scrollTo, selection)
 
   OnValueChange(scrollTo)
 
+  currentSelectedFile = nil
+
   -- Select file
   if(selection > 0) then
     editorUI:SelectIconButton(windowIconButtons, selection, true)
@@ -1755,7 +1757,13 @@ function OnWindowIconClick(id)
 
     if(type == "installer") then
 
-      if(string.starts(currentDirectory, "/Disks/") == false) then
+      if(PathExists(NewWorkspacePath("/Workspace/")) == false) then
+
+        pixelVisionOS:ShowMessageModal("Installer Error", "You need to create a 'Workspace' drive before you can run an install script.", 160, false)
+
+        return
+
+      elseif(string.starts(currentDirectory, "/Disks/") == false) then
 
         -- TODO need to see if there is space to mount another disk
         -- TODO need to know if this disk is being mounted as read only
@@ -2003,7 +2011,7 @@ function UpdateFileType(item, isGameFile)
       key = "tilemap"
     elseif(item.name == "music" and editorMapping["music"] ~= nil) then
       key = "music"
-    elseif(item.name == "data" and editorMapping["data"] ~= nil) then
+    elseif(item.name == "data" and editorMapping["system"] ~= nil) then
       key = "system"
     elseif(item.name == "info") then
       key = "info"

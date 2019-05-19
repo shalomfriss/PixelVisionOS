@@ -222,6 +222,8 @@ function Init()
   -- Disable the back key in this tool
   EnableBackKey(false)
 
+  EnableAutoRun(false)
+
   -- Create an instance of the Pixel Vision OS
   pixelVisionOS = PixelVisionOS:Init()
 
@@ -251,15 +253,15 @@ function Init()
   -- OnVolumeChange()
   editorUI:Enable(volumeKnobData, not Mute())
 
-  -- brightnessKnobData = editorUI:CreateKnob({x = 40, y = 192, w = 24, h = 24}, "knob", "Change the brightness.")
-  -- brightnessKnobData.onAction = OnBrightnessChange
-  -- brightnessKnobData.value = (Brightness() - .5)
-  -- -- brightnessKnobData.value = Volume() / 100
-  -- -- editorUI:Enable(brightnessKnobData, not Mute())
-  --
-  -- sharpnessKnobData = editorUI:CreateKnob({x = 64, y = 192, w = 24, h = 24}, "knob", "Change the sharpness.")
-  -- sharpnessKnobData.onAction = OnSharpnessChange
-  -- sharpnessKnobData.value = (((Sharpness() * - 1) / 6))
+  brightnessKnobData = editorUI:CreateKnob({x = 40, y = 192, w = 24, h = 24}, "knob", "Change the brightness.")
+  brightnessKnobData.onAction = OnBrightnessChange
+  brightnessKnobData.value = (Brightness() - .5)
+  -- brightnessKnobData.value = Volume() / 100
+  -- editorUI:Enable(brightnessKnobData, not Mute())
+
+  sharpnessKnobData = editorUI:CreateKnob({x = 64, y = 192, w = 24, h = 24}, "knob", "Change the sharpness.")
+  sharpnessKnobData.onAction = OnSharpnessChange
+  sharpnessKnobData.value = (((Sharpness() * - 1) / 6))
 
   -- brightnessKnobData.value = Volume() / 100
   -- editorUI:Enable(brightnessKnobData, not Mute())
@@ -291,9 +293,9 @@ function Init()
   tmpCheckbox = editorUI:ToggleGroupButton(checkboxGroupData, {x = 128, y = 208, w = 8, h = 8}, "checkbox", "Stretch the display to fit the window.")
   tmpCheckbox.selected = StretchScreen()
   --
-  -- tmpCheckbox = editorUI:ToggleGroupButton(checkboxGroupData, {x = 128, y = 216, w = 8, h = 8}, "checkbox", "Toggle the CRT effect.")
-  -- OnToggleCRT(EnableCRT())
-  -- tmpCheckbox.selected = EnableCRT()
+  tmpCheckbox = editorUI:ToggleGroupButton(checkboxGroupData, {x = 128, y = 216, w = 8, h = 8}, "checkbox", "Toggle the CRT effect.")
+  OnToggleCRT(EnableCRT())
+  tmpCheckbox.selected = EnableCRT()
 
 
   -- UpdateCheckBoxes()

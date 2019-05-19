@@ -1,12 +1,12 @@
 {
-
-"GameChip":
-{
-"savedData":{
-    "lastPath": "/Workspace/SongTest/",
-    "sessionID": "201905111547131316",
-    "scrollPos": "0.96",
-    "selection": "7"
-}
-}
+    
+    "GameChip":
+    {
+        "savedData":{
+            "selection": "1",
+            "scrollPos": "0",
+            "sessionID": "201905182020146517",
+            "lastPath": "/Disks/TetrisLuaCart/"
+        }
+    }
 }

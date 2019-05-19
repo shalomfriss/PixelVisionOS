@@ -34,6 +34,8 @@ function Init()
   -- Disable the back key in this tool
   EnableBackKey(false)
 
+  EnableAutoRun(false)
+
   -- Create an instance of the Pixel Vision OS
   pixelVisionOS = PixelVisionOS:Init()
 
