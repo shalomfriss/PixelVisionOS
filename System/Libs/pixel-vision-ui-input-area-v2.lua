@@ -846,6 +846,7 @@ function EditorUI:DrawInputArea(data)
       --   data.spacing
       -- }
 
+      print(data.name, "Redraw input", data.colorOffset)
       self:NewDraw("DrawText", data.cursorDrawArguments)
 
     end

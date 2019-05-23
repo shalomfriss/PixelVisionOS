@@ -1728,14 +1728,16 @@ function OnWindowIconClick(id)
     -- TODO need to see if there is space to mount another disk
     -- TODO need to know if this disk is being mounted as read only
     -- TODO don't run
-    pixelVisionOS:ShowMessageModal("Run Disk", "Do you want to run this disk?", 160, true,
+    pixelVisionOS:ShowMessageModal("Run Disk", "Do you want to mount this disk?", 160, true,
       function()
 
         -- Only perform the copy if the user selects OK from the modal
         if(pixelVisionOS.messageModal.selectionValue) then
 
+          MountDisk(NewWorkspacePath(path))
+
           -- TODO need to load the game in read only mode
-          LoadGame(path)
+          -- LoadGame(path)
 
         end
 

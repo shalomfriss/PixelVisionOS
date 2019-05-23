@@ -37,6 +37,10 @@ function EditorUI:CreateInputField(rect, text, toolTip, pattern, font, forceDraw
   data.forceCase = nil -- Accepts nil, upper and lower
   -- override key callbacks for input fields
 
+  data.onEdit = function(data, value)
+    self:EditInputField(data, value)
+  end
+
   data.onTab = function(data)
 
     -- TODO need to test to see if shift key is down to go back
