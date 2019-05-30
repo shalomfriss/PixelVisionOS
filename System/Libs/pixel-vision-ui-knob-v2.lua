@@ -71,6 +71,10 @@ function EditorUI:CreateKnob(rect, spriteName, toolTip)
   data.handleY = 0
   data.handleSize = 1
 
+  data.colorOffsetUp = 20
+  data.colorOffsetOver = 24
+  data.colorOffsetDisabled = 16
+
   -- This is applied to the top when horizontal and the left when vertical
   data.offset = offset or 0
 
@@ -88,10 +92,6 @@ function EditorUI:CreateKnob(rect, spriteName, toolTip)
 
   -- Create a custom hit rect for the knob
   data.hitRect = {x = data.rect.x + 2, y = data.rect.y + 2, w = 18, h = 18}
-
-  -- Make sure that the tilemap has the correct flag values
-
-  -- self:SetUIFlags(data.tiles.c, data.tiles.r, data.tiles.w, data.tiles.h, data.flagID)
 
   -- Return the data
   return data
@@ -171,20 +171,7 @@ function EditorUI:UpdateKnob(data, hitRect)
     data.handleX = data.handleX + (data.value * size)
     data.handleY = data.handleY + data.offset
 
-
     self:DrawKnobSprite(data)
-    --
-    --
-    -- -- Calculate rotation
-    -- local rotationID = CalculateKnobRotationID(data)
-    --
-    -- if(rotationID < 1) then
-    --   rotationID = 1
-    -- elseif(rotationID > #data.rotation) then
-    --   rotationID = #data.rotation
-    -- end
-
-    -- Update the handle sprites
 
     -- Clear the validation
     self:ResetValidation(data)
@@ -221,9 +208,9 @@ function EditorUI:DrawKnobSprite(data, mode)
 
     -- Color Offset
     if(data.enabled) then
-      data.spriteDrawArgs[8] = data.inFocus == true and 24 or 20
+      data.spriteDrawArgs[8] = data.inFocus == true and data.colorOffsetOver or data.colorOffsetUp
     else
-      data.spriteDrawArgs[8] = 16
+      data.spriteDrawArgs[8] = data.colorOffsetDisabled
     end
 
     self:NewDraw("DrawSprites", data.spriteDrawArgs)

@@ -8,7 +8,8 @@ local validFiles =
   ".lua",
   ".pv8",
   ".pvr",
-  ".wav"
+  ".wav",
+  ".gif"
 }
 
 function GetDirectoryContents(path)

@@ -64,7 +64,8 @@ local fileTypeMap =
   sprites = "filesprites",
   tilemap = "filetilemap",
   pvt = "filerun",
-  new = "filenewfile"
+  new = "filenewfile",
+  gif = "fileunknown"
 }
 
 local extToTypeMap = 
@@ -78,7 +79,8 @@ local extToTypeMap =
   tilemap = "json",
   installer = "txt",
   info = "json",
-  wav = "wav"
+  wav = "wav",
+  gif = "gif"
 }
 
 local rootPath = ReadMetaData("RootPath", "/")
@@ -89,21 +91,6 @@ local windowScrollHistory = {}
 local newFileModal = nil
 
 local fileTemplatePath = NewWorkspacePath(rootPath .. gameName .. "/FileTemplates/")
-
-
--- local editors = {
---   colors = {name = "ColorEditor", path = rootPath .."ColorTool/"},
---   sprites = {name = "SpriteEditor", path = rootPath .."SpriteTool/"},
---   font = {name = "FontEditor", path = rootPath .."FontTool/"},
---   tilemap = {name = "TilemapEditor", path = rootPath .."TilemapTool/"},
---   lua = {name = "TextEditor", path = rootPath .."TextEditorTool/"},
---   json = {name = "TextEditor", path = rootPath .."TextEditorTool/"},
---   system = {name = "ChipEditor", path = rootPath .."ChipEditor/"},
---   sounds = {name = "SoundEditor", path = rootPath .."SFXTool/"},
---   music = {name = "MusicEditor", path = rootPath .."MusicTool/"},
---   txt = {name = "TextEditor", path = rootPath .."TextEditorTool/"},
---   png = {name = "ImagePreview", path = rootPath .."ImagePreviewTool/"}
--- }
 
 -- This this is an empty game, we will the following text. We combined two sets of fonts into
 -- the default.font.png. Use uppercase for larger characters and lowercase for a smaller one.
@@ -120,25 +107,12 @@ local currentSelectedFile = nil
 -- Flags for managing focus
 local WindowFocus, DesktopIconFocus, WindowIconFocus, NoFocus = 1, 2, 3, 4
 
-local desktopIcons = {
-
-
-  -- {
-  --   name = "ReaperBoy",
-  --   sprite = "diskempty",
-  --   tooltip = "The current project",
-  --   path = "/Workspace/Games/ReaperBoyLD42Disk1/"
-  -- }
-
-}
+local desktopIcons = {}
 
 NewFolderShortcut, EditShortcut, RenameShortcut, CopyShortcut, PasteShortcut, DeleteShortcut, RunShortcut, BuildShortcut, EmptyTrashShortcut, EjectDiskShortcut = "New Folder", "Edit", "Rename", "Copy", "Paste", "Delete", "Run", "Build", "Empty Trash", "Eject Disk"
 
 -- Get all of the available editors
 local editorMapping = {}
-
--- local messageModal = nil
--- TODO need menu constants to make updating them easier if things change later on
 
 -- The Init() method is part of the game's lifecycle and called a game starts. We are going to
 -- use this method to configure background color, ScreenBufferChip and draw a text box.
@@ -165,12 +139,18 @@ function Init()
   -- Find all the editors
   editorMapping = pixelVisionOS:FindEditors()
 
-  -- Create modals
-  -- messageModal = MessageModal:Init("Warning Modal", "This is a warning message which should show a lot of text in a small window on top of the main UI.", 100)
 
+  local aboutText = "The ".. toolName.. " offers you access to the underlying file system. "
 
+  if(TmpPath() ~= nil) then
+    aboutText = aboutText .. "\n\nTemporary files are stores on your computer at: \n\n" .. TmpPath()
+  end
 
-  local aboutText = "The ".. toolName.. " offers you access to the underlying file system. "--"\n\nTemporary files are stores on your computer at: \n\n" .. TmpPath() .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath()
+  if(DocumentPath() ~= nil) then
+
+    aboutText = aboutText .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath()
+
+  end
 
   -- TODO need to see if the log file actually exists
   local logExits = true
@@ -178,7 +158,7 @@ function Init()
   local menuOptions = 
   {
     -- About ID 1
-    {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName, aboutText, 200) end, toolTip = "Learn about PV8."},
+    {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName, aboutText, 220) end, toolTip = "Learn about PV8."},
     -- Settings ID 2
     {name = "Settings", action = OnLaunchSettings, toolTip = "Learn about PV8."},
     -- Settings ID 3
@@ -230,20 +210,7 @@ function Init()
 
   end
 
-
-
   newFileOptions = {}
-
-  -- -- Add new project option
-  -- if(runnerName ~= PlayVersion) then
-  --
-  --   table.insert(menuOptions, addAt, {name = "New Project", action = OnNewGame, enabled = false, toolTip = "Create a new file."})
-  --   menuOffset = menuOffset + 1
-  --   NewCodeShortcut = addAt
-  --   table.insert(newFileOptions, addAt)
-  --   addAt = addAt + 1
-  --
-  -- end
 
   -- Add text options to the menu
   if(runnerName ~= PlayVersion and runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
@@ -308,82 +275,36 @@ function Init()
 
   end
 
-  -- Update the shortcuts based on what new file options were added
-  -- RunShortcut = RunShortcut + menuOffset
-  -- EditShortcut = EditShortcut + menuOffset
-  -- RenameShortcut = RenameShortcut + menuOffset
-  -- CopyShortcut = CopyShortcut + menuOffset
-  -- PasteShortcut = PasteShortcut + menuOffset
-  -- DeleteShortcut = DeleteShortcut + menuOffset
-  -- EmptyTrashShortcut = EmptyTrashShortcut + menuOffset
-  -- EjectDiskShortcut = EjectDiskShortcut + menuOffset
-
-
-
   pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
   -- Change the title
   pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
-
-
-  -- local bgColor = BackgroundColor()
-
-
-
   RebuildDesktopIcons()
 
-
-  -- TODO need to read bios to see if this was changed?
-  -- trashPath = "/Tmp/Trash/"
-
-  -- trashButton.redrawBackground = true
-
-  -- table.insert(desktopItems, trashButton)
-
-  -- trashButton.onAction = function()
-  --   OpenWindow("/Workspace/Trash/")
-  -- end
-
-  -- totalDesktopItems = #desktopItems
-
   local newPath = ReadSaveData("lastPath", "none")
-
-  -- print("!New Path", newPath, "lastScrollPos", lastScrollPos, ReadSaveData("sessionID", ""))
 
   if(SessionID() == ReadSaveData("sessionID", "") and newPath ~= "none" and PathExists(NewWorkspacePath(newPath))) then
 
     OpenWindow(newPath, tonumber(ReadSaveData("scrollPos", "0")), tonumber(ReadSaveData("selection", "0")))
 
-    -- print("restore editors")
-
   end
 
-  -- TODO if no editors are registered
-
-  -- print("Load editors")
-
-
-
 end
+
+local wallPaperThemes = {
+  {0, 5},
+  {5, 5},
+  {0, 8}
+}
 
 
 function DrawWallpaper()
 
-  -- Check version
-  --   rootDirectory = ReadMetaData("RootPath", nil)
-  --   print("rootDirectory", rootDirectory)
-  --
-  --
-  --
-  -- if()) then
-  --   runnerName == MakeVersion
-  -- end
-
   -- Set up logo values
   local logoSpriteData = _G["logo"]
-  local colorOffset = 0
-  local backgroundColor = 5
+
+  themeID = 1
 
   -- Set logo
   if(not runningFromDisk) then
@@ -392,20 +313,21 @@ function DrawWallpaper()
     -- backgroundColor = 5
     -- elseif(runnerName == DrawVersion) then
     --   logoSpriteData = _G["logodraw"]
-    colorOffset = 5
-    backgroundColor = 1
+    themeID = 2
     -- elseif(runnerName == TuneVersion) then
     --   logoSpriteData = _G["logotune"]
     --   -- colorOffset = 0
     --   backgroundColor = 8
   end
 
+  local theme = wallPaperThemes[themeID]
+
   -- Update background
-  BackgroundColor(backgroundColor)
+  BackgroundColor(theme[2])
 
   -- Draw logo
   if(logoSpriteData ~= nil) then
-    UpdateTiles(13, 13, logoSpriteData.width, logoSpriteData.spriteIDs, colorOffset)
+    UpdateTiles(13, 13, logoSpriteData.width, logoSpriteData.spriteIDs, theme[1])
   end
 
 end
@@ -1008,19 +930,25 @@ function OnDesktopIconSelected(value)
 
   -- TODO need to check if the disk can be ejected?
 
-
-
+  if(playingWav) then
+    StopWav()
+    playingWav = false
+  end
 
   UpdateContextMenu(DesktopIconFocus)
 
   -- Clear any window selections
   editorUI:ClearIconGroupSelections(windowIconButtons)
 
+  currentSelectedFile = nil
+
 end
 
 local currentOpenIconButton = nil
 
 function OnDesktopIconClick(value, doubleClick)
+
+
 
   -- Close the currently open button
   if(currentOpenIconButton ~= nil) then
@@ -1595,6 +1523,11 @@ end
 function OnWindowIconSelect(id)
 
 
+  if(playingWav) then
+    StopWav()
+    playingWav = false
+  end
+
   if(currentSelectedFile ~= nil) then
     currentSelectedFile.selected = false
     currentSelectedFile.open = false
@@ -1747,6 +1680,8 @@ function OnWindowIconClick(id)
   elseif(type == "wav") then
 
     PlayWav(NewWorkspacePath(path))
+
+    playingWav = true
 
     -- Check to see if there is an editor for the type or if the type is unknown
   elseif(editorMapping[type] == nil or type == "unknown") then

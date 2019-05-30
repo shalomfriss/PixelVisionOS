@@ -56,7 +56,7 @@ function Update()
     DrawText("Loop " .. tostring(songData["loop"] == 1), 8, 256 - 32 - 16, DrawMode.Sprite, "large", 15)
 
     -- Draw the values to the screen
-    DrawText("Pattern " .. songData["pattern"] .. "/" .. songData["patterns"], 8, 256 - 32 - 8, DrawMode.Sprite, "large", 15)
+    DrawText("Pattern " .. (songData["pattern"] + 1) .. "/" .. songData["patterns"], 8, 256 - 32 - 8, DrawMode.Sprite, "large", 15)
 
     DrawText("Note " .. string.format("%02d", tostring(songData["note"])) .. "/" .. songData["notes"], 8, 256 - 32, DrawMode.Sprite, "large", 15)
 
