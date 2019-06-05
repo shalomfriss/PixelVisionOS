@@ -33,7 +33,7 @@ function EditorUI:CreateStringStepper(rect, inputWidth, value, options, spriteNa
     self:DecreaseStringStepper(data, true)
   end
 
-  data.inputField = self:CreateInputField({x = rect.x + 16, y = rect.y + 8, w = inputWidth}, "", "Enter a value.", "string")
+  data.inputField = self:CreateInputField({x = rect.x + 16, y = rect.y + 8, w = inputWidth}, "", toolTip, "string")
 
   data.inputField.onAction = function(value)
 

@@ -421,7 +421,7 @@ function EditorUI:CreateIconGroup(singleSelection)
   data.singleSelection = singleSelection
   -- }
 
-  data.drawIconArgs = {nil, 0, 0, 48, 40, false, false, DrawMode.Sprite}
+  data.drawIconArgs = {nil, 0, 0, 48, 40, false, false, DrawMode.UI}
 
   return data
 

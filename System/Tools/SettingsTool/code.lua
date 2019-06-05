@@ -320,17 +320,12 @@ function Init()
     editorUI:CreateInputField({x = 224, y = 200, w = 8}, "", "Restart"),
   }
 
-  editorUI:Enable(shortcutFields[2], false)
-
   usedShortcutKeys = {}
-
-  print("Test", ReadMetaData("Sharpness"))
 
   for i = 1, #shortcutFields do
     local field = shortcutFields[i]
     field.type = field.toolTip
-    print("Type", field.type .. "Key", ReadMetaData(field.type .. "Key"))
-    local keyValue = ConvertKeyCodeToChar(tonumber(ReadMetaData(field.type .. "Key")))
+    local keyValue = ConvertKeyCodeToChar(tonumber(ReadBiosData(field.type .. "Key")))
 
     editorUI:ChangeInputField(field, keyValue)
 
@@ -353,6 +348,8 @@ function Init()
 
       -- Let the user know the key has been saved
       pixelVisionOS:DisplayMessage("Setting '"..value.."' as the shortcut key.")
+
+      RefreshActionKeys()
 
     end
 

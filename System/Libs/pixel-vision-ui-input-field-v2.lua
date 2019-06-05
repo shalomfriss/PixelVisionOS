@@ -85,7 +85,7 @@ function EditorUI:UpdateInputField(data)
   end
 
   -- If the input field is disabled we need to see if it should be redrawn and then exit
-  if(data.enabled == false) then
+  if(data.enabled == false ) then
     self:DrawInputArea(data)
     return
   end
@@ -102,7 +102,7 @@ function EditorUI:UpdateInputField(data)
     -- Set focus
     if(self.inFocusUI == nil) then
 
-      self:SetFocus(data, 3)
+      self:SetFocus(data, data.editable == false and 1 or 3)
 
 
     end
@@ -206,6 +206,10 @@ function EditorUI:EditInputField(data, value)
 
   -- TODO need to test to see if there is something already in focus
 
+  -- Don't enable editing if editable is set to false
+  if(data.editable == false) then
+    return
+  end
 
   -- Need to make sure we are not currently editing another field
   if(value == true) then
