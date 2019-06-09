@@ -324,6 +324,7 @@ function Init()
 
   for i = 1, #shortcutFields do
     local field = shortcutFields[i]
+    field.pattern = "number"
     field.type = field.toolTip
     local keyValue = ConvertKeyCodeToChar(tonumber(ReadBiosData(field.type .. "Key")))
 

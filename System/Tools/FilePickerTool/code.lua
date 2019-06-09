@@ -65,7 +65,8 @@ local fileTypeMap =
   tilemap = "filetilemap",
   pvt = "filerun",
   new = "filenewfile",
-  gif = "fileunknown"
+  gif = "filegif",
+  tiles = "filetiles"
 }
 
 local extToTypeMap = 
@@ -79,8 +80,7 @@ local extToTypeMap =
   tilemap = "json",
   installer = "txt",
   info = "json",
-  wav = "wav",
-  gif = "gif"
+  wav = "wav"
 }
 
 local rootPath = ReadMetaData("RootPath", "/")
@@ -1919,13 +1919,23 @@ function UpdateFileType(item, isGameFile)
 
   key = item.type
 
+  -- if(item.isDirectory == false and item.name ~= "Run") then
+  --
+  --   -- TODO need to look this up based on if an editor is registered with the system
+  --
+  --   if(editorMapping[key] == nil) then
+  --     key = fileTypeMap[item.ext] and item.ext or "unknown"
+  --   end
+  --
+  -- end
+
   -- TODO support legacy files
   if(key == "png" and isGameFile == true) then
     -- print("Is PNG")
     if(item.name == "sprites" and editorMapping["sprites"] ~= nil) then
       key = "sprites"
     elseif(item.name == "tilemap") then
-      key = "tilemap"
+      key = "tiles"
     elseif(item.name == "colors" and editorMapping["colors"] ~= nil) then
       key = "colors"
       -- elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
@@ -1962,15 +1972,7 @@ function UpdateFileType(item, isGameFile)
 
   -- end
 
-  if(item.isDirectory == false and item.name ~= "Run") then
 
-    -- TODO need to look this up based on if an editor is registered with the system
-
-    if(editorMapping[key] == nil) then
-      key = fileTypeMap[item.ext] and item.ext or "unknown"
-    end
-
-  end
 
   -- Fix type for pv8 and runner templates
   if(item.type == "pv8" or item.type == "pvr") then
@@ -1993,8 +1995,8 @@ end
 function GetIconSpriteName(item)
 
   local iconName = fileTypeMap[item.type]
-
-  return iconName == nil and "unknown" or fileTypeMap[item.type]
+  print("name", name, iconName)
+  return iconName == nil and "fileunknown" or fileTypeMap[item.type]
 
 end
 
