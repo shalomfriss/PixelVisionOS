@@ -1535,7 +1535,8 @@ function OnWindowIconSelect(id)
     -- TODO this is not optimized, force old selected button to reset
     for i = 1, #windowIconButtons.buttons do
       local btn = windowIconButtons.buttons[i]
-      if(btn.iconName == currentSelectedFile.name) then
+
+      if(btn.iconPath == currentSelectedFile.path) then
 
         btn.selected = false
         editorUI:Invalidate(btn)
@@ -1995,7 +1996,7 @@ end
 function GetIconSpriteName(item)
 
   local iconName = fileTypeMap[item.type]
-  print("name", name, iconName)
+  -- print("name", name, iconName)
   return iconName == nil and "fileunknown" or fileTypeMap[item.type]
 
 end

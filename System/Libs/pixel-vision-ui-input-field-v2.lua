@@ -287,31 +287,38 @@ function EditorUI:ChangeInputField(data, text, trigger)
   if(data.pattern == "number") then
 
     -- Make sure that the text is always set to zero if it's not valid
-    if(text == "" or text == nil) then
+    if(text == nil) then
+      text = ""
+    end
+
+    if(data.allowEmptyString == false and text == "") then
       text = "0"
     end
 
-    -- Convert text to a number
-    local value = tonumber(text)
+    if(data.allowEmptyString == false) then
+      -- Convert text to a number
+      local value = tonumber(text)
 
-    -- TODO need to add logic for handling negative numbers
-    -- update the text var with the new value
-    if(value < 0) then
-      -- negative numbers are not valid so just replace with -
-      text = string.lpad(tostring(""), data.width, "-")
-    else
+      -- TODO need to add logic for handling negative numbers
+      -- update the text var with the new value
+      if(value < 0) then
+        -- negative numbers are not valid so just replace with -
+        text = string.lpad(tostring(""), data.width, "-")
+      else
 
-      -- make sure that the value is above the minimum allowed value
-      if(data.min ~= nil) then
-        if(value < data.min) then value = data.min end
+        -- make sure that the value is above the minimum allowed value
+        if(data.min ~= nil) then
+          if(value < data.min) then value = data.min end
+        end
+
+        -- make sure that the value us below the maximum allowed value
+        if(data.max ~= nil) then
+          if(value > data.max) then value = data.max end
+        end
+
+        text = string.lpad(tostring(value), data.width, "0")
       end
 
-      -- make sure that the value us below the maximum allowed value
-      if(data.max ~= nil) then
-        if(value > data.max) then value = data.max end
-      end
-
-      text = string.lpad(tostring(value), data.width, "0")
     end
 
 
