@@ -31,10 +31,7 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
 
   data.total = total
 
-  data.itemWidth = itemWidth
-  data.itemHeight = itemHeight
-  data.columns = math.floor(data.rect.w / itemWidth)
-  data.rows = math.floor(data.rect.h / itemHeight)
+  self:ResizePickerSize(data, itemWidth, itemHeight)
 
   data.overIndex = -1
   data.selected = -1
@@ -46,11 +43,13 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
 
     local spriteData = data.cachedSpriteData.selectedup
 
-    data.selectedDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.Sprite, spriteData.colorOffset}
+    local bounds = NewRect(data.rect.x - 8, data.rect.y - 8, data.rect.w + data.rect.x, data.rect.h + data.rect.y)
+
+    data.selectedDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.Sprite, spriteData.colorOffset, true, false}
 
     spriteData = data.cachedSpriteData.over
 
-    data.overDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.Sprite, spriteData.colorOffset}
+    data.overDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.SpriteAbove, spriteData.colorOffset, true, false}
   end
 
 
@@ -69,6 +68,15 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
   end
 
   return data
+
+end
+
+function EditorUI:ResizePickerSize(data, itemWidth, itemHeight)
+
+  data.itemWidth = itemWidth
+  data.itemHeight = itemHeight
+  data.columns = math.floor(data.rect.w / itemWidth)
+  data.rows = math.floor(data.rect.h / itemHeight)
 
 end
 
@@ -253,7 +261,11 @@ function EditorUI:RedrawPicker(data)
 
     data.overDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
     data.overDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
-    self:NewDraw("DrawSprites", data.overDrawArgs)
+
+    -- This is used for components that need to draw their own over sprite
+    if(data.drawOver ~= false) then
+      self:NewDraw("DrawSprites", data.overDrawArgs)
+    end
 
   end
 

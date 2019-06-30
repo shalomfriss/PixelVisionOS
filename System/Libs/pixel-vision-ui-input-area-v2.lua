@@ -61,7 +61,7 @@ function EditorUI:CreateInputArea(rect, text, toolTip, pattern, font, forceDraw,
   data.scrollLast = 0
   data.multiline = true
   data.inputTime = 0
-  data.inputDelay = .15
+  data.inputDelay = .1
 
   data.keyInvalidation = 
   {

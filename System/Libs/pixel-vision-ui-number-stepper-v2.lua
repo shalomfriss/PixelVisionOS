@@ -115,10 +115,10 @@ end
 
 function EditorUI:EnableStepper(data, value)
 
-  editorUI:Enable(data, value)
-  editorUI:Enable(data.backButton, value)
-  editorUI:Enable(data.inputField, value)
-  editorUI:Enable(data.nextButton, value)
+  self:Enable(data, value)
+  self:Enable(data.backButton, value)
+  self:Enable(data.inputField, value)
+  self:Enable(data.nextButton, value)
 
 end
 

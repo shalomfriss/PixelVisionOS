@@ -22,6 +22,17 @@ function EditorUI:CreateCanvas(rect, size, scale, colorOffset, toolTip, emptyCol
 
   -- Customize the default name by adding Button to it
   data.name = "Canvas" .. data.name
+
+  data.showPixelSelection = true
+  data.pixelSelectionSize = 1
+  data.borderOffset = 2
+  data.gridSize = 8
+
+  local spriteData = _G["pixelselection1x"]
+
+  data.overDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.Sprite, 36, true, false}
+
+
   data.onClick = function(tmpData)
 
 
@@ -95,6 +106,9 @@ function EditorUI:ChangeCanvasTool(data, toolName)
 
   end
 
+  -- data.showPixelSelection = data.tool ~= "eyedropper" and data.tool ~= "fill"
+
+
   -- TODO change the drawing tool
 
 end
@@ -143,6 +157,26 @@ function EditorUI:UpdateCanvas(data, hitRect)
 
     -- If we are in the collision area, set the focus
     self:SetFocus(data, data.currentCursorID)
+
+    if(data.showPixelSelection) then
+
+      local position = 
+      {
+        x = math.floor((self.collisionManager.mousePos.x - data.rect.x) / data.gridSize),
+        y = math.floor((self.collisionManager.mousePos.y - data.rect.y) / data.gridSize),
+      }
+
+      data.toolTip = "Over pixel (" .. string.lpad(tostring(position.x + 1), 2, "0") .. "," .. string.lpad(tostring(position.y + 1), 2, "0") ..")"
+
+      -- Show cursor
+      data.overDrawArgs[2] = (position.x * data.gridSize) + data.rect.x - data.borderOffset
+      data.overDrawArgs[3] = (position.y * data.gridSize) + data.rect.y - data.borderOffset
+
+      --
+      -- data.overDrawArgs[11] = NewRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h)
+      self:NewDraw("DrawSprites", data.overDrawArgs)
+
+    end
 
     -- Check to see if the button is pressed and has an onAction callback
     if(self.collisionManager.mouseReleased == true) then
@@ -249,8 +283,6 @@ function EditorUI:DrawOnCanvas(data, mousePos, toolID)
 
     -- Test for the data.tool and perform a draw action
     if(data.tool == "pen") then
-
-
 
       if(data.penCanErase == true) then
 
@@ -552,7 +584,14 @@ end
 
 function EditorUI:CanvasBrushColor(data, value)
 
+  -- print("Value", value)
+
   data.brushColor = value
+
+  ReplaceColor(53, value + 256 + 128)
+  -- ReplaceColor(47, colorID)
+
+  -- TODO need to change the color offset for the pixel selection
 
 end
 
@@ -561,5 +600,26 @@ function EditorUI:GetCanvasPixelData(data)
   -- TODO should this subtract the color offset?
 
   return data.paintCanvas:GetPixels()
+
+end
+
+function EditorUI:ChangeCanvasPixelSize(data, size)
+
+  data.pixelSelectionSize = size
+  -- data.borderOffset = 2
+  local spriteData = _G["pixelselection" .. tostring(size) .."x"]
+
+  data.overDrawArgs[1] = spriteData.spriteIDs
+  data.overDrawArgs[4] = spriteData.width
+
+  -- Not sure why but we need to offset this value
+  if(size == 4) then
+    data.borderOffset = 3
+  else
+    data.borderOffset = 2
+  end
+
+  -- Calculate the gridSize TODO this is off because we don't support scale 3 so clamping
+  data.gridSize = Clamp((3 - data.pixelSelectionSize) * 8, 4, 16)
 
 end

@@ -23,9 +23,12 @@ function PixelVisionOS:CreateSpritePicker(rect, tileSize, total, totalPerPage, m
   -- Modify the name to a ColorPicker
   data.name = "SpritePicker" .. data.name
 
+  -- data.tileSize = tileSize
+  -- Pre-calculate this from the rect size and tile size
   data.totalPerPage = totalPerPage
+
   data.colorOffset = colorOffset
-  data.tileSize = tileSize
+
   data.maxPages = maxPages
   data.ignoreEmptyPages = ignoreEmptyPages or true
   data.lastStartX = 0
@@ -40,8 +43,21 @@ function PixelVisionOS:CreateSpritePicker(rect, tileSize, total, totalPerPage, m
   data.pageOverLast = -1
 
   data.spritesPerPage = 256
+  data.totalSprites = data.spritesPerPage * data.totalPerPage
 
   data.selectedSpriteDrawArgs = {
+    nil,
+    0,
+    0,
+    8,
+    8,
+    false,
+    false,
+    DrawMode.SpriteAbove,
+    self.colorOffset
+  }
+
+  data.overSpriteDrawArgs = {
     nil,
     0,
     0,
@@ -63,7 +79,7 @@ function PixelVisionOS:CreateSpritePicker(rect, tileSize, total, totalPerPage, m
     data.slider = editorUI:CreateSlider(
       { x = rect.x + rect.w + 1, y = rect.y, w = 10, h = rect.h},
       "vsliderhandle",
-      "Scroll text horizontally.",
+      "Scroll horizontally.",
       false
     )
 
@@ -93,11 +109,7 @@ function PixelVisionOS:CreateSpritePicker(rect, tileSize, total, totalPerPage, m
 
   end
 
-
   data.picker = self.editorUI:CreatePicker(rect, tileSize.x, tileSize.y, total, spriteName, toolTip)
-
-
-
 
   data.picker.onPress = function(value)
 
@@ -138,18 +150,6 @@ function PixelVisionOS:CreateSpritePicker(rect, tileSize, total, totalPerPage, m
 
   end
 
-  -- -- Create Pagination
-  -- data.pages = editorUI:CreateToggleGroup()
-  -- data.pages.onAction = function(value)
-  --
-  --   self:OnColorPageClick(data, value)
-  --
-  --   if(data.onPageAction ~= nil) then
-  --     data.onPageAction(value)
-  --   end
-  --
-  -- end
-
   -- Create Pagination
   data.pages = editorUI:CreateToggleGroup()
 
@@ -169,12 +169,6 @@ function PixelVisionOS:CreateSpritePicker(rect, tileSize, total, totalPerPage, m
 
   end
 
-
-
-
-
-
-
   -- TODO need to figured out if we want to hide pages when they are empty?
   self:RebuildPickerPages(data, math.floor(total / data.spritesPerPage))
 
@@ -184,20 +178,11 @@ function PixelVisionOS:CreateSpritePicker(rect, tileSize, total, totalPerPage, m
     self.editorUI.collisionManager:EnableDragging(data, .5, "SpritePicker")
   end
 
-
-  -- print(name, "Start Drag value", data.dragging)
-
-  -- TODO testing
-  -- self:DrawSpritePage(data, 1)
-  -- self:ResetSpritePicker(data)
-
   return data
 
 end
 
 function PixelVisionOS:OnSpritePickerHorizontalScroll(data, value)
-
-  -- Clear the current selection on the picker
 
   -- Disable dragging
   data.dragging = false
@@ -208,41 +193,31 @@ function PixelVisionOS:OnSpritePickerHorizontalScroll(data, value)
 
   local totalWidth = math.floor(128 / spriteSize.w)
 
-  local startX = math.ceil((totalWidth - width) * value)
-  -- TODO need to calculate start Y
+  local scale = (data.picker.itemHeight / spriteSize.h)
 
-  if(data.lastStartX ~= startX) then
+  local startX = math.ceil(math.ceil((totalWidth - width) * value) / scale) * scale
 
-    data.lastStartX = startX
+  data.lastStartX = startX
 
-    self:DrawSpritePage(data, data.pages.currentSelection, data.lastStartX)
-
-  end
-
-end
-
-function PixelVisionOS:RedrawSpritePickerPage(data)
   self:DrawSpritePage(data, data.pages.currentSelection, data.lastStartX)
 
 end
 
 function PixelVisionOS:OnSpritePickerVerticalScroll(data, value)
 
-  -- Clear the current selection on the picker
-  -- self:ClearSpritePickerSelection(data)
-
   -- Disable dragging
   data.dragging = false
 
   local rect = data.rect
   local spriteSize = {w = 8, h = 8}
+
   local height = math.floor(rect.h / spriteSize.h)
 
   local totalHeight = math.floor(128 / spriteSize.h)
 
-  local startY = math.ceil((totalHeight - height) * value)
+  local scale = (data.picker.itemHeight / spriteSize.w)
 
-  -- print("Start Y", startY)
+  local startY = math.ceil(math.floor((totalHeight - height) * value) / scale) * scale
 
   if(data.lastStartY ~= startY) then
 
@@ -252,6 +227,10 @@ function PixelVisionOS:OnSpritePickerVerticalScroll(data, value)
 
   end
 
+end
+
+function PixelVisionOS:RedrawSpritePickerPage(data)
+  self:DrawSpritePage(data, data.pages.currentSelection, data.lastStartX)
 end
 
 function PixelVisionOS:OnSpritePageClick(data, pageID, select)
@@ -298,26 +277,43 @@ end
 
 function PixelVisionOS:UpdateSpritePicker(data)
 
-
-
-  -- gameEditor:DrawSprite(0,, false, false, DrawMode.UI, self.colorOffset)
-
   editorUI:UpdatePicker(data.picker)
   editorUI:UpdateToggleGroup(data.pages)
 
   editorUI:UpdateSlider(data.slider)
 
+  -- We need to redraw the over selection box on top with the sprite below to clean up the overlap
+  if(data.picker.overIndex > - 1) then
+
+    data.picker.drawOver = false
+
+    local overID = self:CalculateRealSpriteIndex(data, data.picker.overIndex)
+    local scale = data.picker.itemWidth / 8
+
+    local overPixelData = gameEditor:ReadSpriteData(overID, scale, scale)
+
+    data.overSpriteDrawArgs[1] = overPixelData
+    data.overSpriteDrawArgs[2] = data.picker.overDrawArgs[2] + data.picker.borderOffset
+    data.overSpriteDrawArgs[3] = data.picker.overDrawArgs[3] + data.picker.borderOffset
+    data.overSpriteDrawArgs[9] = data.colorOffset
+
+    self.editorUI:NewDraw("DrawPixels", data.overSpriteDrawArgs)
+
+    self.editorUI:NewDraw("DrawSprites", data.picker.overDrawArgs)
+
+    data.picker.toolTip = "Select sprite ID " .. string.lpad(tostring(overID), #tostring(256 * data.totalPages), "0")
+
+  end
 
 
 
   -- TODO need logic for displaying sprite over and selected tiles
 
-  -- print("data.dragging", data.dragging)
+
   if(data.dragging == true and self.editorUI.collisionManager.dragTime > data.dragDelay and self.editorUI.collisionManager.mousePos.x > - 1 and self.editorUI.collisionManager.mousePos.y > - 1) then
 
     data.picker.overDrawArgs[2] = self.editorUI.collisionManager.mousePos.x - 4
     data.picker.overDrawArgs[3] = self.editorUI.collisionManager.mousePos.y - 4
-
 
 
     if(data.selectedSpritePixelData ~= nil) then
@@ -326,11 +322,11 @@ function PixelVisionOS:UpdateSpritePicker(data)
       data.selectedSpriteDrawArgs[2] = data.picker.overDrawArgs[2] + 1
       data.selectedSpriteDrawArgs[3] = data.picker.overDrawArgs[3] + 1
 
+
+
       self.editorUI:NewDraw("DrawPixels", data.selectedSpriteDrawArgs)
 
     end
-
-
 
     self.editorUI:NewDraw("DrawSprites", data.picker.overDrawArgs)
 
@@ -373,93 +369,58 @@ function PixelVisionOS:UpdateSpritePicker(data)
     end
   end
 
-
 end
 
 function PixelVisionOS:SelectSpritePickerPage(data, value)
   editorUI:SelectToggleButton(data.pages, value)
 end
 
-
 function PixelVisionOS:DrawSpritePage(data, page, startX, startY)
 
+  DrawRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h, pixelVisionOS.emptyColorID, DrawMode.TilemapCache)
 
+  local width = data.picker.rect.w
+  local height = data.picker.rect.h
 
-  local rect = data.rect
-  local spritesPerPage = data.totalPerPage
-  local colorOffset = data.colorOffset
+  local columns = width / 8
+  local rows = height / 8
 
-  local spriteSize = {w = 8, h = 8}
-  local totalPixels = spriteSize.w * spriteSize.h
-  -- local offset = {x = 152, y = 32}
-  local total = spritesPerPage
-
-  -- local width = math.floor(rect.w / spriteSize.w)
-  self:ClearSpritePickerSelection(data)
-
-  local pixelData = {}
-
-  local x = 0
-  local y = 0
+  startX = startX or 0
+  startY = startY or 0
 
   local pageOffset = ((page - 1) * 16)
 
-  startX = startX or 0;
-  startY = startY or 0;
+  local spriteID = CalculateIndex(startX, startY + pageOffset, 16)
 
-  -- local col = 0
-  local row = 0
-  local maxColumns = math.floor(rect.w / spriteSize.w)
-  local pageWidth = 16
+  local pixelData = gameEditor:ReadSpriteData(spriteID, columns, rows)
 
-  -- print("Redraw Sprites", startX, startY)
-  -- print("MaxCol", maxColumns, "pageWidth", pageWidth)
-  local inView = false
-
-  for i = 1, total do
+  DrawPixels(pixelData, data.rect.x, data.rect.y, width, height, false, false, DrawMode.TilemapCache, data.colorOffset)
 
 
-    -- Lua loops start at 1 but we need to start at 0
-    index = i - 1
+  -- Update selection
 
-    local column = index % maxColumns
+  -- Clear selection when drawing the page
+  self:ClearSpritePickerSelection(data)
 
-    local newX = (index % maxColumns)
-    local newY = row
 
-    local spriteID = CalculateIndex(newX + startX, newY + startY + pageOffset, pageWidth)
+  local selPos = CalculatePosition(data.currentSelection, 128 / 8)
 
-    if(spriteID == data.currentSelection) then
+  local tmpRect = NewRect(startX, startY + pageOffset, columns, rows)
 
-      -- print("data.currentSelection", data.currentSelection)
-      -- print("Selection", spriteID, data.currentSelection, newX, startX)
-      local tmpSelection = CalculateIndex(newX, newY, maxColumns)
+  local insideRect = tmpRect:Contains(selPos.x, selPos.y)
 
-      -- print("tmpSelection", tmpSelection, "newX", newX, "newY", newY, "startY", startY)
+  if(insideRect) then
 
-      self.editorUI:SelectPicker(data.picker, tmpSelection, false)
-      -- inView = true
-    end
+    local scale = data.picker.itemWidth / 8
 
-    pixelData = gameEditor:Sprite(spriteID)
+    -- Offset position
+    selPos.x = (selPos.x - tmpRect.x) / scale
+    selPos.y = (selPos.y - tmpRect.y) / scale
 
-    -- need to replace transparent color
-    for j = 1, #pixelData do
-      if(pixelData[j] < 0) then
-        pixelData[j] = pixelVisionOS.emptyColorID
-      else
-        pixelData[j] = pixelData[j] + colorOffset
-      end
-    end
+    local newIndex = CalculateIndex(selPos.x, selPos.y, columns / scale)
 
-    x = (newX * spriteSize.w) + rect.x
-    y = (newY * spriteSize.h) + rect.y
-
-    DrawPixels(pixelData, x, y, spriteSize.w, spriteSize.h, false, false, DrawMode.TilemapCache, 0)
-
-    if (column == (maxColumns - 1)) then
-      row = row + 1
-    end
+    -- TODO no idea why I need to divide the index by the scale but it apears to work?
+    self.editorUI:SelectPicker(data.picker, newIndex, false)
 
   end
 
@@ -486,16 +447,9 @@ function PixelVisionOS:BuildSpritePickerPages(data, total)
     -- local colorCounter = 0
     local emptyColorCounter = 0
 
-    -- Reset page count
-    -- pageCount = 0
-
     for i = 1, total do
 
       local hexColor = Color(data.colorOffset + i)
-
-      -- colorCounter = colorCounter + 1
-
-      -- print("Test System Colors", i, hexColor, colorCounter)
 
       if(hexColor == self.maskColor) then -- TODO need mask color
         emptyColorCounter = emptyColorCounter + 1
@@ -525,22 +479,18 @@ function PixelVisionOS:CalculateRealSpriteIndex(data, value)
 
   -- TODO need to take scroll position into account
 
-  -- data.lastStartX
-
   value = value or data.picker.selected
 
-  local visibleWidth = math.floor(data.rect.w / 8)
+  local scale = data.picker.itemWidth / 8
 
-  local totalWidth = math.floor(128 / 8)
+  local visibleWidth = math.floor(data.rect.w / data.picker.itemWidth)
+
+  local totalWidth = math.floor(128 / data.picker.itemWidth)
 
   local pos = CalculatePosition(value, visibleWidth)
 
-  -- print("Pos", pos.x, pos.y, data.lastStartX, visibleWidth, totalWidth)
-
-  pos.x = pos.x + data.lastStartX
-  pos.y = pos.y + data.lastStartY
-  -- pos.y = pos.y + (totalWidth - data.lastStartX)
-
+  pos.x = (pos.x * scale) + data.lastStartX
+  pos.y = (pos.y * scale) * scale + data.lastStartY
 
   value = CalculateIndex(pos.x, pos.y, totalWidth)
 
@@ -556,8 +506,6 @@ function PixelVisionOS:CalculateSpritePickerPosition(data)
 
 end
 
-
-
 function PixelVisionOS:SelectSpritePickerSprite(data, value)
 
 
@@ -566,16 +514,16 @@ function PixelVisionOS:SelectSpritePickerSprite(data, value)
     return
   end
 
-  -- print("Select Sprite", value)
-  --
-  -- print("Select sprite", value)
-
   -- Clear the current selection
   self:ClearSpritePickerSelection(data)
 
+  local itemSize = data.picker.itemWidth
+
+  local total = (128 / itemSize) * (128 / itemSize)
+  -- local realTotal = 128
   -- Calculate the correct page and index
   local page = math.floor(value / 256) + 1
-  local index = value % 256
+  local index = value % total
 
   -- Save the new selection
   data.currentSelection = value
@@ -588,7 +536,7 @@ function PixelVisionOS:SelectSpritePickerSprite(data, value)
   -- Calculate the scroll position
 
   -- TODO this is hardcoded
-  local columns = 128 / 8
+  local columns = 128 / itemSize
   -- local rows = 128 / 8
 
   -- TODO this is only working for vertical scrolling
@@ -603,23 +551,16 @@ function PixelVisionOS:SelectSpritePickerSprite(data, value)
     percent = (pos.x / (columns ))
   end
 
-  -- print("Percent", percent .."%", pos.x, pos.y, columns)
-
   -- Check to see if we are at the same scroll position
   if(data.slider.value == percent) then
-
-    -- Force the slider
-    if(data.vertical == true) then
-      self:DrawSpritePage(data, data.pages.currentSelection, 0, data.lastStartY)
-    else
-      self:DrawSpritePage(data, data.pages.currentSelection, 0, data.lastStartX)
-    end
+    -- print("Force redraw")
+    -- Force a page redraw (TODO maybe we can just update the selection)
+    self:DrawSpritePage(data, data.pages.currentSelection, 0, data.vertical == true and data.lastStartY or data.lastStartX)
 
   else
     editorUI:ChangeSlider(data.slider, percent)
   end
-  -- self:DrawSpritePage(data, data.pages.currentSelection, data.lastStartX)
-
+  --
 
   -- Force dragging to be false
   data.dragging = false
@@ -628,7 +569,10 @@ end
 
 function PixelVisionOS:UpdateSelectedSpritePixelData(data)
 
-  data.selectedSpritePixelData = gameEditor:Sprite(data.currentSelection)
+  data.selectedSpritePixelData = gameEditor:ReadSpriteData(data.currentSelection, data.picker.itemWidth / 8, data.picker.itemWidth / 8)
+
+
+  -- gameEditor:Sprite(data.currentSelection)
 
   local total = #data.selectedSpritePixelData
 
@@ -637,5 +581,29 @@ function PixelVisionOS:UpdateSelectedSpritePixelData(data)
       data.selectedSpritePixelData[i] = self.emptyColorID
     end
   end
+
+end
+
+function PixelVisionOS:ChangeSpritePickerSize(data, size)
+
+  if(data == nil) then
+    return
+  end
+
+  local spriteSize = size * 8
+
+  editorUI:ResizePickerSize(data.picker, spriteSize, spriteSize)
+
+  data.picker.overDrawArgs[1] = _G["spritepickerover"].spriteIDs
+  data.picker.overDrawArgs[4] = _G["spritepickerover"].width
+
+  data.picker.selectedDrawArgs[1] = _G["spritepickerselectedup"].spriteIDs
+  data.picker.selectedDrawArgs[4] = _G["spritepickerselectedup"].width
+
+  data.selectedSpriteDrawArgs[4] = spriteSize
+  data.selectedSpriteDrawArgs[5] = spriteSize
+
+  data.overSpriteDrawArgs[4] = spriteSize
+  data.overSpriteDrawArgs[5] = spriteSize
 
 end
