@@ -113,31 +113,8 @@ function EditorUI:UpdateSlider(data)
       if(self.collisionManager.mouseDown == true and data.inFocus) then
 
         -- Calculate the position
-        local dir = data.horizontal and "x" or "y"
-        local prop = "handle" .. string.upper(dir)
+        self:UpdateSliderPosition(data)
 
-        -- Need to calculate the new x position
-        local newPos = self.collisionManager.mousePos[dir] - data.handleCenter
-
-        if(newPos > - 1) then
-
-          -- Make sure the position is in range
-          if(newPos > size + data.rect[dir]) then
-            newPos = size + data.rect[dir]
-          elseif(newPos < data.rect[dir]) then
-            newPos = data.rect[dir]
-          end
-
-
-          -- Save the new position
-          data[prop] = newPos
-
-          -- Need to calculate the value
-          local percent = math.ceil(((data[prop] - data.rect[dir]) / size) * 100) / 100
-
-
-          self:ChangeSlider(data, percent)
-        end
       end
 
     else
@@ -215,6 +192,37 @@ function EditorUI:UpdateSlider(data)
   -- Return the slider data value
   return data.value
 
+end
+
+function EditorUI:UpdateSliderPosition(data)
+
+  local size = data.size - data.handleSize
+  local dir = data.horizontal and "x" or "y"
+  local prop = "handle" .. string.upper(dir)
+
+  -- Need to calculate the new x position
+  local newPos = self.collisionManager.mousePos[dir] - data.handleCenter
+
+  if(newPos > - 1) then
+
+    -- Make sure the position is in range
+    if(newPos > size + data.rect[dir]) then
+      newPos = size + data.rect[dir]
+    elseif(newPos < data.rect[dir]) then
+      newPos = data.rect[dir]
+    end
+
+
+    -- Save the new position
+    data[prop] = newPos
+
+    -- Need to calculate the value
+    local percent = math.ceil(((data[prop] - data.rect[dir]) / size) * 100) / 100
+
+
+    self:ChangeSlider(data, percent)
+
+  end
 end
 
 function EditorUI:ChangeSlider(data, percent, trigger)

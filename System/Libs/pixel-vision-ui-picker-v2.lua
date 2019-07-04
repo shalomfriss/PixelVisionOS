@@ -45,7 +45,7 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
 
     local bounds = NewRect(data.rect.x - 8, data.rect.y - 8, data.rect.w + data.rect.x, data.rect.h + data.rect.y)
 
-    data.selectedDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.Sprite, spriteData.colorOffset, true, false}
+    data.selectedDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.SpriteAbove, spriteData.colorOffset, true, false}
 
     spriteData = data.cachedSpriteData.over
 
@@ -295,6 +295,16 @@ end
 -- Use this to perform a click action on a button. It's used internally when a mouse click is detected.
 function EditorUI:PickerClick(data, callAction, doubleClick)
 
+  data.selected = data.overIndex
+
+  if(data.selectedDrawArgs) then
+
+    data.selectedDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
+    data.selectedDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
+
+    -- print("Update pos", data.selectedDrawArgs[2], data.selectedDrawArgs[3], data.selected)
+  end
+
   if(data.onAction ~= nil and callAction ~= false) then
 
     -- Trigger the onAction call back and pass in the double click value if the button is set up to use it
@@ -306,15 +316,7 @@ end
 
 function EditorUI:PickerPress(data, callAction)
 
-  data.selected = data.overIndex
 
-  if(data.selectedDrawArgs) then
-
-    data.selectedDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
-    data.selectedDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
-
-    -- print("Update pos", data.selectedDrawArgs[2], data.selectedDrawArgs[3], data.selected)
-  end
 
   if(data.onPress ~= nil and callAction ~= false) then
 

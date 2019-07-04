@@ -1935,7 +1935,7 @@ function UpdateFileType(item, isGameFile)
     -- print("Is PNG")
     if(item.name == "sprites" and editorMapping["sprites"] ~= nil) then
       key = "sprites"
-    elseif(item.name == "tilemap") then
+    elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
       key = "tiles"
     elseif(item.name == "colors" and editorMapping["colors"] ~= nil) then
       key = "colors"

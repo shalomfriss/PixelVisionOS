@@ -239,6 +239,7 @@ function EditorUI:SetFocus(data, cursor)
     return
   end
 
+
   if(self.collisionManager.mouseDown and self.inFocusUI ~= nil) then
 
     if(self.inFocusUI.name ~= data.name) then
@@ -264,6 +265,8 @@ function EditorUI:SetFocus(data, cursor)
 end
 
 function EditorUI:ClearFocus(data)
+
+  self.lastInFocusUI = self.inFocusUI
 
   -- Clear all focus if no data is provided
   if(data == nil) then
