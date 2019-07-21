@@ -198,6 +198,7 @@ function CollisionManager:EnableDragging(target, dragDelay, type)
   end
 
   target.onEndDrag = function(data)
+    -- print("End drag")
     self:EndDrag(target)
   end
 

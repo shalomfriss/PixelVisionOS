@@ -113,6 +113,14 @@ function EditorUI:Draw()
 
 end
 
+function EditorUI:Shutdown()
+
+  -- Clear the draw calls for shutting down
+  self.drawCalls = {}
+  self.drawCallTotal = 0
+
+end
+
 function EditorUI:CreateData(rect, spriteName, toolTip, forceDraw)
 
   local data = {
