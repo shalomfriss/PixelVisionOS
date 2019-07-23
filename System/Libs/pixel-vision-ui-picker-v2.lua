@@ -25,6 +25,7 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
   data.doubleClickDelay = .45
   data.doubleClickActive = false
 
+  data.focusCursor = 2
 
   -- Customize the default name by adding Button to it
   data.name = "Picker" .. data.name
@@ -150,7 +151,7 @@ function EditorUI:UpdatePicker(data, hitRect)
     if(tmpPos.index > - 1 and tmpPos.index < data.total) then
 
       -- If we are in the collision area, set the focus
-      self:SetFocus(data)
+      self:SetFocus(data, data.focusCursor)
 
       -- calculate the correct button over state
       local state = self.collisionManager.mouseDown and "down" or "over"
