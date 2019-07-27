@@ -32,7 +32,10 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
 
   data.total = total
 
-  self:ResizePickerSize(data, itemWidth, itemHeight)
+  data.itemWidth = itemWidth
+  data.itemHeight = itemHeight
+  data.columns = math.floor(data.rect.w / itemWidth)
+  data.rows = math.floor(data.rect.h / itemHeight)
 
   data.overIndex = -1
   data.selected = -1
@@ -69,15 +72,6 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
   end
 
   return data
-
-end
-
-function EditorUI:ResizePickerSize(data, itemWidth, itemHeight)
-
-  data.itemWidth = itemWidth
-  data.itemHeight = itemHeight
-  data.columns = math.floor(data.rect.w / itemWidth)
-  data.rows = math.floor(data.rect.h / itemHeight)
 
 end
 

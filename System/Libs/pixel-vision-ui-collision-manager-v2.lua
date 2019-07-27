@@ -75,8 +75,8 @@ function CollisionManager:Update(timeDelta)
 
   -- Calculate what flag the mouse is under
   -- self.hovered = self:CalculateFlag()
-  self.mousePos.x = self.mousePos.x-- + self.scrollPos.x
-  self.mousePos.y = self.mousePos.y-- + self.scrollPos.y
+  -- self.mousePos.x = self.mousePos.x-- + self.scrollPos.x
+  -- self.mousePos.y = self.mousePos.y-- + self.scrollPos.y
 
   -- Calculate the current mouse column
   self.mousePos.c = math.floor(self.mousePos.x / self.spriteSize.x)

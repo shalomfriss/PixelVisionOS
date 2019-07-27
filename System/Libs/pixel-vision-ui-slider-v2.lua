@@ -212,13 +212,11 @@ function EditorUI:UpdateSliderPosition(data)
       newPos = data.rect[dir]
     end
 
-
     -- Save the new position
     data[prop] = newPos
 
     -- Need to calculate the value
     local percent = math.ceil(((data[prop] - data.rect[dir]) / size) * 100) / 100
-
 
     self:ChangeSlider(data, percent)
 
