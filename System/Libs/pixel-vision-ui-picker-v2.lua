@@ -49,11 +49,11 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
 
     local bounds = NewRect(data.rect.x - 8, data.rect.y - 8, data.rect.w + data.rect.x, data.rect.h + data.rect.y)
 
-    data.selectedDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.SpriteAbove, spriteData.colorOffset, true, false}
+    data.selectedDrawArgs = {spriteData.spriteIDs, - 1, - 1, spriteData.width, false, false, DrawMode.UI, spriteData.colorOffset, true, false}
 
     spriteData = data.cachedSpriteData.over
 
-    data.overDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.SpriteAbove, spriteData.colorOffset, true, false}
+    data.overDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.UI, spriteData.colorOffset, true, false}
   end
 
 
@@ -245,12 +245,9 @@ function EditorUI:RedrawPicker(data)
     return
   end
 
-  if(data.selectedDrawArgs ~= nil and data.selected > - 1) then
-
+  if(data.selectedDrawArgs ~= nil and data.selected > - 1 ) then
     self:NewDraw("DrawSprites", data.selectedDrawArgs)
-
   end
-
 
   if(data.overIndex > - 1 and data.overDrawArgs ~= nil) then
 
