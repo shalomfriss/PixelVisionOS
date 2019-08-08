@@ -59,15 +59,20 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
 
   data.onClick = function(tmpData)
 
+    -- if(self.inFocusUI ~= nil and self.inFocusUI.name == tmpData.name) then
+    print(data.name, "Click")
+
     self:PickerClick(tmpData, true, tmpData.doubleClickActive and tmpData.doubleClickTime < tmpData.doubleClickDelay)
 
     tmpData.doubleClickTime = 0
     tmpData.doubleClickActive = true
 
+    -- end
+
   end
 
   data.onFirstPress = function(tmpData)
-
+    print(data.name, "press")
     self:PickerPress(tmpData, true)
   end
 
@@ -308,8 +313,6 @@ end
 
 function EditorUI:PickerPress(data, callAction)
 
-
-
   if(data.onPress ~= nil and callAction ~= false) then
 
     -- Trigger the onPress
@@ -328,12 +331,20 @@ function EditorUI:SelectPicker(data, value, callAction)
   data.selectedDrawArgs[2] = (pos.x * data.itemWidth) + data.rect.x - data.borderOffset
   data.selectedDrawArgs[3] = (pos.y * data.itemHeight) + data.rect.y - data.borderOffset
 
-  if(data.onPress ~= nil and callAction ~= false) then
+  -- TODO this should be routed into the correct action callback
+  if(data.onAction ~= nil and callAction ~= false) then
 
-    -- Trigger the onPress
-    data.onPress(data.selected)
+    -- Trigger the onAction call back and pass in the double click value if the button is set up to use it
+    data.onAction(data.selected, doubleClick)
 
   end
+
+  -- if(data.onPress ~= nil and callAction ~= false) then
+  --
+  --   -- Trigger the onPress
+  --   data.onPress(data.selected)
+  --
+  -- end
 
   self:Invalidate(data)
 end

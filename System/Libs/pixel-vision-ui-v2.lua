@@ -243,10 +243,14 @@ end
 
 function EditorUI:SetFocus(data, cursor)
 
+
+  -- Update the cursor no matter what
+  self.cursorID = cursor or 2
+
+  -- Only do the collision testing if the focus is not already set to true
   if(data.inFocus == true) then
     return
   end
-
 
   if(self.collisionManager.mouseDown and self.inFocusUI ~= nil) then
 
@@ -261,8 +265,7 @@ function EditorUI:SetFocus(data, cursor)
   data.inFocus = true
   -- end
 
-  -- Update the cursor
-  self.cursorID = cursor or 2
+
 
   -- Set the current component's data to be in focus in the editor UI
   self.inFocusUI = data

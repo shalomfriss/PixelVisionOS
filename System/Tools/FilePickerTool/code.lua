@@ -2035,6 +2035,40 @@ function Update(timeDelta)
 
       end
 
+      -- Create a new piont to see if we need to change the sprite position
+      local newPos = NewPoint(0, 0)
+
+      local columns = 3
+      local rows = 1
+
+      -- Offset the new position by the direction button
+      if(Button(Buttons.Up, InputState.Released)) then
+        newPos.y = -1
+      elseif(Button(Buttons.Right, InputState.Released)) then
+        newPos.x = 1
+      elseif(Button(Buttons.Down, InputState.Released)) then
+        newPos.y = 1
+      elseif(Button(Buttons.Left, InputState.Released)) then
+        newPos.x = -1
+      end
+
+      -- Test to see if the new position has changed
+      if(newPos.x ~= 0 or newPos.y ~= 0) then
+
+        -- TODO need to wire this up correctly
+        local currentSelectionID = 0
+
+        local curPos = CalculatePosition(currentSelectionID, columns)
+
+        newPos.x = Clamp(curPos.x + newPos.x, 0, columns - 1)
+        newPos.y = Clamp(curPos.y + newPos.y, 0, rows - 1)
+
+        local newIndex = CalculateIndex(newPos.x, newPos.y, columns)
+
+        print(newIndex)
+
+      end
+
     end
 
     editorUI:UpdateIconGroup(desktopIconButtons)
