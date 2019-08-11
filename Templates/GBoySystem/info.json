@@ -1,7 +1,7 @@
 {
     "name":"GBoySystem",
     "description":"",
-    "version":"v0.9.3",
+    "version":"v0.9.4",
     "ext":".pvs",
     "gpuChip":"GBoy",
     "cartChip":"GBoy",

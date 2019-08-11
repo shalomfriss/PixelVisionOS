@@ -1,0 +1,10 @@
+{
+    "name":"PV8Tool",
+    "description":"A generic template for making Pixel Vision 8 tools.",
+    "version":"v0.9.4",
+    "ext":".pv8",
+    "gpuChip":"Custom",
+    "cartChip":"Custom",
+    "soundChip":"PV8",
+    
+}

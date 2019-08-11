@@ -1,6 +1,10 @@
 {
     "name":"Pico8System",
     "description":"",
-    "version":"0.7.6",
+    "version":"v0.9.4",
     "ext":".pvs",
+    "gpuChip":"Pico",
+    "cartChip":"Pico",
+    "soundChip":"Pico",
+    
 }

@@ -4,17 +4,29 @@ $readme=Welcome to the Pixel Vision OS installer. This will install the base OS 
 
 # bios values
 # $bios=WorkspaceDir:"Workspace"
-$bios=AutoRun|/PixelVisionOS/Tools/FilePickerTool/
+$bios=AutoRun|/PixelVisionOS/Tools/WorkspaceTool/
 
 #Files to install
 
 # Tools
-/System/Tools/FilePickerTool/
+/System/Tools/WorkspaceTool/
 /System/Tools/ImagePreviewTool/
 /System/Tools/InstallerTool/
 /System/Tools/LogPreviewTool/
 /System/Tools/SettingsTool/
 /System/Tools/TextEditorTool/
+
+# Art Packs
+/Artpacks/SpaceRanger/
+/Artpacks/ReaperBoy/
+
+# Templates
+/Templates/PV8Tool/
+/Templates/Pico8System/
+/Templates/MastrSystem/
+/Templates/GBoySystem/
+/Templates/FamiSystem/
+/Templates/ArduboySystem/
 
 # Library Files
 /System/Libs/pixel-vision-os-color-utils-v2.lua

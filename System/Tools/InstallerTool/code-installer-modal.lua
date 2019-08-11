@@ -3,8 +3,6 @@ InstallerModal.__index = InstallerModal
 
 function InstallerModal:Init(title, editorUI)
 
-  print("Create installer modal")
-
   local _installerModal = {} -- our new object
   setmetatable(_installerModal, InstallerModal) -- make Account handle lookup
 

@@ -1,8 +1,7 @@
 {
     "ColorChip":
     {
-        "pages":4,
-        "colorsPerPage":64,
+        "total":256,
         "maxColors":4,
         "backgroundColor":0,
         "maskColor":"#FF00FF",
@@ -12,10 +11,10 @@
     },
     "DisplayChip":
     {
-        "width":160,
-        "height":144,
-        "overscanX":0,
-        "overscanY":0,
+        "width":152,
+        "height":136,
+        "overscanX":1,
+        "overscanY":1,
         "layers":6
         
     },
@@ -24,20 +23,22 @@
     },
     "GameChip":
     {
-        "lockSpecs":true,
+        "lockSpecs":false,
         "maxSize":128,
         "saveSlots":8
     },
     "MusicChip":
     {
-        "totalTracks":3,
+        "totalSongs":8,
         "notesPerTrack":127,
+        "totalPatterns":8,
         "totalLoop":8
     },
     "SoundChip":
     {
         "totalChannels":4,
-        "totalSounds":16
+        "totalSounds":16,
+        "channelTypes":[0,0,5,3]
     },
     
     "SpriteChip":{
@@ -52,7 +53,8 @@
     {
         "columns":128,
         "rows":128,
-        "totalFlags":16"autoImport":false,
+        "totalFlags":16,
+        "autoImport":false,
         
     }
 }
