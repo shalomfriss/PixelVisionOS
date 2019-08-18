@@ -23,13 +23,15 @@ function PixelVisionOS:ImportColorsFromGame()
   -- We'll save the game's mask color
   self.maskColor = gameEditor:MaskColor()
 
+  self.colorsPerSprite = gameEditor:ColorsPerSprite()
+
   -- Games are capped at 256 colors
   self.totalColors = 256
 
   self.emptyColorID = self.totalColors - 1
 
   -- The color offset is the first position where a game's colors are stored in the tool's memory
-  self.colorOffset = 256
+  self.colorOffset = self.totalColors
 
   -- Clear all the tool's colors
   for i = 1, self.totalColors do
@@ -99,36 +101,40 @@ function PixelVisionOS:ImportColorsFromGame()
 
   end
 
-  self.paletteColors = {}
+  -- self.paletteColors = {}
 
   if(self.paletteMode == true) then
 
-    for i = self.totalSystemColors + 2, self.totalColors do
+
+    self.totalPaletteColors = 128
+
+    for i = 129, self.totalColors do
 
       local index = i - 1
 
       -- get the game color at the current index
       local color = gameColors[i]
 
-      local colorID = color == self.maskColor and - 1 or table.indexOf(self.systemColors, color)
+      local colorID = table.indexOf(self.systemColors, color)
 
+      local paletteIndex = (i - 129) % 16
+      -- We shouldn't have missing colors in the palettes so use the first color
+      if(colorID == -1 and paletteIndex < self.colorsPerSprite) then
+        color = Color(256)
 
-      -- print("Import Palette Color From", index, color, colorID)
-      if(colorID > - 1 and color ) then
-        Color(index + self.colorOffset, color)
+        -- TODO this needs to clear any colors past the CPS value in the palette
+      elseif(paletteIndex > self.colorsPerSprite) then
+        color = self.maskColor
       end
-      -- Add the system color to the table
-      table.insert(self.paletteColors, colorID)
+
+      Color(index + self.colorOffset, color)
 
     end
-
-    self.totalPaletteColors = 128
 
   end
 
   self.totalSystemColors = #self.systemColors
   -- Add up the palette colors
-
 
 end
 
