@@ -44,6 +44,8 @@ function EditorUI:CreateButton(rect, spriteName, toolTip, forceDraw)
 
       tmpData.doubleClickTime = 0
       tmpData.doubleClickActive = true
+      -- TODO added this to reset the double click since it's not being reset below
+      tmpData.doubleClick = true
     end
   end
 

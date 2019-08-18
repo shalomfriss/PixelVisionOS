@@ -21,8 +21,8 @@ function PixelVisionOS:OpenModal(modal, callBack)
 
   SaveTilemapCache()
 
-  -- Clear the mouse focus
-  self.editorUI:SetFocus(modal)
+  -- Clear the previous mouse focus
+  self.editorUI:ClearFocus()
 
   -- Set the active modal
   self.activeModal = modal

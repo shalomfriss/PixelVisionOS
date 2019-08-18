@@ -21,22 +21,22 @@ local lastOpened = nil
 function Init()
 
   -- Here we are manually changing the background color
-  BackgroundColor(32)
+  BackgroundColor(0)
 
   -- Let's draw the title into the tilemap
-  DrawText(title, 1, 1, DrawMode.Tile, "default")
+  DrawText(title, 1, 1, DrawMode.Tile, "large", 15)
 
   -- We are going to render the message in a box as tiles.
-  DrawText(message, 1, 4, DrawMode.Tile, "default", 0, 0, 31)
+  DrawText(message, 1, 4, DrawMode.Tile, "large", 15)
 
   -- Read the save data from the game cartridge
   lastOpened = ReadSaveData("lastOpened", "undefined")
 
   -- Finally we'll render the date below our message as tiles.
-  DrawText(lastOpened, 1, 6, DrawMode.Tile, "default", 0, 0, 31)
+  DrawText(lastOpened, 1, 6, DrawMode.Tile, "large", 14)
 
   -- Finally we'll render the date below our message as tiles.
-  DrawText("Hit Ctrl + 4 to reload.", 1, 10, DrawMode.Tile, "default", 0, 0, 31)
+  DrawText("Hit Ctrl + 4 to reload.", 1, 10, DrawMode.Tile, "large", 15)
 
 end
 

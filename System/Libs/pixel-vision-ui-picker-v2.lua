@@ -59,20 +59,24 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
 
   data.onClick = function(tmpData)
 
-    -- if(self.inFocusUI ~= nil and self.inFocusUI.name == tmpData.name) then
-    print(data.name, "Click")
+    if(self.currentPickerDown == tmpData.name) then
 
-    self:PickerClick(tmpData, true, tmpData.doubleClickActive and tmpData.doubleClickTime < tmpData.doubleClickDelay)
 
-    tmpData.doubleClickTime = 0
-    tmpData.doubleClickActive = true
 
+      self:PickerClick(tmpData, true, tmpData.doubleClickActive and tmpData.doubleClickTime < tmpData.doubleClickDelay)
+
+      tmpData.doubleClickTime = 0
+      tmpData.doubleClickActive = true
+      tmpData.doubleClick = true
+
+    end
     -- end
 
   end
 
   data.onFirstPress = function(tmpData)
-    print(data.name, "press")
+
+    self.currentPickerDown = tmpData.name
     self:PickerPress(tmpData, true)
   end
 
@@ -250,7 +254,7 @@ function EditorUI:RedrawPicker(data)
     return
   end
 
-  if(data.selectedDrawArgs ~= nil and data.selected > - 1 ) then
+  if(data.selectedDrawArgs ~= nil and data.selected > - 1 and data.drawSelected ~= false) then
     self:NewDraw("DrawSprites", data.selectedDrawArgs)
   end
 
@@ -292,16 +296,6 @@ end
 -- Use this to perform a click action on a button. It's used internally when a mouse click is detected.
 function EditorUI:PickerClick(data, callAction, doubleClick)
 
-  data.selected = data.overIndex
-
-  if(data.selectedDrawArgs) then
-
-    data.selectedDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
-    data.selectedDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
-
-    -- print("Update pos", data.selectedDrawArgs[2], data.selectedDrawArgs[3], data.selected)
-  end
-
   if(data.onAction ~= nil and callAction ~= false) then
 
     -- Trigger the onAction call back and pass in the double click value if the button is set up to use it
@@ -312,6 +306,16 @@ function EditorUI:PickerClick(data, callAction, doubleClick)
 end
 
 function EditorUI:PickerPress(data, callAction)
+
+  data.selected = data.overIndex
+
+  if(data.selectedDrawArgs) then
+
+    data.selectedDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
+    data.selectedDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
+
+    -- print("Update pos", data.selectedDrawArgs[2], data.selectedDrawArgs[3], data.selected)
+  end
 
   if(data.onPress ~= nil and callAction ~= false) then
 

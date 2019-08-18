@@ -29,7 +29,7 @@ function PixelVisionOS:ImportColorsFromGame()
   self.emptyColorID = self.totalColors - 1
 
   -- The color offset is the first position where a game's colors are stored in the tool's memory
-  self.colorOffset = self.totalColors
+  self.colorOffset = 256
 
   -- Clear all the tool's colors
   for i = 1, self.totalColors do
@@ -44,7 +44,7 @@ function PixelVisionOS:ImportColorsFromGame()
   self.totalSystemColors = self.paletteMode and self.totalColors / 2 or self.totalColors
 
   -- We want to subtract 1 from the system colors to make sure the last color is always empty for the mask
-  self.totalSystemColors = self.totalSystemColors - 1
+  self.totalSystemColors = Clamp(self.totalSystemColors, 0, gameEditor:MaximumColors())
 
   -- There are always 128 total palette colors in memory
   self.totalPaletteColors = 0
@@ -77,13 +77,11 @@ function PixelVisionOS:ImportColorsFromGame()
 
     local ignoreColor = false
 
-    if(self.paletteMode == true) then
-      if(color == self.maskColor or table.indexOf(self.systemColors, color) ~= -1) then
-        ignoreColor = true
-      end
+    -- if(self.paletteMode == true) then
+    if(color == self.maskColor or table.indexOf(self.systemColors, color) ~= -1) then
+      ignoreColor = true
     end
-
-    -- self.paletteMode == true and table.indexOf(self.systemColors, color) ~= -1 or false
+    -- end
 
     -- Look to see if we have the system color or if its not the mask color
     if(ignoreColor == false) then
@@ -99,23 +97,11 @@ function PixelVisionOS:ImportColorsFromGame()
 
     end
 
-
-
-    -- print("Import Color From", index)
-
   end
-
-  -- -- Add the system color to the table
-  -- table.insert(self.systemColors, self.maskColor)
-  --
-  -- -- Force the last color to be transparent
-  -- Color(#self.systemColors + 1 + self.colorOffset, self.maskColor)
 
   self.paletteColors = {}
 
   if(self.paletteMode == true) then
-
-    -- local paletteCounter = 0
 
     for i = self.totalSystemColors + 2, self.totalColors do
 
@@ -136,28 +122,26 @@ function PixelVisionOS:ImportColorsFromGame()
 
     end
 
+    self.totalPaletteColors = 128
+
   end
 
-  -- TODO there should always be at least one transparent color at the end of the system color list
-
-  -- Update the system color total to match the unique colors found plus 1 for the last color to be empty
-  self.totalSystemColors = #self.systemColors + 1
-
+  self.totalSystemColors = #self.systemColors
   -- Add up the palette colors
-  self.totalPaletteColors = #self.paletteColors
+
 
 end
 
 
 
 
-function PixelVisionOS:CopyGameColorsToGameMemory()
+function PixelVisionOS:CopyToolColorsToGameMemory()
 
   -- Clear the game's colors
   gameEditor:ClearColors()
 
   -- Force the game to have 256 colors
-  gameEditor:ColorPages(4)
+  -- gameEditor:ColorPages(4)
 
   -- Copy over all the new system colors from the tool's memory
   for i = 1, self.totalColors do

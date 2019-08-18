@@ -1,10 +1,9 @@
 {
     "ColorChip":
     {
-        "pages":4,
-        "colorsPerPage":64,
+        "total":256,
         "maxColors":256,
-        "backgroundColor":0,
+        "backgroundColor":32,
         "maskColor":"#FF00FF",
         "unique":false,
         "debug":false,
@@ -26,18 +25,20 @@
     {
         "lockSpecs":false,
         "maxSize":256,
-        "saveSlots":0
+        "saveSlots":2
     },
     "MusicChip":
     {
-        "totalTracks":4,
+        "totalSongs":16,
         "notesPerTrack":127,
+        "totalPatterns":16,
         "totalLoop":16
     },
     "SoundChip":
     {
         "totalChannels":4,
-        "totalSounds":16
+        "totalSounds":16,
+        "channelTypes":[-1,-1,-1,-1]
     },
     
     "SpriteChip":{

@@ -3,6 +3,7 @@
     "gpuChip":"Fami",
     "cartChip":"Fami",
     "soundChip":"Fami",
-    "version":"v0.9.3",
+    "version":"v0.9.4",
+    "paletteMode":"false",
     
 }
