@@ -641,7 +641,7 @@ function OnSingleFileAction(srcPath, destPath, action)
 
   -- print("OnSingleFileAction", srcPath, destPath, action)
 
-  local tmpDest = (srcPath.IsDirectory == true) and destPath.AppendDirectory(srcPath.EntityName) or destPath.AppendFile(srcPath.EntityName)
+  local tmpDest = (srcPath.IsDirectory == true) and destPath.AppendDirectory(srcPath.EntityName) or UniqueFilePath(destPath.AppendFile(srcPath.EntityName))
 
   --- Need to make sure we can do the action
 

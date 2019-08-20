@@ -46,7 +46,7 @@ function PixelVisionOS:ImportColorsFromGame()
   self.totalSystemColors = self.paletteMode and self.totalColors / 2 or self.totalColors
 
   -- We want to subtract 1 from the system colors to make sure the last color is always empty for the mask
-  self.totalSystemColors = Clamp(self.totalSystemColors, 0, gameEditor:MaximumColors())
+  -- self.totalSystemColors = Clamp(self.totalSystemColors, 0, gameEditor:MaximumColors())
 
   -- There are always 128 total palette colors in memory
   self.totalPaletteColors = 0
@@ -64,6 +64,8 @@ function PixelVisionOS:ImportColorsFromGame()
 
   -- Create a table for all of the system colors so we can track unique colors
   self.systemColors = {}
+
+  local counter = 0
 
   -- Loop through all of the system colors and add them to the tool
   for i = 1, self.totalSystemColors do
@@ -97,6 +99,13 @@ function PixelVisionOS:ImportColorsFromGame()
       -- Save the game's color to the tool's memory
       Color(index + self.colorOffset, color)
 
+      counter = counter + 1
+
+      if(counter > gameEditor:MaximumColors()) then
+
+        break
+
+      end
     end
 
   end
@@ -119,12 +128,15 @@ function PixelVisionOS:ImportColorsFromGame()
 
       local paletteIndex = (i - 129) % 16
       -- We shouldn't have missing colors in the palettes so use the first color
-      if(colorID == -1 and paletteIndex < self.colorsPerSprite) then
+
+      -- Mask off any colors outside of the palette
+      if(paletteIndex >= self.colorsPerSprite) then
+        color = self.maskColor
+
+        -- Set any masked colors in a palette to the fist system color
+      elseif(colorID == -1 and paletteIndex < self.colorsPerSprite) then
         color = Color(256)
 
-        -- TODO this needs to clear any colors past the CPS value in the palette
-      elseif(paletteIndex > self.colorsPerSprite) then
-        color = self.maskColor
       end
 
       Color(index + self.colorOffset, color)
@@ -137,7 +149,6 @@ function PixelVisionOS:ImportColorsFromGame()
   -- Add up the palette colors
 
 end
-
 
 
 
