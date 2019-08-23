@@ -389,7 +389,13 @@ function OnNewFile(fileName, ext, type, editable)
         -- Create an empty json file
       elseif(ext == "json") then
         SaveText(filePath, "{}")
+      elseif(type == "font") then
+
+        tmpPath = fileTemplatePath.AppendFile("large.font.png")
+        CopyTo(tmpPath, filePath)
+
       else
+        print("File not supported")
         -- TODO need to display an error message that the file couldn't be created
         return
       end

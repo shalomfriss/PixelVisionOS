@@ -139,6 +139,7 @@ function PixelVisionOS:ImportColorsFromGame()
 
       end
 
+      print("pal", i, color)
       Color(index + self.colorOffset, color)
 
     end
