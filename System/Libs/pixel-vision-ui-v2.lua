@@ -27,8 +27,9 @@ LoadScript("pixel-vision-ui-button-v2")
 LoadScript("pixel-vision-ui-palette-button-v2")
 LoadScript("pixel-vision-ui-toggle-group-v2")
 LoadScript("pixel-vision-ui-text-v2")
-LoadScript("pixel-vision-ui-input-field-v2")
-LoadScript("pixel-vision-ui-input-area-v2")
+LoadScript("pixel-vision-ui-text-editor-v1")
+LoadScript("pixel-vision-ui-input-field-v3")
+LoadScript("pixel-vision-ui-input-area-v3")
 LoadScript("pixel-vision-ui-mouse-cursor-v2")
 LoadScript("pixel-vision-ui-picker-v2")
 LoadScript("pixel-vision-ui-number-stepper-v2")
@@ -63,12 +64,12 @@ function EditorUI:Init()
   _editorUI.drawCalls = {}
   _editorUI.drawCallTotal = 0
 
+  _editorUI.codeEditorClipboardValue = nil
+
   -- Return the new instance of the editor ui
   return _editorUI
 
 end
-
-
 
 function EditorUI:Update(timeDelta)
 

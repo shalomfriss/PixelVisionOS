@@ -15,7 +15,7 @@
 -- Shawn Rakowski - @shwany
 --
 
-function EditorUI:CreateNumberStepper(rect, inputWidth, value, min, max, spriteNamePrefix, toolTip)
+function EditorUI:CreateNumberStepper(rect, inputWidth, value, min, max, spriteNamePrefix, toolTip, colorOffset)
 
   spriteNamePrefix = spriteNamePrefix or ""
 
@@ -27,7 +27,7 @@ function EditorUI:CreateNumberStepper(rect, inputWidth, value, min, max, spriteN
     self:DecreaseNumberStepper(data, true)
   end
 
-  data.inputField = self:CreateInputField({x = rect.x + 16, y = rect.y + 8, w = inputWidth}, "", "Enter a value between ".. min .. " and " .. max .. ".", "number")
+  data.inputField = self:CreateInputField({x = rect.x + 16, y = rect.y + 8, w = inputWidth}, "", "Enter a value between ".. min .. " and " .. max .. ".", "number", nil, colorOffset)
   data.inputField.min = min
   data.inputField.max = max
   data.inputField.onAction = function(value)

@@ -114,7 +114,6 @@ function PixelVisionOS:ImportColorsFromGame()
 
   if(self.paletteMode == true) then
 
-
     self.totalPaletteColors = 128
 
     for i = 129, self.totalColors do
@@ -139,7 +138,6 @@ function PixelVisionOS:ImportColorsFromGame()
 
       end
 
-      print("pal", i, color)
       Color(index + self.colorOffset, color)
 
     end

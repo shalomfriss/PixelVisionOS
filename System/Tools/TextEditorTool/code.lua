@@ -117,6 +117,10 @@ function Init()
     inputAreaData = editorUI:CreateInputArea({x = 8, y = 24, w = 224, h = 184}, nil, "Click to edit the text.")
     inputAreaData.wrap = false
     inputAreaData.editable = true
+
+    -- Prepare the input area for scrolling
+    inputAreaData.scrollValue = {x = 0, y = 0}
+
     -- inputAreaData.colorOffset = 32
     inputAreaData.onAction = function(text)
       -- print("input area updated")
@@ -196,19 +200,19 @@ end
 
 function CalculateLineGutter()
 
-  -- if(totalLines == inputAreaData.totalLines) then
+  -- if(totalLines == #inputAreaData.buffer) then
   --   return
   -- end
 
   -- Update total
-  totalLines = inputAreaData.totalLines
+  totalLines = #inputAreaData.buffer
 
   lineWidth = showLines == true and ((#tostring(totalLines) + 1) * 8) or 0
 
   -- Only resize the input field if the size doesn't match
   local newWidth = 224 - lineWidth
-  if(inputAreaData.rect.w ~= newWidth) then
-    editorUI:ResizeInputArea(inputAreaData, newWidth, 184, 8 + lineWidth, 24)
+  if(inputAreaData.tiles.w ~= newWidth) then
+    editorUI:ResizeTexdtEditor(inputAreaData, newWidth, 184, 8 + lineWidth, 24)
   end
 
 end
@@ -239,7 +243,7 @@ function ResetDataValidation()
   invalid = false
 
   -- Reset the input field's text validation
-  editorUI:InputAreaResetTextValidation(inputAreaData)
+  editorUI:TextEditorResetTextValidation(inputAreaData)
 
   pixelVisionOS:EnableMenuItem(4, false)
 
@@ -267,7 +271,7 @@ end
 
 function OnSave()
 
-  local success = SaveTextToFile(targetFile, editorUI:GetInputAreaText(inputAreaData), false)
+  local success = SaveTextToFile(targetFile, editorUI:TextEditorExport(inputAreaData), false)
 
   if(success == true) then
     pixelVisionOS:DisplayMessage("Saving '" .. targetFile .. "'.", 5 )
@@ -279,13 +283,36 @@ function OnSave()
 end
 
 function OnHorizontalScroll(value)
-  editorUI:InputAreaScrollTo(inputAreaData, value, inputAreaData.scrollValue.v)
+  editorUI:InputAreaScrollTo(inputAreaData, value, inputAreaData.scrollValue.x)
 
-  -- editorUI:InputAreaScrollTo(lineInputArea, value, inputAreaData.scrollValue.v)
+  local charPos = math.ceil((inputAreaData.maxLineWidth - (inputAreaData.tiles.w - 2)) * value)
+
+  if(inputAreaData.vx ~= charPos) then
+    inputAreaData.vx = charPos
+    editorUI:TextEditorInvalidateBuffer(inputAreaData)
+  end
+
+  -- editorUI:InputAreaScrollTo(lineInputArea, value, inputAreaData.scrollValue.y)
 end
 
 function OnVerticalScroll(value)
-  editorUI:InputAreaScrollTo(inputAreaData, inputAreaData.scrollValue.h, value)
+
+  -- TODO calculate the line percent
+  local line = math.ceil((#inputAreaData.buffer - (inputAreaData.tiles.h - 1)) * value)
+
+  if(inputAreaData.vy ~= line) then
+    inputAreaData.vy = Clamp(line, 1, #inputAreaData.buffer)
+
+    -- TODO need to cache the total line value
+    -- if(inputAreaData.vy < 0) then
+    --   inputAreaData.vy = 1
+    -- elseif(inputAreaData.vy > #inputAreaData.buffer) then
+    --   inputAreaData.vy = #inputAreaData.buffer
+    -- end
+
+    editorUI:TextEditorInvalidateBuffer(inputAreaData)
+  end
+  -- editorUI:InputAreaScrollTo(inputAreaData, inputAreaData.scrollValue.y, value)
 
   DrawLineNumbers()
 
@@ -303,10 +330,10 @@ function DrawLineNumbers()
 
 
 
-  local offset = inputAreaData.scrollFirst - 1
-  local totalLines = inputAreaData.height
+  local offset = inputAreaData.scrollValue.y
+  local totalLines = inputAreaData.tiles.h
   local padWidth = (lineWidth / 8) - 1
-  for i = 1, inputAreaData.height do
+  for i = 1, inputAreaData.tiles.h do
 
     DrawText(string.lpad(tostring(i + offset), padWidth, "0") .. " ", 1, 2 + i, DrawMode.Tile, "input", 0)
 
@@ -328,22 +355,41 @@ function Update(timeDelta)
 
     editorUI:UpdateInputArea(inputAreaData)
 
+    -- TODO need a better way to check if the text has been changed in the editor
     if(inputAreaData.invalidText == true) then
       InvalidateData()
       DrawLineNumbers()
     end
 
+
+
     -- Check to see if we should show the horizontal slider
-    local showVSlider = inputAreaData.totalLines > inputAreaData.height
+    local showVSlider = #inputAreaData.buffer > inputAreaData.tiles.h
+
+    -- print("V scroll", inputAreaData.vy, #inputAreaData.buffer, #inputAreaData.buffer - inputAreaData.tiles.h, inputAreaData.vy / (#inputAreaData.buffer - inputAreaData.tiles.h), showVSlider)
 
     -- Test if we need to show or hide the slider
     if(vSliderData.enabled ~= showVSlider) then
       editorUI:Enable(vSliderData, showVSlider)
+
+
     end
 
-    if(vSliderData.value ~= inputAreaData.scrollValue.v) then
-      editorUI:ChangeSlider(vSliderData, inputAreaData.scrollValue.v, false)
+    if(vSliderData.enabled == true) then
+      inputAreaData.scrollValue.y = inputAreaData.vy / (#inputAreaData.buffer - inputAreaData.tiles.h)
+
+      if(vSliderData.value ~= inputAreaData.scrollValue.y) then
+
+        -- TODO this is a bit hacky because scrolling should be snapped to a grid
+        if(inputAreaData.scrollValue.y < 0.028) then
+          inputAreaData.scrollValue.y = 0
+        end
+        editorUI:ChangeSlider(vSliderData, inputAreaData.scrollValue.y, false)
+      end
+
     end
+
+
 
     -- editorUI:UpdateButton(lineBtnData)
 
@@ -351,15 +397,24 @@ function Update(timeDelta)
     editorUI:UpdateSlider(vSliderData)
 
     -- Check to see if we should show the vertical slider
-    local showHSlider = inputAreaData.maxLineWidth > inputAreaData.width
+    local showHSlider = inputAreaData.maxLineWidth > inputAreaData.tiles.w
 
-    if(hSliderData.value ~= inputAreaData.scrollValue.h) then
-      editorUI:ChangeSlider(hSliderData, inputAreaData.scrollValue.h, false)
-    end
+    -- if(hSliderData.value ~= inputAreaData.scrollValue.x) then
+    --   editorUI:ChangeSlider(hSliderData, inputAreaData.scrollValue.x, false)
+    -- end
 
     -- Test if we need to show or hide the slider
     if(hSliderData.enabled ~= showHSlider) then
       editorUI:Enable(hSliderData, showHSlider)
+    end
+
+    if(hSliderData.enabled == true) then
+      inputAreaData.scrollValue.x = inputAreaData.vx / (inputAreaData.maxLineWidth - inputAreaData.tiles.w)
+
+      if(hSliderData.value ~= inputAreaData.scrollValue.x) then
+        editorUI:ChangeSlider(hSliderData, inputAreaData.scrollValue.x, false)
+      end
+
     end
 
     -- Update the slider

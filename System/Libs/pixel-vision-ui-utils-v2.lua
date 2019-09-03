@@ -15,6 +15,10 @@
 -- Shawn Rakowski - @shwany
 --
 
+local absindex = function(len, i)
+  return i < 0 and (len + i + 1) or i
+end
+
 string.starts = function(String, Start)
   return string.sub(String, 1, string.len(Start)) == Start
 end
@@ -93,6 +97,12 @@ table.indexOf = function( t, object )
     error("table.indexOf expects table for first argument, " .. type(t) .. " given")
   end
 end
+
+-- function magiclines(s)
+--   if s:sub(-1) ~= "\n" then s = s.."\n" end
+--   -- TODO original gmatch was too complex for MoonSharp
+--   return s:gmatch("([^\n]*)\n?") -- "([^\n]*)\n?"
+-- end
 
 function dump(o)
   if type(o) == 'table' then

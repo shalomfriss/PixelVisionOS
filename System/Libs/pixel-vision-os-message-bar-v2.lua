@@ -99,7 +99,7 @@ function PixelVisionOS:DrawMessageBar(data)
     end
 
     data.textDrawArgs[1] = string.upper(data.currentMessage)
-
+    self.editorUI:NewDraw("DrawRect", data.clearDrawArgs)
     self.editorUI:NewDraw("DrawText", data.textDrawArgs)
 
     self.editorUI:ResetValidation(data)
@@ -117,7 +117,7 @@ function PixelVisionOS:DisplayMessage(text, delay, data)
     return
   end
 
-  self.editorUI:NewDraw("DrawRect", data.clearDrawArgs)
+
 
   if(text == data.currentMessage) then
     return
