@@ -64,9 +64,10 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
 
   -- data.rect.w, data.rect.h = screenSize()
 
-  data.charGrid = {0, 8, data.rect.w, data.rect.h, data.tiles.w, data.tiles.h}
+  -- data.charGrid = {0, 8, data.rect.w, data.rect.h, data.tiles.w, data.tiles.h}
 
   data.colorize = false --Color lua syntax
+  data.autoDeselect = true
 
   data.buffer = {}
   -- data.touches = {}
@@ -606,7 +607,7 @@ function EditorUI:TextEditorDrawBuffer(data)
   self:TextEditorResetBufferValidation(data)
 
   local vbuffer = lume.slice(data.buffer, data.vy, data.vy + data.tiles.h - 1) --Visible buffer
-  local cbuffer = data.colorize and highlighter:highlightLines(vbuffer, data.vy) or vbuffer
+  local cbuffer = (data.colorize and highlighter ~= nil) and highlighter:highlightLines(vbuffer, data.vy) or vbuffer
 
   self:NewDraw("DrawRect", data.bgMaskDrawArguments)
   -- Clear the viewport by drawing a rect with the background color
@@ -686,7 +687,7 @@ function EditorUI:TextEditorDrawLine(data)
 
   if data.cy - data.vy < 0 or data.cy - data.vy > data.tiles.h - 1 then return end
   local cline, colateral
-  if data.colorize then
+  if (data.colorize and highlighter ~= nil) then
     cline, colateral = highlighter:highlightLine(data.buffer[data.cy], data.cy)
   end
   if not cline then cline = data.buffer[data.cy] end
@@ -1578,9 +1579,9 @@ function EditorUI:TextEditorClipboard(value)
 
 end
 
-function EditorUI:EditTextEditor(data, value)
+function EditorUI:EditTextEditor(data, value, callAction)
 
-  if(data.enabled == false)then
+  if(data.enabled == false or value == data.editing)then
     return
   end
 
@@ -1612,11 +1613,13 @@ function EditorUI:EditTextEditor(data, value)
 
   -- Make sure the field deselects when exiting edit mode
   if(data.editing == false) then
-    self:TextEditorDeselect(data)
+    if(data.autoDeselect == true) then
+      self:TextEditorDeselect(data)
+    end
     data.mflag = false
     -- TODO need to call action here, should this be a lose focus event?
 
-    if(data.onAction ~= nil) then
+    if(data.onAction ~= nil and callAction ~= false) then
       data.onAction(self:TextEditorExport(data))
     end
 
@@ -1631,27 +1634,46 @@ function EditorUI:ResizeTexdtEditor(data, width, height, x, y)
 
   -- TODO need to fix this
 
-  -- -- Update the rect value
-  -- data.rect.x = x
-  -- data.rect.y = y
-  -- data.rect.w = width
-  -- data.rect.h = height
+
+  if(data.rect.x == x and data.rect.y == y and data.rect.w == width and data.rect.h == height) then
+    return
+  end
+
+  -- print(data.name, "Resize", x, y, width, height)
+
+  -- Update the rect value
+  data.rect.x = x
+  data.rect.y = y
+  data.rect.w = width
+  data.rect.h = height
   --
   -- -- Create new tile dimensions
   -- data.tiles = {
-  --   c = math.floor(data.rect.x / self.spriteSize.x),
-  --   r = math.floor(data.rect.y / self.spriteSize.y),
-  --   w = math.ceil(data.rect.w / self.spriteSize.x),
-  --   h = math.ceil(data.rect.h / self.spriteSize.y)
+  data.tiles.c = math.floor(data.rect.x / self.spriteSize.x)
+  data.tiles.r = math.floor(data.rect.y / self.spriteSize.y)
+  data.tiles.w = math.ceil(data.rect.w / self.spriteSize.x)
+  data.tiles.h = math.ceil(data.rect.h / self.spriteSize.y)
   -- }
-  --
-  -- -- Update the input field's character width and height
-  -- -- data.width = data.tiles.w
-  -- -- data.height = data.tiles.h
-  --
-  -- -- Adjust scroll right
-  -- -- data.scrollRight = data.scrollLeft + data.width - 1
-  --
-  -- self:TextEditorInvalidateBuffer(data)
+
+  data.viewPort = NewRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h)
+
+  data.bgMaskDrawArguments[1] = data.rect.x
+  data.bgMaskDrawArguments[2] = data.rect.y
+  data.bgMaskDrawArguments[3] = data.rect.w
+  data.bgMaskDrawArguments[4] = data.rect.h
+
+  data.lineMaskDrawArguments[1] = data.rect.x
+  data.lineMaskDrawArguments[2] = data.rect.y
+  data.lineMaskDrawArguments[3] = data.rect.w
+  data.lineMaskDrawArguments[4] = data.rect.h
+
+  -- Update the input field's character width and height
+  -- data.width = data.tiles.w
+  -- data.height = data.tiles.h
+
+  -- Adjust scroll right
+  -- data.scrollRight = data.scrollLeft + data.width - 1
+
+  self:TextEditorInvalidateBuffer(data)
 
 end

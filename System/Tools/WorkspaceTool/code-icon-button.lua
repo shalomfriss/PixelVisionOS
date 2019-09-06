@@ -419,6 +419,8 @@ function EditorUI:CreateIconGroup(singleSelection)
   data.invalid = false
   data.hovered = 0
   data.singleSelection = singleSelection
+  data.dragOverTime = 0
+  data.dragOverDelay = .3
   -- }
 
   data.drawIconArgs = {nil, 0, 0, 48, 40, false, false, DrawMode.UI}
@@ -535,16 +537,67 @@ function EditorUI:UpdateIconGroup(data)
 
     if(btn.dragging == true) then
 
-      -- if(self.collisionManager.mouseDown == false) then
-      --   btn.dragging = false
-      --   print("Release dragging icon")
-      --
-      --   if(btn.onEndDrag ~= nil) then
-      --     -- print("On End Drag")
-      --     btn.onEndDrag(btn)
-      --   end
-      --
-      -- else
+      -- Look to see what the icon is over and if we should trigger it
+      -- if(source.dragging == true) then
+
+      -- print("Collision Manager", source.name, "End Drag", "Targets", #self.dragTargets)
+
+      -- Look for drop targets
+      for i = 1, #self.collisionManager.dragTargets do
+
+        local dest = self.collisionManager.dragTargets[i]
+
+        -- Only find drop targets not equal to the source
+        -- if(dest.name ~= source.name) then
+
+        -- Look for a collision with the dest
+        if(self.collisionManager:MouseInRect(dest.hitRect ~= nil and dest.hitRect or dest.rect)) then
+
+
+          -- TODO there should be a timer before this is actually triggered
+          if(dest.onOverDropTarget ~= nil) then
+            -- print("Over icon")
+
+            if(data.dragOverIconButton == nil or data.dragOverIconButton.name ~= dest.name) then
+
+
+              data.dragOverIconButton = dest
+              data.dragOverTime = 0
+            end
+
+            if(data.dragOverTime > - 1) then
+              data.dragOverTime = data.dragOverTime + self.timeDelta
+            end
+
+            -- print("Over timer", data.dragOverTime)
+
+            if(data.dragOverTime ~= -1 and data.dragOverTime >= .2) then
+
+              data.dragOverTime = -1
+              -- TODO need to figure out a way to trigger this item since it's over it
+
+              -- print(source.name, "Drop On", dest.name)
+              dest.onOverDropTarget(source, dest)
+              --
+            end
+
+            break
+
+          end
+
+        end
+        -- end
+
+      end
+
+      -- if(self.currentDragSourceToolTip ~= nil) then
+      --   -- Restore the previous tooltip
+      --   source.toolTip = self.currentDragSourceToolTip
+      -- end
+
+      -- source.dragging = false
+
+      -- end
 
       -- TODO need to only select the amount of pixel data we need to avoid wrapping
 

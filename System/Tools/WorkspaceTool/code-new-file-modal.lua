@@ -99,7 +99,7 @@ function NewFileModal:Open()
 
   backBtnData.onAction = function()
 
-    self.editorUI:EditInputField(self.inputField, false)
+    -- self.editorUI:EditTextEditor(self.inputField, false)
 
     -- Set value to true when ok is pressed
     self.selectionValue = true
@@ -114,7 +114,7 @@ function NewFileModal:Open()
   cancelBtnData.onAction = function()
 
     -- Restore the default text value
-    self.editorUI:ChangeInputField(self.inputField, self.defaultText)
+    -- self.editorUI:ChangeInputField(self.inputField, self.defaultText, false)
 
 
     -- Set value to true when cancel is pressed
@@ -139,10 +139,11 @@ function NewFileModal:Open()
 
   self.inputField = self.editorUI:CreateInputField({x = self.rect.x + 16, y = self.rect.y + 32, w = 192}, "Untitled", "Enter a new filename.", "file")
 
-  self.inputField.onAction = function()
-    self.selectionValue = true
-    self.onParentClose()
-  end
+  -- TODO this has been disabled since the field draws after the modal
+  -- self.inputField.onAction = function()
+  --   self.selectionValue = true
+  --   self.onParentClose()
+  -- end
 
   local startX = 16--
   local startY = 16--self.rect.y + 8
@@ -179,22 +180,7 @@ function NewFileModal:ShutdownTextField()
 end
 
 function NewFileModal:Close()
-
-  self:ShutdownTextField()
-
-  -- local filePath = self.currentDirectory .. self.inputField.text .. "." .. self.ext
-  --
-  -- -- print("Create new file", self.ext, self.inputField.text, self.currentDirectory .. self.inputField.text .. "." .. self.ext)
-  --
-  -- NewFile(filePath)
-  -- Need to make sure the input field doesn't redraw so
-
-
-  -- self.inputField.invalid = false
-  -- print("Modal Close")
-  -- if(self.onParentClose ~= nil) then
-  --   self.onParentClose()
-  -- end
+  -- Do nothing
 end
 
 function NewFileModal:Update(timeDelta)

@@ -46,9 +46,11 @@ function PixelVisionOS:CloseModal()
   if(self.activeModal ~= nil) then
     self.activeModal:Close()
 
+    self.editorUI:ClearFocus()
+
     RestoreTilemapCache()
 
-    self.editorUI:ClearFocus()
+
 
     -- TODO need to restore the title bar time
 

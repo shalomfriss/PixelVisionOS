@@ -788,106 +788,106 @@ function EditorUI:EditInputArea(data, value)
   --
 end
 
-function EditorUI:DrawInputArea(data)
+-- function EditorUI:DrawInputArea(data)
 
-  -- -- Only draw input if the field is invalid
-  -- if(data.invalid == true) then
-  --
-  --   -- Get the correct x and y position based on the draw mode
-  --   local x = (data.drawMode == DrawMode.Tile) and data.tiles.c or data.rect.x
-  --   local y = (data.drawMode == DrawMode.Tile) and data.tiles.r or data.rect.y
-  --
-  --   local line = ""
-  --   if(data.scrollFirst == nil) then
-  --     data.scrollFirst = 1
-  --   end
-  --
-  --   if(data.scrollLast == nil) then
-  --     data.scrollLast = #data.lines
-  --   end
-  --
-  --   for i = data.scrollFirst, data.scrollLast do
-  --
-  --     -- Get the current line
-  --     line = i <= data.totalLines and data.lines[i] or ""
-  --
-  --     -- TODO need to do color highlighting here
-  --
-  --     -- TODO when working with input fields I added +1 to scroll right so it rendered correctly
-  --     -- Select on only the characters we can display
-  --     line = line:sub(data.scrollLeft, data.scrollRight)
-  --
-  --     -- TODO need to defer this render
-  --
-  --     -- Draw the text to the tilemap and pad it so it fills up the display
-  --     -- DrawText(string.lpad(line, data.width, " "), x, y, data.drawMode, data.font, data.colorOffset, data.spacing)
-  --
-  --     local drawArguments = {
-  --       string.rpad(line, data.width, " "),
-  --       x,
-  --       y,
-  --       data.drawMode,
-  --       data.font,
-  --       data.enabled == true and data.colorOffset or data.disabledColorOffset,
-  --       data.spacing
-  --     }
-  --
-  --     -- TODO need to just use the tile draw for the cursor
-  --     self:NewDraw("DrawText", drawArguments)
-  --
-  --     -- Increase the y for the next line
-  --     y = y + ((data.drawMode == DrawMode.Tile) and 1 or 8)
-  --
-  --   end
-  --   --
-  --
-  --   -- tell the component to clear validation on the next frame since we've rendered everything
-  --   -- data.resetValidation = true
-  --   data.invalid = false
-  -- end
-  --
-  -- -- Display cursor only on blink
-  -- if(data.blink == true and data.editing == true) then
-  --
-  --   -- Make sure that the cursor is within the scrolled area
-  --   if(data.cursor.c >= data.scrollLeft and data.cursor.c <= data.scrollRight and data.cursor.r >= data.scrollFirst and data.cursor.r <= data.scrollLast) then
-  --
-  --     -- Calculate the correct x and y position of the cursor
-  --     -- local tmpX =
-  --     -- local tmpY =
-  --
-  --     -- data.cursorDrawArguments = {
-  --     --   data.blinkChar,
-  --     --   0,
-  --     --   0,
-  --     --   DrawMode.Sprite,
-  --     --   data.font,
-  --     --   data.colorOffset,
-  --     --   data.spacing
-  --     -- }
-  --     -- print("Draw Cursor")
-  --
-  --     -- Draw the cursor
-  --     --DrawText(data.blinkChar, tmpX, tmpY, DrawMode.Sprite, data.font, data.colorOffset, data.spacing)
-  --     -- local drawArguments = {
-  --     --   data.blinkChar,
-  --     data.cursorDrawArguments[2] = data.rect.x + ((data.cursor.c - data.scrollLeft) * self.spriteSize.x)
-  --     data.cursorDrawArguments[3] = data.rect.y + ((data.cursor.r - data.scrollFirst) * self.spriteSize.y)
-  --     --   DrawMode.Sprite,
-  --     --   data.font,
-  --     data.cursorDrawArguments[6] = data.colorOffset
-  --
-  --     --   data.spacing
-  --     -- }
-  --
-  --     -- print(data.name, "Redraw input", data.colorOffset)
-  --     self:NewDraw("DrawText", data.cursorDrawArguments)
-  --
-  --   end
-  --
-  -- end
+-- -- Only draw input if the field is invalid
+-- if(data.invalid == true) then
+--
+--   -- Get the correct x and y position based on the draw mode
+--   local x = (data.drawMode == DrawMode.Tile) and data.tiles.c or data.rect.x
+--   local y = (data.drawMode == DrawMode.Tile) and data.tiles.r or data.rect.y
+--
+--   local line = ""
+--   if(data.scrollFirst == nil) then
+--     data.scrollFirst = 1
+--   end
+--
+--   if(data.scrollLast == nil) then
+--     data.scrollLast = #data.lines
+--   end
+--
+--   for i = data.scrollFirst, data.scrollLast do
+--
+--     -- Get the current line
+--     line = i <= data.totalLines and data.lines[i] or ""
+--
+--     -- TODO need to do color highlighting here
+--
+--     -- TODO when working with input fields I added +1 to scroll right so it rendered correctly
+--     -- Select on only the characters we can display
+--     line = line:sub(data.scrollLeft, data.scrollRight)
+--
+--     -- TODO need to defer this render
+--
+--     -- Draw the text to the tilemap and pad it so it fills up the display
+--     -- DrawText(string.lpad(line, data.width, " "), x, y, data.drawMode, data.font, data.colorOffset, data.spacing)
+--
+--     local drawArguments = {
+--       string.rpad(line, data.width, " "),
+--       x,
+--       y,
+--       data.drawMode,
+--       data.font,
+--       data.enabled == true and data.colorOffset or data.disabledColorOffset,
+--       data.spacing
+--     }
+--
+--     -- TODO need to just use the tile draw for the cursor
+--     self:NewDraw("DrawText", drawArguments)
+--
+--     -- Increase the y for the next line
+--     y = y + ((data.drawMode == DrawMode.Tile) and 1 or 8)
+--
+--   end
+--   --
+--
+--   -- tell the component to clear validation on the next frame since we've rendered everything
+--   -- data.resetValidation = true
+--   data.invalid = false
+-- end
+--
+-- -- Display cursor only on blink
+-- if(data.blink == true and data.editing == true) then
+--
+--   -- Make sure that the cursor is within the scrolled area
+--   if(data.cursor.c >= data.scrollLeft and data.cursor.c <= data.scrollRight and data.cursor.r >= data.scrollFirst and data.cursor.r <= data.scrollLast) then
+--
+--     -- Calculate the correct x and y position of the cursor
+--     -- local tmpX =
+--     -- local tmpY =
+--
+--     -- data.cursorDrawArguments = {
+--     --   data.blinkChar,
+--     --   0,
+--     --   0,
+--     --   DrawMode.Sprite,
+--     --   data.font,
+--     --   data.colorOffset,
+--     --   data.spacing
+--     -- }
+--     -- print("Draw Cursor")
+--
+--     -- Draw the cursor
+--     --DrawText(data.blinkChar, tmpX, tmpY, DrawMode.Sprite, data.font, data.colorOffset, data.spacing)
+--     -- local drawArguments = {
+--     --   data.blinkChar,
+--     data.cursorDrawArguments[2] = data.rect.x + ((data.cursor.c - data.scrollLeft) * self.spriteSize.x)
+--     data.cursorDrawArguments[3] = data.rect.y + ((data.cursor.r - data.scrollFirst) * self.spriteSize.y)
+--     --   DrawMode.Sprite,
+--     --   data.font,
+--     data.cursorDrawArguments[6] = data.colorOffset
+--
+--     --   data.spacing
+--     -- }
+--
+--     -- print(data.name, "Redraw input", data.colorOffset)
+--     self:NewDraw("DrawText", data.cursorDrawArguments)
+--
+--   end
+--
+-- end
 
-end
+-- end
 
 function EditorUI:ChangeInputArea(data, text, trigger)
 
@@ -897,108 +897,4 @@ function EditorUI:ChangeInputArea(data, text, trigger)
     data.onAction(self:TextEditorExport(data))
   end
 
-  -- if(text == nil) then
-  --   return
-  -- end
-  --
-  -- -- Reset counters
-  -- data.lines = {}
-  -- data.maxLineWidth = 0
-  -- data.totalLines = 0
-  --
-  -- -- test to see if the text is empty
-  -- if(text == "") then
-  --
-  --   -- If the text is empty, create a empty line for it by hand in the table
-  --   table.insert(data.lines, "")
-  --
-  -- else
-  --
-  --   -- Loop through each line in the text
-  --   for line in tostring(text):gmatch("([^\n]*)\n?") do
-  --
-  --     -- Strip out any tabs and replace them with the tab char
-  --     line = line:gsub("\t", data.tabChar)
-  --
-  --     -- Update the max line width value
-  --     data.maxLineWidth = math.max(#line, data.maxLineWidth)
-  --
-  --     -- Add the new line to the table
-  --     table.insert(data.lines, line)
-  --
-  --   end
-  --
-  -- end
-  --
-  -- -- Cache the total line numbers
-  -- data.totalLines = #data.lines
-  --
-  -- -- Since we are clearing the input field, reset the text validation
-  -- self:InputAreaResetTextValidation(data)
-  --
-  -- self:InputAreaScrollTo(data, 0, 0)
-  -- self:InputAreaMoveCursorTo(data, 0, 0)
-  --
-  -- self:Invalidate(data)
-  --
-
-
 end
-
--- function EditorUI:InputAreaInvalidateText(data)
---   data.invalidText = true
--- end
---
--- function EditorUI:InputAreaResetTextValidation(data)
---   data.invalidText = false
--- end
-
-function EditorUI:InputAreaScrollTo(data, hVal, vVal)
-
-  -- -- hVal = hVal or data.scrollValue.h
-  -- -- vVal = vVal or data.scrollValue.v
-  --
-  -- if(data.hVal ~= hVal) then
-  --   data.hVal = hVal
-  --
-  --   local newTotal = data.maxLineWidth - data.width
-  --
-  --   data.scrollLeft = math.floor(newTotal * hVal) + 1
-  --
-  --   -- Need to remove 1 for the left offset since lua is 1 based
-  --   data.scrollRight = data.scrollLeft + data.width - 1
-  --
-  --   -- Invalidate the display since we've made a change to the horizontal scroll
-  --   self:Invalidate(data)
-  --
-  -- end
-  --
-  -- if(data.vVal ~= vVal) then
-  --
-  --   data.vVal = vVal
-  --
-  --   local newTotal = data.totalLines - data.height
-  --
-  --   data.scrollFirst = math.floor(newTotal * vVal) + 1
-  --   data.scrollLast = data.scrollFirst + data.height - 1
-  --
-  --   self:Invalidate(data)
-  -- end
-  --
-  -- data.scrollValue.v = vVal
-  -- data.scrollValue.h = hVal
-
-end
-
--- function EditorUI:GetInputAreaText(data)
-
--- local totalLines = #data.lines
--- local text = ""
---
--- for i = 1, totalLines do
---   text = text .. data.lines[i] .. "\n"
--- end
---
--- return text
-
--- end

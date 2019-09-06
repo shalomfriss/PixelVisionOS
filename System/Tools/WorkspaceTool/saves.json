@@ -1,12 +1,12 @@
 {
-        
-        "GameChip":
-        {
-            "savedData":{
-                "lastPath": "/Workspace/MyNewGame/",
-                "sessionID": "201909021344476389",
-                "scrollPos": "0",
-                "selection": "3"
-            }
+    
+    "GameChip":
+    {
+        "savedData":{
+            "selection": "8",
+            "scrollPos": "0",
+            "sessionID": "201909061608468377",
+            "lastPath": "/Workspace/MyNewGame/"
         }
     }
+}

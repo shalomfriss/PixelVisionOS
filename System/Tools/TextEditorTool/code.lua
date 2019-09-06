@@ -117,6 +117,8 @@ function Init()
     inputAreaData = editorUI:CreateInputArea({x = 8, y = 24, w = 224, h = 184}, nil, "Click to edit the text.")
     inputAreaData.wrap = false
     inputAreaData.editable = true
+    inputAreaData.autoDeselect = false
+    inputAreaData.colorize = codeMode
 
     -- Prepare the input area for scrolling
     inputAreaData.scrollValue = {x = 0, y = 0}
@@ -184,6 +186,10 @@ end
 
 function ToggleLineNumbers()
 
+  if(codeMode == false) then
+    return
+  end
+
   -- TODO need to save this value to the bios
 
   showLines = not showLines
@@ -211,8 +217,10 @@ function CalculateLineGutter()
 
   -- Only resize the input field if the size doesn't match
   local newWidth = 224 - lineWidth
-  if(inputAreaData.tiles.w ~= newWidth) then
-    editorUI:ResizeTexdtEditor(inputAreaData, newWidth, 184, 8 + lineWidth, 24)
+
+  if(inputAreaData.rect.w ~= newWidth) then
+
+    editorUI:ResizeTexdtEditor(inputAreaData, newWidth, inputAreaData.rect.h, 8 + lineWidth, inputAreaData.rect.y)
   end
 
 end
@@ -283,7 +291,7 @@ function OnSave()
 end
 
 function OnHorizontalScroll(value)
-  editorUI:InputAreaScrollTo(inputAreaData, value, inputAreaData.scrollValue.x)
+  -- editorUI:InputAreaScrollTo(inputAreaData, value, inputAreaData.scrollValue.x)
 
   local charPos = math.ceil((inputAreaData.maxLineWidth - (inputAreaData.tiles.w - 2)) * value)
 
@@ -316,9 +324,15 @@ function OnVerticalScroll(value)
 
   DrawLineNumbers()
 
+  -- print("Set text focus")
+
 end
 
 function DrawLineNumbers()
+
+  if(codeMode == false) then
+    return
+  end
 
   -- Make sure the gutter is the correct size
   CalculateLineGutter()
@@ -328,9 +342,7 @@ function DrawLineNumbers()
     return
   end
 
-
-
-  local offset = inputAreaData.scrollValue.y
+  local offset = inputAreaData.vy - 1
   local totalLines = inputAreaData.tiles.h
   local padWidth = (lineWidth / 8) - 1
   for i = 1, inputAreaData.tiles.h do
@@ -349,6 +361,10 @@ function Update(timeDelta)
   -- if(showLines == true) then
   --   editorUI:UpdateInputArea(lineInputArea)
   -- end
+
+  if(inputAreaData.inFocus == true and pixelVisionOS:IsModalActive()) then
+    editorUI:ClearFocus(data)
+  end
 
   -- Only update the tool's UI when the modal isn't active
   if(pixelVisionOS:IsModalActive() == false and targetFile ~= nil) then
@@ -419,6 +435,11 @@ function Update(timeDelta)
 
     -- Update the slider
     editorUI:UpdateSlider(hSliderData)
+
+    -- Reset focus back to the text editor
+    if(hSliderData.inFocus == false and vSliderData.inFocus == false and inputAreaData.inFocus == false and pixelVisionOS.titleBar.menu.showMenu == false) then
+      editorUI:EditTextEditor(inputAreaData, true, false)
+    end
 
   end
 

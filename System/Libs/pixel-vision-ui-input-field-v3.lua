@@ -86,18 +86,19 @@ function EditorUI:CreateInputField(rect, text, toolTip, pattern, font, colorOffs
         char = string.match(char, pattern)
       end
 
-      if(targetData.forceCase ~= nil) then
-        char = string[targetData.forceCase](char)
-      end
-
       if(char ~= nil) then
 
-        --lineWidth + 1
-        --print(targetData.name, "length", #targetData.buffer[1], targetData.tiles.w )
+        if(targetData.forceCase ~= nil) then
+          char = string[targetData.forceCase](char)
+        end
+
+        -- Text to see if the input field is a single character and clear it
+        if(targetData.tiles.w == 1) then
+          targetData.buffer[1] = char
+        end
 
         -- Test to see if we are at the end of the input field
-
-        if(#targetData.buffer[1] < targetData.tiles.w or targetData.sxs) then
+        if(#targetData.buffer[1] + 1 < targetData.tiles.w or targetData.sxs) then
           outputString = outputString .. char
           -- end
         else
@@ -114,7 +115,7 @@ function EditorUI:CreateInputField(rect, text, toolTip, pattern, font, colorOffs
   end
 
   data.onEdit = function(targetData, value)
-    print("Input Field Edit", value)
+    -- print("Input Field Edit", value)
     self:OnEditTextInputField(targetData, value)
 
   end

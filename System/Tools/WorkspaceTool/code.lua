@@ -815,10 +815,12 @@ function RebuildDesktopIcons()
   -- Build Desktop Icons
   desktopIcons = {}
 
-  if(PathExists(NewWorkspacePath("/Workspace/"))) then
+  local wPath = NewWorkspacePath("/Workspace/")
+  if(PathExists(wPath)) then
+
     table.insert(desktopIcons, {
       name = "Workspace",
-      sprite = "filedrive",
+      sprite = PathExists(wPath.AppendDirectory("System")) and "filedriveos" or "filedrive",
       tooltip = "This is the 'Workspace' drive",
       path = "/Workspace/",
       type = "workspace",
@@ -864,6 +866,13 @@ function RebuildDesktopIcons()
     end
 
     button.toolTipDragging = item.tooltipDrag
+
+    button.onOverDropTarget = function(src, dest)
+
+      -- TODO need to add custom logic to open folders or drives here
+      -- print("Over Disk", dest.name)
+
+    end
 
     button.onDropTarget = function(src, dest)
 
@@ -923,6 +932,13 @@ function RebuildDesktopIcons()
 
   -- Lock the trash from Dragging
   trashButton.dragDelay = -1
+
+  trashButton.onOverDropTarget = function(src, dest)
+
+    -- TODO need to add custom logic to open folders or drives here
+    -- print("Over Trash", dest.name)
+
+  end
 
   trashButton.onDropTarget = function(src, dest)
 
@@ -1881,6 +1897,16 @@ function DrawWindow(files, startID, total)
           button.dragDelay = -1
         end
 
+        button.onOverDropTarget = function(source, dest)
+
+
+          -- TODO when a file is dragged over a folder or drive, the source file path needs to be saved and when the file is released, it needs to figure out if it is in the window or over another icon and perform the correct action
+
+          newPathFlag = true
+          -- print("over folder", dest.name)
+          -- OpenWindow(dest.iconPath)
+        end
+
         -- Add on drop target code to each folder type
         button.onDropTarget = function(src, dest)
 
@@ -2086,7 +2112,7 @@ function Update(timeDelta)
 
         local newIndex = CalculateIndex(newPos.x, newPos.y, columns)
 
-        print(newIndex)
+        -- print(newIndex)
 
       end
 
