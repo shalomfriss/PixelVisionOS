@@ -1,5 +1,5 @@
 LoadScript("code-highlighter")
-LoadScript("code-lume")
+LoadScript("lume")
 
 -- local colorShift = 28
 

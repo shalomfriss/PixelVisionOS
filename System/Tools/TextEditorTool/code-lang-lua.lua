@@ -1,3 +1,5 @@
+LoadScript("pixel-vision-os-api-list")
+
 --Lua syntax parser
 
 --Lua Keywords
@@ -11,14 +13,11 @@ local keywords = {
 --Lua escapable characters
 local escapable = {"a", "b", "f", "n", "r", "t", "v", "\\", '"', "'"}
 
---LIKO-12 API Functions
-local api = {"AddScript", "LoadScript", "Reset", "AddTextFile", "BackgroundColor", "BreakLine", "Button", "CalculateDistance", "CalculateIndex", "CalculatePosition", "Clamp", "Clear", "Color", "ColorsPerSprite", "Configure", "ConvertCharacterToPixelData", "ConvertTextToSprites", "Display", "DrawPixels", "DrawRect", "DrawSprite", "DrawSpriteBlock", "DrawSprites", "DrawText", "DrawTilemap", "Flag", "InputString", "IsChannelPlaying", "Key", "MaxSpriteCount", "MouseButton", "MousePosition", "NewPoint", "NewRect", "PaletteOffset", "PauseSong", "PlayPattern", "PlayPatterns", "PlaySong", "PlaySound", "ReadMetaData", "ReadPixelData", "ReadSaveData", "RebuildCache", "RebuildTilemap", "RedrawDisplay", "Repeat", "ReplaceColor", "Reset", "RewindSong", "ScrollPosition", "SongData", "Sound", "SplitLines", "Sprite", "SpriteSize", "Sprites", "StopSong", "StopSound", "Tile", "TilemapSize", "TotalColors", "TotalSprites", "UpdateTiles", "VisibleBounds", "WordWrap", "WriteSaveData"}
-
 --LIKO-12 Callbacks
 local callbacks = {"Init", "Update", "Draw", "Shutdown", "self"}
 
 --Convert values to keys for instant searching
-for _, list in ipairs({keywords, api, callbacks, escapable}) do
+for _, list in ipairs({keywords, _G["api"] == nil and {} or _G["api"], callbacks, escapable}) do
   for i = 1, #list do
     list[list[i]] = true
     list[i] = nil
@@ -76,7 +75,7 @@ local function token(stream, state)
       local word = stream:current()
       if keywords[word] then
         return "keyword"
-      elseif api[word] then
+      elseif _G["api"] ~= nil and _G["api"][word] then
         return "api"
       elseif callbacks[word] then
         return "callback"
