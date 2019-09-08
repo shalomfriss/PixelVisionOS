@@ -12,10 +12,9 @@
 LoadScript("sb-sprites")
 LoadScript("pixel-vision-os-v2")
 LoadScript("pixel-vision-os-color-picker-v3")
--- LoadScript("pixel-vision-os-color-picker-v3")
 LoadScript("pixel-vision-os-item-picker-v1")
 LoadScript("pixel-vision-os-sprite-picker-v3")
-LoadScript("pixel-vision-os-color-editor-modal")
+LoadScript("pixel-vision-os-color-editor-modal-v1")
 
 local toolName = "Color Tool"
 

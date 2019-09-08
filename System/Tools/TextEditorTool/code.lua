@@ -275,6 +275,53 @@ function RefreshEditor()
 
   DrawLineNumbers()
 
+  if(SessionID() == ReadSaveData("sessionID", "") and targetFile == ReadSaveData("targetFile", "")) then
+    local cursorPosString = ReadSaveData("cursor", "0,0")
+
+
+    local tmpCursor = editorUI:TextEditorGetState(inputAreaData)
+
+    local map = {
+      "cx",
+      "cy",
+      "sxs",
+      "sys",
+      "sxe",
+      "sye",
+    }
+
+    local counter = 1
+    for word in string.gmatch(cursorPosString, '([^,]+)') do
+
+      tmpCursor[map[counter]] = tonumber(word)
+      counter = counter + 1
+
+    end
+
+    editorUI:TextEditorSetState(inputAreaData, tmpCursor)
+
+    -- Restore last scroll position
+    local scrollPosString = ReadSaveData("scroll", "0,0")
+
+    map = {"vx", "vy"}
+
+    counter = 1
+    for word in string.gmatch(scrollPosString, '([^,]+)') do
+
+      inputAreaData[map[counter]] = tonumber(word)
+      counter = counter + 1
+
+    end
+
+
+  end
+
+  editorUI:EditTextEditor(inputAreaData, true, false)
+
+  --
+  -- inputAreaData.inFocus = true
+  -- editorUI:SetFocus(inputAreaData, 3)
+
 end
 
 function OnSave()
@@ -452,5 +499,27 @@ function Draw()
 
   -- The ui should be the last thing to update after your own custom draw calls
   pixelVisionOS:Draw()
+
+end
+
+function Shutdown()
+
+  -- Save the current session ID
+  WriteSaveData("sessionID", SessionID())
+
+  WriteSaveData("targetFile", targetFile)
+
+  local state = editorUI:TextEditorGetState(inputAreaData)
+
+  local stateString = tostring(state.cx) .. "," .. tostring(state.cy)
+
+  -- if(state.sxs ~= nil and codeMode) then
+  --   stateString = stateString .. "," .. tostring(state.sxs) .. "," .. tostring(state.sys) .. "," .. tostring(state.sxe) .. "," .. tostring(state.sye)
+  -- end
+
+  WriteSaveData("cursor", stateString)
+
+  WriteSaveData("scroll", tostring(inputAreaData.vx) .. "," .. tostring(inputAreaData.vy))
+
 
 end

@@ -11,7 +11,7 @@
 -- API Bridge
 LoadScript("sb-sprites")
 LoadScript("pixel-vision-os-v2")
-LoadScript("pixel-vision-os-sound-progress-modal")
+LoadScript("pixel-vision-os-sound-progress-modal-v1")
 
 local toolName = "Sound Editor"
 

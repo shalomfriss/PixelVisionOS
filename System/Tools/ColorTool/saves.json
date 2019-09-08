@@ -3,11 +3,11 @@
     "GameChip":
     {
         "savedData":{
-            "sessionID": "201909070640181352",
-            "rootDirectory": "/Workspace/MyNewGame/",
-            "selectedColor": "-1",
+            "selectedSprite": "-1",
             "selectedPalette": "-1",
-            "selectedSprite": "-1"
+            "selectedColor": "-1",
+            "rootDirectory": "/Workspace/MyNewGame/",
+            "sessionID": "201909070939125844"
         }
     }
 }

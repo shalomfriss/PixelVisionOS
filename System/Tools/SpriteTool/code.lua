@@ -853,8 +853,8 @@ function ClearSprite()
   -- -- Redraw the sprite picker page
   -- -- pixelVisionOS:RedrawSpritePickerPage(spritePickerData)
   --
-  -- -- Invalidate the tool's data
-  -- InvalidateData()
+  -- Invalidate the tool's data
+  InvalidateData()
 
   pixelVisionOS:EnableMenuItem(RevertShortcut, true)
   pixelVisionOS:EnableMenuItem(ClearShortcut, false)

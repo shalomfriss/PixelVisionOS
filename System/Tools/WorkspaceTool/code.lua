@@ -1471,13 +1471,18 @@ end
 
 function OnLaunchLog()
 
-  local editorPath = ReadBiosData("LogEditor")
+  -- Get a list of all the editors
+  local editorMapping = pixelVisionOS:FindEditors()
 
-  if(editorPath == nil) then
-    editorPath = rootPath .."LogPreviewTool/"
-  end
+  -- Find the json editor
+  textEditorPath = editorMapping["txt"]
 
-  local success = LoadGame(editorPath)
+  local metaData = {
+    directory = "/Tmp/",
+    file = "/Tmp/Log.txt"
+  }
+
+  LoadGame(textEditorPath, metaData)
 
 end
 
@@ -2187,6 +2192,7 @@ function OnExportGame()
 
   else
 
+    print("Build")
     local srcPath = NewWorkspacePath(currentDirectory)
     local destPath = srcPath.AppendDirectory("Builds")
 

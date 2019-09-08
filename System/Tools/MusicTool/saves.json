@@ -1,1 +1,23 @@
-{"GameChip":{"savedData":{"currentPatternID": "0","configFunk": "9","configLayering": "9","configSpeedMin": "50","configSpeedMax": "50","configTrack0": "3,0,6,6","configTrack1": "1,1,6,7","configTrack2": "2,2,3,4","configTrack3": "3,3,6,6","configScale": "3","sessionID": "201909070640181352","rootDirectory": "/Workspace/MyNewGame/","currentSongID": "0","configDensity": "9","configTrack4": "8,4,6,7"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "currentPatternID": "0",
+            "configFunk": "5",
+            "configLayering": "5",
+            "configSpeedMin": "120",
+            "configSpeedMax": "320",
+            "configTrack0": "0,0,6,6",
+            "configTrack1": "1,1,6,7",
+            "configTrack2": "2,2,3,4",
+            "configTrack3": "3,3,6,6",
+            "configScale": "1",
+            "sessionID": "201909071605046522",
+            "rootDirectory": "/Workspace/HelloWorld/",
+            "currentSongID": "0",
+            "configDensity": "5",
+            "configTrack4": "4,4,6,7"
+        }
+    }
+}

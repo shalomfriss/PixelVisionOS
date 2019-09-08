@@ -11,7 +11,7 @@
 -- API Bridge
 LoadScript("sb-sprites.lua")
 LoadScript("pixel-vision-os-v2")
-LoadScript("pixel-vision-os-music-configure-modal")
+LoadScript("pixel-vision-os-music-configure-modal-v1")
 LoadScript("code-song-input-field")
 LoadScript("code-progress-modal")
 
@@ -1227,6 +1227,28 @@ function Update(timeDelta)
       if(editorUI.refreshTime == 0 and songData["note"] < 32) then
         -- print("note", songData["note"])
         SelectBeat(songData["note"])
+      end
+    else
+      -- Create a new piont to see if we need to change the sprite position
+      local newPos = NewPoint(0, 0)
+
+      -- Offset the new position by the direction button
+      if(Button(Buttons.Up, InputState.Released)) then
+        newPos.y = -1
+      elseif(Button(Buttons.Right, InputState.Released)) then
+        newPos.x = 1
+      elseif(Button(Buttons.Down, InputState.Released)) then
+        newPos.y = 1
+      elseif(Button(Buttons.Left, InputState.Released)) then
+        newPos.x = -1
+      end
+
+      -- Test to see if the new position has changed
+      if(newPos.x ~= 0 or newPos.y ~= 0) then
+
+        SelectBeat(currentBeat + newPos.x)
+        SelectTrack(currentTrack + newPos.y)
+
       end
 
     end

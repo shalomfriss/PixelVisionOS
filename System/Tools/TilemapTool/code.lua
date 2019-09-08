@@ -254,7 +254,7 @@ function Init()
     )
 
     flagPicker.onAction = function(value)
-      print("flagPicker Action")
+      -- print("flagPicker Action")
       pixelVisionOS:ChangeTilemapPaintFlag(tilePickerData, value)
 
     end
@@ -637,7 +637,7 @@ function SelectLayer(value)
 
     if(paletteColorPickerData.currentSelection == -1) then
 
-      print("Select flag 0")
+      -- print("Select flag 0")
       editorUI:SelectPicker(flagPicker, 0)
       -- ChangeSpriteID(tilePickerData.paintFlagIndex)
     end

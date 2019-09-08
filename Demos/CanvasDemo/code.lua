@@ -13,7 +13,6 @@
 
 local tool = "Pen"
 local fill = false
-local cursorSprite = 94
 local display = nil
 local startPos = nil
 local lastDrawing = nil
@@ -27,15 +26,6 @@ function Init()
 
   -- Get the display size
   display = Display()
-
-  -- Create a new custom cursor
-  local cursorData = NewCanvas(SpriteSize().x, SpriteSize().y)
-  cursorData:DrawLine(3, 0, 3, 6, 0)
-  cursorData:DrawLine(0, 3, 6, 3, 0)
-  cursorData:SetPixel(3, 3, 15)
-
-  -- Save the cursor pixel data to a sprite
-  Sprite(cursorSprite, cursorData:GetPixels())
 
   -- Create a new canvas for drawing into
   canvas = NewCanvas(display.x, display.y)
@@ -134,7 +124,6 @@ function Draw()
 
     -- Draw the last canvas pixel data into the tilemap cache
     canvas:DrawPixels(0, 0)
-    -- DrawPixels(lastDrawing, 0, 0, canvas.width, canvas.height, DrawMode.TilemapCache, false, true)
 
     -- Clear the last drawing value
     lastDrawing = nil
@@ -213,7 +202,7 @@ function Draw()
 
   -- Make sure that the mouse is on screen before drawing the cursor sprite
   if(onScreen) then
-    DrawSprite(cursorSprite, MousePosition().x - 4, MousePosition().y - 4, false, false, DrawMode.SpriteAbove)
+    DrawText("+", MousePosition().x - 2, MousePosition().y - 4, DrawMode.SpriteAbove, "large")
   end
 
   -- Create a new label starting with the tool name
@@ -232,6 +221,6 @@ end
 function Clear()
 
   -- Clear the entire tilemap cache by drawing a rect over it
-  DrawRect(0, 0, Display().x, Display().y, 1, DrawMode.TilemapCache)
+  DrawRect(0, 0, Display().x, Display().y, 15, DrawMode.TilemapCache)
 
 end

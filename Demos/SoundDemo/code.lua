@@ -21,27 +21,27 @@
 -- The Init() method is part of the game's lifecycle and called a game starts. We are going to
 -- use this method to configure background color, ScreenBufferChip and draw some text to the display.
 function Init()
-	
-	-- Before we start, we need to set a background color and rebuild the ScreenBufferChip. The screen buffer
-	-- allows us to draw our fonts into the background layer to save on draw calls.
-	BackgroundColor(32)
-	
-	-- This default text will help display the current state of the mouse. We'll render it into the 
+  
+  -- Before we start, we need to set a background color and rebuild the ScreenBufferChip. The screen buffer
+  -- allows us to draw our fonts into the background layer to save on draw calls.
+  BackgroundColor(0)
+  
+  -- This default text will help display the current state of the mouse. We'll render it into the 
     -- ScreenBufferChip to cut down on sprite draw calls.
-	DrawText("Sound Test", 1, 1, DrawMode.Tile, "large-font", 0)
-	DrawText("Click anywhere to play!", 1, 4, DrawMode.Tile, "large-font", 1)
+  DrawText("Sound Test", 1, 1, DrawMode.Tile, "large", 15)
+  DrawText("Click anywhere to play!", 1, 4, DrawMode.Tile, "large", 14)
 
 end
 
 function Update()
 
-	-- Detect if the left mouse button is down.
-	if(MouseButton(0, InputState.Released) == true) then
+  -- Detect if the left mouse button is down.
+  if(MouseButton(0, InputState.Released) == true) then
 
-		-- Play the first sound effect in the first channel.
-		PlaySound(0)
+    -- Play the first sound effect in the first channel.
+    PlaySound(0)
 
-	end
+  end
 
 end
 
@@ -50,9 +50,9 @@ end
 -- mouse cursor to the display.
 function Draw()
 
-	-- It's important to clear the display on each frame. There are two ways to do this. Here 
-	-- we are going to use the DrawScreenBuffer() way to copy over the existing buffer and clear
-	-- all of the previous pixel data.
-	RedrawDisplay()
+  -- It's important to clear the display on each frame. There are two ways to do this. Here 
+  -- we are going to use the DrawScreenBuffer() way to copy over the existing buffer and clear
+  -- all of the previous pixel data.
+  RedrawDisplay()
 
 end
