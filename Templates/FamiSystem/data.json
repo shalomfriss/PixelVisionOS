@@ -1,7 +1,6 @@
 {
     "ColorChip":
     {
-        "total":256,
         "maxColors":55,
         "backgroundColor":13,
         "maskColor":"#FF00FF",
@@ -23,7 +22,7 @@
     },
     "GameChip":
     {
-        "lockSpecs":true,
+        "lockSpecs":false,
         "maxSize":384,
         "saveSlots":8
     },
@@ -38,7 +37,7 @@
     {
         "totalChannels":5,
         "totalSounds":32,
-        "channelTypes":[0,0,4,3,5]
+        "channelTypes":[-1,-1,-1,-1,-1]
     },
     
     "SpriteChip":{
@@ -47,7 +46,7 @@
         "spriteWidth":8,
         "spriteHeight":8,
         "pages":4,
-        "cps":4
+        "cps":3
     },
     "TilemapChip":
     {

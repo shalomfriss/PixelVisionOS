@@ -3,11 +3,11 @@
     "GameChip":
     {
         "savedData":{
-            "sessionID": "201909141050087617",
-            "rootDirectory": "/Workspace/PaletteSwapTest/",
-            "selectedColor": "-1",
+            "selectedSprite": "-1",
             "selectedPalette": "-1",
-            "selectedSprite": "-1"
+            "selectedColor": "-1",
+            "rootDirectory": "/Disks/PixelVisionOS/Templates/Pico8System/",
+            "sessionID": "201909141257247809"
         }
     }
 }

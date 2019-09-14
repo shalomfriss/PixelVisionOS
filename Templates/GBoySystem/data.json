@@ -1,7 +1,6 @@
 {
     "ColorChip":
     {
-        "total":256,
         "maxColors":4,
         "backgroundColor":0,
         "maskColor":"#FF00FF",
@@ -11,8 +10,8 @@
     },
     "DisplayChip":
     {
-        "width":152,
-        "height":136,
+        "width":168,
+        "height":152,
         "overscanX":1,
         "overscanY":1,
         "layers":6
@@ -23,7 +22,7 @@
     },
     "GameChip":
     {
-        "lockSpecs":false,
+        "lockSpecs":true,
         "maxSize":128,
         "saveSlots":8
     },

@@ -1,7 +1,6 @@
 {
     "ColorChip":
     {
-        "total":2,
         "maxColors":2,
         "backgroundColor":0,
         "maskColor":"#FF00FF",
@@ -47,7 +46,7 @@
         "spriteWidth":8,
         "spriteHeight":8,
         "pages":2,
-        "cps":3
+        "cps":2
     },
     "TilemapChip":
     {
