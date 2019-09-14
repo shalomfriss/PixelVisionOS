@@ -162,7 +162,7 @@ function Init()
 
     ConfigureSpritePickerSelector(1)
 
-    local textColorOffset = 39
+    local textColorOffset = 55
 
     spriteIDInputData = editorUI:CreateInputField({x = 176, y = 208, w = 32}, "0", "The ID of the currently selected sprite.", "number", nil, textColorOffset)
     spriteIDInputData.min = 0

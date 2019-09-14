@@ -33,7 +33,7 @@ local maxPalettePages = 8
 local paletteOffset = 0
 local paletteColorPages = 0
 local spriteEditorPath = ""
-local spritesInvalid = false
+spritesInvalid = false
 -- local pixelVisionOS.totalPaletteColors = 0
 local totalPalettePages = 0
 local debugMode = false
@@ -199,7 +199,7 @@ function Init()
 
 
     -- Create an input field for the currently selected color ID
-    colorIDInputData = editorUI:CreateInputField({x = 152, y = 208, w = 24}, "0", "The ID of the currently selected color.", "number")
+    colorIDInputData = editorUI:CreateInputField({x = 152, y = 208, w = 24}, "0", "The ID of the currently selected color.", "number", "input", 180)
 
     -- The minimum value is always 0 and we'll set the maximum value based on which color picker is currently selected
     colorIDInputData.min = 0
@@ -208,7 +208,7 @@ function Init()
     colorIDInputData.onAction = ChangeColorID
 
     -- Create a hex color input field
-    colorHexInputData = editorUI:CreateInputField({x = 200, y = 208, w = 48}, "FF00FF", "Hex value of the selected color.", "hex")
+    colorHexInputData = editorUI:CreateInputField({x = 200, y = 208, w = 48}, "FF00FF", "Hex value of the selected color.", "hex", "input", 180)
 
     colorHexInputData.forceCase = "upper"
     -- Call the UpdateHexColor function when a change is made
@@ -1084,6 +1084,7 @@ end
 -- Manages selecting the correct color from a picker based on a change to the color id field
 function ChangeColorID(value)
 
+  value = tonumber(value)
   -- print("Change Color ID", value)
   -- Check to see what mode we are in
   if(selectionMode == SystemColorMode) then

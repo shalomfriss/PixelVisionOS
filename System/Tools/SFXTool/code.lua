@@ -247,7 +247,7 @@ function Init()
 
     -- TODO need to replace this with the new number stepper component
 
-    local textColorOffset = 36
+    local textColorOffset = 52
 
     soundIDStepper = editorUI:CreateNumberStepper({x = 32, y = 16}, 16, 0, 0, totalSounds - 1, "top", "Sound ID value.", textColorOffset)
 

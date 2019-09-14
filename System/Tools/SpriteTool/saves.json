@@ -3,10 +3,10 @@
     "GameChip":
     {
         "savedData":{
-            "editing": "undefined",
-            "sessionID": "201909082112416445",
-            "rootDirectory": "/Workspace/ZeldaII/",
-            "selectedSprite": "0"
+            "selectedSprite": "0",
+            "rootDirectory": "/Workspace/PaletteSwapTest/",
+            "sessionID": "201909141050087617",
+            "editing": "undefined"
         }
     }
 }

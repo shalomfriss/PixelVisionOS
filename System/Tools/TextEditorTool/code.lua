@@ -394,7 +394,7 @@ function DrawLineNumbers()
   local padWidth = (lineWidth / 8) - 1
   for i = 1, inputAreaData.tiles.h do
 
-    DrawText(string.lpad(tostring(i + offset), padWidth, "0") .. " ", 1, 2 + i, DrawMode.Tile, "input", 0)
+    DrawText(string.lpad(tostring(i + offset), padWidth, "0") .. " ", 1, 2 + i, DrawMode.Tile, "input", 44)
 
   end
 

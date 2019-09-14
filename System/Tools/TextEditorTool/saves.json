@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "scroll": "20,23",
-            "selectedSprite": "0",
-            "cursor": "33,40",
+            "targetFile": "/Workspace/FontTest/code.lua",
+            "sessionID": "201909141050087617",
             "rootDirectory": "/Workspace/HelloWorld/",
-            "sessionID": "201909082112416445",
-            "targetFile": "/Workspace/MyGame/code.lua"
+            "cursor": "2,15",
+            "selectedSprite": "0",
+            "scroll": "1,1"
         }
     }
 }

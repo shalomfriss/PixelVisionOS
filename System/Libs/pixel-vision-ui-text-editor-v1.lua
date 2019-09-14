@@ -5,7 +5,7 @@ LoadScript("lume")
 
 function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
 
-  local colorShift = colorOffset or 28
+  local colorShift = colorOffset or 44
 
   local text = text or ""
 
@@ -21,7 +21,7 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
     api = colorShift + 12,
     callback = colorShift + 14,
     escape = colorShift + 16,
-    disabled = 2
+    disabled = colorShift + 8
   }
 
   if(highlighter ~= nil) then

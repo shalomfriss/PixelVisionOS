@@ -1,1 +1,11 @@
-{"GameChip":{"savedData":{"sessionID": "201909070857074671","rootDirectory": "/Disks/PixelVisionOS/Demos/ScreenWrapDemo/","currentID": "1"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "currentID": "1",
+            "rootDirectory": "/Workspace/FontTest/",
+            "sessionID": "201909141036236946"
+        }
+    }
+}

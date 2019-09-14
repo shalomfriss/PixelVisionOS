@@ -16,7 +16,7 @@ LoadScript("code-song-input-field")
 LoadScript("code-progress-modal")
 
 local toolName = "Music Editor"
-local configModal = nil
+configModal = nil
 local octaveRange = {x = 1, y = 8}
 local playMode = -1
 local songScrollOffset = 0

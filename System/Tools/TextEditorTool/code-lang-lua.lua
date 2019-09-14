@@ -1,4 +1,4 @@
-LoadScript("pixel-vision-os-api-list")
+LoadScript("pixel-vision-os-api-list-v1")
 
 --Lua syntax parser
 
