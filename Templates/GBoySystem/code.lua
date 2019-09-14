@@ -18,9 +18,6 @@ local message = "EMPTY GAME\n\n\nThis is an empty game template. Press Esc to ex
 -- use this method to configure background color, ScreenBufferChip and draw a text box.
 function Init()
 
-  -- Here we are manually changing the background color
-  BackgroundColor(0)
-
   local display = Display()
 
   -- We are going to render the message in a box as tiles. To do this, we need to wrap the
@@ -32,7 +29,7 @@ function Init()
 
   -- We want to render the text from the bottom of the screen so we offset it and loop backwards.
   for i = total, 1, - 1 do
-    DrawText(lines[i], 1, startY + (i - 1), DrawMode.Tile, "default", 3)
+    DrawText(lines[i], 1, startY + (i - 1), DrawMode.Tile, "default", PaletteOffset(0))
   end
 
 end

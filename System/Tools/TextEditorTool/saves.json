@@ -1,0 +1,14 @@
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "scroll": "20,23",
+            "selectedSprite": "0",
+            "cursor": "33,40",
+            "rootDirectory": "/Workspace/HelloWorld/",
+            "sessionID": "201909082112416445",
+            "targetFile": "/Workspace/MyGame/code.lua"
+        }
+    }
+}

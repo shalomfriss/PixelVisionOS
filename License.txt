@@ -7,7 +7,7 @@ license. If you do not accept the license, do not use the software.
 
 The terms "reproduce," "reproduction," "derivative works," and "distribution" have the same meaning
 here as under U.S. copyright law.
-
+ 
 A "contribution" is the original software, or any additions or changes to the software.
 
 A "contributor" is any person that distributes its contribution under this license.
@@ -48,3 +48,4 @@ A "contributor" is any person that distributes its contribution under this licen
 (local laws which this license cannot change. To the extent permitted under your local laws, the
 (contributors exclude the implied warranties of merchantability, fitness for a particular purpose
 (and non-infringement.
+

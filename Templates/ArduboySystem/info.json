@@ -1,6 +1,10 @@
 {
     "name":"ArduboySystem",
     "description":"",
-    "version":"0.8.0",
-    "ext":".pvs"
+    "version":"v0.9.4",
+    "ext":".pvs",
+    "gpuChip":"ArduKid",
+    "cartChip":"ArduKid",
+    "soundChip":"ArduKid",
+    
 }

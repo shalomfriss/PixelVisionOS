@@ -1,0 +1,23 @@
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "currentPatternID": "0",
+            "configFunk": "5",
+            "configLayering": "5",
+            "configSpeedMin": "120",
+            "configSpeedMax": "320",
+            "configTrack0": "0,0,6,6",
+            "configTrack1": "1,1,6,7",
+            "configTrack2": "2,2,3,4",
+            "configTrack3": "3,3,6,6",
+            "configScale": "1",
+            "sessionID": "201909071605046522",
+            "rootDirectory": "/Workspace/HelloWorld/",
+            "currentSongID": "0",
+            "configDensity": "5",
+            "configTrack4": "4,4,6,7"
+        }
+    }
+}

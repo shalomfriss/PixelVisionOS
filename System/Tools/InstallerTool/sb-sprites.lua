@@ -1,0 +1,31 @@
+-- spritelib-start
+checkboxdisabled={width=1,spriteIDs={79}}
+checkboxover={width=1,spriteIDs={125}}
+checkboxselectedover={width=1,spriteIDs={162}}
+checkboxselectedup={width=1,spriteIDs={145}}
+checkboxup={width=1,spriteIDs={102}}
+cursorhanddown={width=2,spriteIDs={113,114,133,134}}
+cursorhand={width=2,spriteIDs={67,68,90,91}}
+cursorpointer={width=2,spriteIDs={65,66,88,89}}
+cursortext={width=2,spriteIDs={69,70,92,93}}
+custombuttonleft={width=1,spriteIDs={149,164}}
+custombuttonmiddle={width=1,spriteIDs={223,231}}
+custombuttonright={width=1,spriteIDs={152,167}}
+installbuttonover={width=5,spriteIDs={241,242,243,244,245,246,247,248,249,250,251,252,252,252,253}}
+installbuttonup={width=5,spriteIDs={224,225,226,227,228,232,233,234,235,236,238,239,239,239,240}}
+modalcancelbuttonover={width=4,spriteIDs={121,122,123,124,141,142,143,144}}
+modalcancelbuttonup={width=4,spriteIDs={75,76,77,78,98,99,100,101}}
+modalokbuttonover={width=4,spriteIDs={177,178,179,180,189,190,191,192}}
+modalokbuttonup={width=4,spriteIDs={149,150,151,152,164,165,166,167}}
+pv8toolbaricondown={width=2,spriteIDs={105,106,127,128}}
+pv8toolbariconup={width=2,spriteIDs={147,148,2,163}}
+radiobuttondisabled={width=1,spriteIDs={159}}
+radiobuttonover={width=1,spriteIDs={161}}
+radiobuttonselectedover={width=1,spriteIDs={176}}
+radiobuttonselectedup={width=1,spriteIDs={175}}
+radiobuttonup={width=1,spriteIDs={160}}
+titlebarvolumeoff={width=1,spriteIDs={107}}
+titlebarvolumeon={width=1,spriteIDs={108}}
+toolbaricontool={width=1,spriteIDs={130}}
+vsliderhandle={width=2,spriteIDs={63,64,86,87,109,110}}
+-- spritelib-end
