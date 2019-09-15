@@ -70,17 +70,17 @@ function ResetDataValidation()
 
 end
 
-function InvalidateColorCount()
-
-  colorCountInvalid = true
-
-end
-
-function ResetColorInvalidation()
-
-  colorCountInvalid = false
-
-end
+-- function InvalidateColorCount()
+--
+--   colorCountInvalid = true
+--
+-- end
+--
+-- function ResetColorInvalidation()
+--
+--   colorCountInvalid = false
+--
+-- end
 
 
 function Init()
@@ -344,8 +344,6 @@ function Init()
 
       lastColorID = value
 
-
-
       local enableCanvas = true
 
       -- Only count colors when we are not suing the eraser or the eye dropper
@@ -374,20 +372,20 @@ function Init()
         --   end
         -- end
 
-        if(table.indexOf(uniqueColors, value) == - 1) then
-
-          enableCanvas = #uniqueColors < gameEditor:ColorsPerSprite()
-
-        end
-
-        if(enableCanvas == false and colorCountInvalid == false) then
-          pixelVisionOS:DisplayMessage("Sprite contains the maximum number of colors it can display.")
-
-          -- pixelVisionOS:ShowMessageModal(toolName .. "Error", "You have reached the maximum number of colors this sprite can have. Please delete a color from the canvas or increase the total colors per sprite value.", 160, false)
-
-          InvalidateColorCount()
-
-        end
+        -- if(table.indexOf(uniqueColors, value) == - 1) then
+        --
+        --   enableCanvas = #uniqueColors < gameEditor:ColorsPerSprite()
+        --
+        -- end
+        --
+        -- if(enableCanvas == false and colorCountInvalid == false) then
+        --   pixelVisionOS:DisplayMessage("Sprite contains the maximum number of colors it can display.")
+        --
+        --   -- pixelVisionOS:ShowMessageModal(toolName .. "Error", "You have reached the maximum number of colors this sprite can have. Please delete a color from the canvas or increase the total colors per sprite value.", 160, false)
+        --
+        --   InvalidateColorCount()
+        --
+        -- end
 
       end
 
@@ -1019,7 +1017,7 @@ function OnSelectTool(value)
     -- Make sure the canvas is enabled
     editorUI:Enable(canvasData, true)
 
-    ResetColorInvalidation()
+    -- ResetColorInvalidation()
 
   else
 
@@ -1113,6 +1111,8 @@ function OnNextSpriteSize(reverse)
 
   ClearHistory()
 
+  InvalidateColorPreview()
+
   -- TODO need to reindex the colors?
 
 end
@@ -1167,7 +1167,7 @@ function OnSelectSprite(value)
 
   UpdateCanvas(value)
 
-  ResetColorInvalidation()
+  -- ResetColorInvalidation()
 
 end
 
@@ -1345,7 +1345,7 @@ function Update(timeDelta)
 
       if(canvasData.tool == "eyedropper" and canvasData.inFocus and MouseButton(0)) then
 
-        --  print("canvasData", canvasData.inFocus)
+        print("select color")
 
         local colorID = canvasData.overColor
 
@@ -1372,6 +1372,9 @@ function Update(timeDelta)
 
             -- Seelect the
             pixelVisionOS:SelectColorPickerColor(paletteColorPickerData, lastColorID)
+
+            editorUI:CanvasBrushColor(canvasData, lastColorID)
+
           end
 
         end
