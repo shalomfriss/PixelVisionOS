@@ -434,8 +434,6 @@ function Update(timeDelta)
     -- Test if we need to show or hide the slider
     if(vSliderData.enabled ~= showVSlider) then
       editorUI:Enable(vSliderData, showVSlider)
-
-
     end
 
     if(vSliderData.enabled == true) then

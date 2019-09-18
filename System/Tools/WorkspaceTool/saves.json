@@ -3,10 +3,10 @@
     "GameChip":
     {
         "savedData":{
-            "selection": "9",
+            "lastPath": "/Workspace/MyGame/",
+            "sessionID": "201909172048287768",
             "scrollPos": "0",
-            "sessionID": "201909151028496144",
-            "lastPath": "/Disks/PV8Tutorials/Projects/11-Tile-Color-Swap/"
+            "selection": "0"
         }
     }
 }
