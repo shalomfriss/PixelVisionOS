@@ -34,9 +34,9 @@ local showBGColor = false
 local spriteSize = 1
 local maxSpriteSize = 4
 local lastTileSelection = -1
-
+local enabledUI = {}
 local SaveShortcut, UndoShortcut, RedoShortcut, BGColorShortcut, QuitShortcut = 5, 10, 11, 15, 21
-
+local uiLock = false
 local tools = {"pointer", "pen", "eraser", "fill"}
 local toolKeys = {Keys.v, Keys.P, Keys.E, Keys.F}
 
@@ -134,6 +134,7 @@ function Init()
 
     pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
+
     -- The first thing we need to do is rebuild the tool's color table to include the game's system and game colors.
 
     pixelVisionOS:ImportColorsFromGame()
@@ -147,6 +148,8 @@ function Init()
     sizeBtnData = editorUI:CreateButton({x = 160, y = 16}, "sprite1x", "Pick the sprite size.")
     sizeBtnData.onAction = function() OnNextSpriteSize() end
 
+    table.insert(enabledUI, sizeBtnData)
+
     toolBtnData = editorUI:CreateToggleGroup()
     toolBtnData.onAction = OnSelectTool
 
@@ -154,9 +157,14 @@ function Init()
       local offsetX = ((i - 1) * 16) + 160
       local rect = {x = offsetX, y = 56, w = 16, h = 16}
       editorUI:ToggleGroupButton(toolBtnData, rect, tools[i], "Select the '" .. tools[i] .. "' (".. tostring(toolKeys[i]) .. ") tool.")
+
+      table.insert(enabledUI, toolBtnData.buttons[i])
+
     end
 
     flagBtnData = editorUI:CreateToggleButton({x = 232, y = 56}, "flag", "Toggle between tilemap and flag layers.")
+
+    table.insert(enabledUI, flagBtnData)
 
     flagBtnData.onAction = ChangeMode
 
@@ -177,6 +185,9 @@ function Init()
       false,
       "SpritePicker"
     )
+
+    table.insert(enabledUI, spritePickerData.picker)
+    table.insert(enabledUI, spritePickerData.vSlider)
 
     -- spritePickerData.scrollScale = 4
     spritePickerData.onPress = OnSelectSprite
@@ -253,6 +264,9 @@ function Init()
       "Pick a flag"
     )
 
+    table.insert(enabledUI, flagPicker)
+
+
     flagPicker.onAction = function(value)
       -- print("flagPicker Action")
       pixelVisionOS:ChangeTilemapPaintFlag(tilePickerData, value)
@@ -269,9 +283,6 @@ function Init()
     mapSize = gameEditor:TilemapSize()
 
     targetSize = NewPoint(math.ceil(mapSize.x / 4) * 4, math.ceil(mapSize.y / 4) * 4)
-
-
-
 
     if(mapSize.x ~= targetSize.x or mapSize.y ~= targetSize.y) then
 
@@ -382,6 +393,10 @@ function OnInitCompleated()
     true,
     "tilemap"
   )
+  --
+  -- table.insert(enabledUI, tilePickerData.picker)
+  -- table.insert(enabledUI, tilePickerData.hSlider)
+  -- table.insert(enabledUI, tilePickerData.vSlider)
 
   tilePickerData.onRelease = OnTileSelection
   tilePickerData.onDropTarget = OnTilePickerDrop
@@ -647,11 +662,24 @@ function SelectLayer(value)
   -- Clear background
   -- DrawRect(viewport.x, viewport.y, viewport.w, viewport.h, pixelVisionOS.emptyColorID, DrawMode.TilemapCache)
 
-  pixelVisionOS:EnableMenuItem(QuitShortcut, false)
+
 
   gameEditor:RenderMapLayer(layerMode)
 
+  uiLock = true
+
   pixelVisionOS:PreRenderMapLayer(tilePickerData, layerMode)
+
+  editorUI.mouseCursor:SetCursor(5, true)
+
+  for i = 1, #enabledUI do
+    editorUI:Enable(enabledUI[i], false)
+  end
+
+  pixelVisionOS:EnableMenuItem(QuitShortcut, false)
+
+  -- editorUI:Enable(pixelVisionOS.titleBar.iconButton, false)
+
 
 end
 
@@ -924,12 +952,19 @@ function Update(timeDelta)
         if(tilePickerData.renderingMap == true) then
           pixelVisionOS:NextRenderStep(tilePickerData)
 
-          pixelVisionOS:DisplayMessage("Rendering Layer " .. tostring(pixelVisionOS:ReadRenderPercent(tilePickerData)).. "% complete.", 2)
+          local percent = pixelVisionOS:ReadRenderPercent(tilePickerData)
 
-          if(pixelVisionOS:ReadRenderPercent(tilePickerData) > 90) then
-            pixelVisionOS:EnableMenuItem(QuitShortcut, true)
+          pixelVisionOS:DisplayMessage("Rendering Layer " .. tostring(percent).. "% complete.", 2)
 
+
+        elseif(uiLock == true) then
+
+          pixelVisionOS:EnableMenuItem(QuitShortcut, true)
+          editorUI.mouseCursor:SetCursor(1, false)
+          for i = 1, #enabledUI do
+            editorUI:Enable(enabledUI[i], true)
           end
+          uiLock = false
           -- pixelVisionOS:InvalidateMap(tilePickerData)
         end
 

@@ -196,7 +196,7 @@ function ToggleLineNumbers()
 
   WriteBiosData("ShowLinesInTextEditor", showLines == true and "True" or "False")
 
-  DrawLineNumbers()
+  InvalidateLineNumbers()
 
   -- inputAreaData.rect.x = 8 + lineWidth
   -- inputAreaData.width = 224 - lineWidth
@@ -273,7 +273,7 @@ function RefreshEditor()
 
   ResetDataValidation()
 
-  DrawLineNumbers()
+  InvalidateLineNumbers()
 
   if(SessionID() == ReadSaveData("sessionID", "") and targetFile == ReadSaveData("targetFile", "")) then
     local cursorPosString = ReadSaveData("cursor", "0,0")
@@ -338,40 +338,26 @@ function OnSave()
 end
 
 function OnHorizontalScroll(value)
-  -- editorUI:InputAreaScrollTo(inputAreaData, value, inputAreaData.scrollValue.x)
 
-  local charPos = math.ceil((inputAreaData.maxLineWidth - (inputAreaData.tiles.w - 2)) * value)
+  local charPos = math.ceil(((inputAreaData.maxLineWidth + 1) - (inputAreaData.tiles.w)) * value) + 1
 
   if(inputAreaData.vx ~= charPos) then
     inputAreaData.vx = charPos
     editorUI:TextEditorInvalidateBuffer(inputAreaData)
   end
 
-  -- editorUI:InputAreaScrollTo(lineInputArea, value, inputAreaData.scrollValue.y)
 end
 
 function OnVerticalScroll(value)
 
-  -- TODO calculate the line percent
   local line = math.ceil((#inputAreaData.buffer - (inputAreaData.tiles.h - 1)) * value)
-
   if(inputAreaData.vy ~= line) then
     inputAreaData.vy = Clamp(line, 1, #inputAreaData.buffer)
 
-    -- TODO need to cache the total line value
-    -- if(inputAreaData.vy < 0) then
-    --   inputAreaData.vy = 1
-    -- elseif(inputAreaData.vy > #inputAreaData.buffer) then
-    --   inputAreaData.vy = #inputAreaData.buffer
-    -- end
-
     editorUI:TextEditorInvalidateBuffer(inputAreaData)
   end
-  -- editorUI:InputAreaScrollTo(inputAreaData, inputAreaData.scrollValue.y, value)
 
-  DrawLineNumbers()
-
-  -- print("Set text focus")
+  InvalidateLineNumbers()
 
 end
 
@@ -405,10 +391,6 @@ function Update(timeDelta)
   -- This needs to be the first call to make sure all of the editor UI is updated first
   pixelVisionOS:Update(timeDelta)
 
-  -- if(showLines == true) then
-  --   editorUI:UpdateInputArea(lineInputArea)
-  -- end
-
   if(inputAreaData.inFocus == true and pixelVisionOS:IsModalActive()) then
     editorUI:ClearFocus(data)
   end
@@ -421,15 +403,11 @@ function Update(timeDelta)
     -- TODO need a better way to check if the text has been changed in the editor
     if(inputAreaData.invalidText == true) then
       InvalidateData()
-      DrawLineNumbers()
+      InvalidateLineNumbers()
     end
-
-
 
     -- Check to see if we should show the horizontal slider
     local showVSlider = #inputAreaData.buffer > inputAreaData.tiles.h
-
-    -- print("V scroll", inputAreaData.vy, #inputAreaData.buffer, #inputAreaData.buffer - inputAreaData.tiles.h, inputAreaData.vy / (#inputAreaData.buffer - inputAreaData.tiles.h), showVSlider)
 
     -- Test if we need to show or hide the slider
     if(vSliderData.enabled ~= showVSlider) then
@@ -437,22 +415,16 @@ function Update(timeDelta)
     end
 
     if(vSliderData.enabled == true) then
-      inputAreaData.scrollValue.y = inputAreaData.vy / (#inputAreaData.buffer - inputAreaData.tiles.h)
+      inputAreaData.scrollValue.y = (inputAreaData.vy - 1) / (#inputAreaData.buffer - inputAreaData.tiles.h)
 
       if(vSliderData.value ~= inputAreaData.scrollValue.y) then
 
-        -- TODO this is a bit hacky because scrolling should be snapped to a grid
-        if(inputAreaData.scrollValue.y < 0.028) then
-          inputAreaData.scrollValue.y = 0
-        end
+        InvalidateLineNumbers()
+
         editorUI:ChangeSlider(vSliderData, inputAreaData.scrollValue.y, false)
       end
 
     end
-
-
-
-    -- editorUI:UpdateButton(lineBtnData)
 
     -- Update the slider
     editorUI:UpdateSlider(vSliderData)
@@ -460,19 +432,18 @@ function Update(timeDelta)
     -- Check to see if we should show the vertical slider
     local showHSlider = inputAreaData.maxLineWidth > inputAreaData.tiles.w
 
-    -- if(hSliderData.value ~= inputAreaData.scrollValue.x) then
-    --   editorUI:ChangeSlider(hSliderData, inputAreaData.scrollValue.x, false)
-    -- end
-
     -- Test if we need to show or hide the slider
     if(hSliderData.enabled ~= showHSlider) then
       editorUI:Enable(hSliderData, showHSlider)
     end
 
     if(hSliderData.enabled == true) then
-      inputAreaData.scrollValue.x = inputAreaData.vx / (inputAreaData.maxLineWidth - inputAreaData.tiles.w)
+      inputAreaData.scrollValue.x = (inputAreaData.vx - 1) / ((inputAreaData.maxLineWidth + 1) - inputAreaData.tiles.w)
 
       if(hSliderData.value ~= inputAreaData.scrollValue.x) then
+        -- print(inputAreaData.vx, inputAreaData.maxLineWidth, inputAreaData.tiles.w)
+        -- print("inputAreaData.scrollValue.x", inputAreaData.scrollValue.x)
+
         editorUI:ChangeSlider(hSliderData, inputAreaData.scrollValue.x, false)
       end
 
@@ -490,6 +461,14 @@ function Update(timeDelta)
 
 end
 
+function InvalidateLineNumbers()
+  lineNumbersInvalid = true
+end
+
+function ResetLineNumberInvalidation()
+  lineNumbersInvalid = false
+end
+
 function Draw()
 
 
@@ -497,6 +476,12 @@ function Draw()
 
   -- The ui should be the last thing to update after your own custom draw calls
   pixelVisionOS:Draw()
+
+  if(lineNumbersInvalid == true) then
+    DrawLineNumbers()
+
+    ResetLineNumberInvalidation()
+  end
 
 end
 

@@ -26,7 +26,13 @@ function MouseCursor:Init()
   setmetatable(_mouseCursor, MouseCursor)
 
   -- This defines which set of data to use when drawing the cursor
-  _mouseCursor.cursorID = 1
+  _mouseCursor.cursorID = -1
+
+  _mouseCursor.animationTime = 0
+  _mouseCursor.animationDelay = .2
+  _mouseCursor.animationFrame = 0
+
+  _mouseCursor.lock = false
 
   -- Reference data for each of the different mouse cursors
   _mouseCursor.cursors = {
@@ -65,11 +71,14 @@ function MouseCursor:Init()
     },
     -- Wait
     {
-      spriteData = cursorwait,
+      spriteData = cursorwait1,
       offset = {
         x = -2,
         y = -3
-      }
+      },
+      animated = true,
+      frames = 10,
+      spriteName = "cursorwait"
     },
     -- Pencil
     {
@@ -99,6 +108,7 @@ function MouseCursor:Init()
 
   _mouseCursor.pos = {x = -1, y = -1}
 
+  _mouseCursor:SetCursor(1)
   -- Return the new instance of the editor ui
   return _mouseCursor
 
@@ -113,6 +123,26 @@ function MouseCursor:Update(timeDelta, collisionState)
   self.pos.x = collisionState.mousePos.x
   self.pos.y = collisionState.mousePos.y
 
+  if(self.cursorData ~= nil and self.cursorData.animated == true) then
+
+    self.animationTime = self.animationTime + timeDelta
+
+    if(self.animationTime > self.animationDelay) then
+
+      self.animationTime = 0
+      self.animationFrame = Repeat(self.animationFrame, self.cursorData.frames - 1) + 1
+
+      self.cursorData.spriteData = _G[self.cursorData.spriteName .. tostring(self.animationFrame)]
+
+    end
+
+  end
+
+  if(cursorID == 5) then
+
+
+  end
+
 end
 
 function MouseCursor:Draw()
@@ -122,15 +152,10 @@ function MouseCursor:Draw()
     return
   end
 
-  -- get the current sprite data for the current cursor
-  local cursorData = self.cursors[self.cursorID]
-
-
-
   -- Make sure the data isn't undefined
-  if(cursorData ~= nil) then
+  if(self.cursorData ~= nil) then
 
-    local spriteData = cursorData.spriteData
+    local spriteData = self.cursorData.spriteData
 
     if(self.cursorID == 2 and MouseButton(0)) then
       spriteData = cursorhanddown
@@ -139,9 +164,32 @@ function MouseCursor:Draw()
     if(spriteData ~= nil) then
 
       -- Draw the new cursor taking into account the cursors offset
-      DrawSprites(spriteData.spriteIDs, self.pos.x + cursorData.offset.x, self.pos.y + cursorData.offset.y, spriteData.width, false, false, DrawMode.SpriteAbove, 0, true, false)
+      DrawSprites(spriteData.spriteIDs, self.pos.x + self.cursorData.offset.x, self.pos.y + self.cursorData.offset.y, spriteData.width, false, false, DrawMode.SpriteAbove, 0, true, false)
 
     end
+
+  end
+
+end
+
+function MouseCursor:SetCursor(id, lock)
+
+  -- Check for unlock flag
+  if(lock == false) then
+    self.lock = false
+  end
+
+  if(self.cursorID ~= id and self.lock ~= true) then
+
+    self.lock = lock
+
+    self.cursorID = id
+
+    self.animationTime = 0
+    self.animationFrame = 1
+
+    -- get the current sprite data for the current cursor
+    self.cursorData = self.cursors[self.cursorID]
 
   end
 

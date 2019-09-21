@@ -84,7 +84,7 @@ function EditorUI:Update(timeDelta)
     self.refreshTime = 0
 
     -- Delay the mouse cursor by the refresh rate so it doesn't flicker
-    self.mouseCursor.cursorID = self.cursorID
+    self.mouseCursor:SetCursor(self.cursorID)
 
   end
 

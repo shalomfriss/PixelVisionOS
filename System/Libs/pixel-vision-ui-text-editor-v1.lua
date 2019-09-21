@@ -29,6 +29,8 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
     highlighter:setTheme(data.highlighterTheme)
   end
 
+data.lastCX = 0
+
   data.editable = true
 
   data.viewPort = NewRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h)
@@ -520,7 +522,12 @@ function EditorUI:TextEditorCheckPosition(data)
   --X position checking--
   if data.buffer[data.cy]:len() < data.cx - 1 then data.cx = data.buffer[data.cy]:len() + 1 end --Passed the end of the line !
 
-  data.cx = Clamp(data.cx, 1, data.maxLineWidth)
+  data.cx = Clamp(data.cx, 1, data.maxLineWidth+1)
+
+  -- if(data.cx > data.lastCX) then
+  --   data.lastCX = data.cx
+  --   print("Save CX", data.cx, data.lastCX)
+  -- end
 
   if data.cx > data.tiles.w + (data.vx - 1) then --Passed the screen to the right
     data.vx = data.cx - (data.tiles.w - 1); flag = true
@@ -839,7 +846,7 @@ function EditorUI:TextEditorSearchTextAndNavigate(data, from_line)
 end
 
 function EditorUI:TextEditorTextInput(data, t)
-  if data.readonly then _systemMessage("The file is readonly !", 1, 9, 4) return end
+  -- if data.readonly then _systemMessage("The file is readonly !", 1, 9, 4) return end
   if data.incsearch then
     if data.searchtxt == nil then data.searchtxt = "" end
     data.searchtxt = data.searchtxt..t
@@ -852,13 +859,18 @@ function EditorUI:TextEditorTextInput(data, t)
     local delsel
     if data.sxs then self:TextEditorDeleteSelection(data); delsel = true end
     data.buffer[data.cy] = data.buffer[data.cy]:sub(0, data.cx - 1)..t..data.buffer[data.cy]:sub(data.cx, - 1)
+
+
+
     data.cx = data.cx + t:len()
 
-    self:TextEditorResetCursorBlink(data)
-    if self:TextEditorCheckPosition(data) or delsel then self:TextEditorDrawBuffer(data) else self:TextEditorDrawLine(data) end
-    self:TextEditorDrawLineNum(data)
+    -- Update the line length
+    data.maxLineWidth = math.max(#data.buffer[data.cy], data.maxLineWidth)
 
+    self:TextEditorResetCursorBlink(data)
     self:TextEditorInvalidateLine(data)
+    self:TextEditorCheckPosition(data)-- or delsel then self:TextEditorDrawBuffer(data) else self:TextEditorDrawLine(data) end
+    self:TextEditorDrawLineNum(data)
 
     self:TextEditorEndUndoable(data)
 
@@ -1164,7 +1176,7 @@ function EditorUI:TextEditorMousepressed(data, cx, cy)--, istouch)
     --print("cursor", cx, cy, data.cx, data.cy, data.vx, data.vy)
     if data.sxs then data.sxs, data.sys, data.sxe, data.sye = false, false, false, false end --End selection
 
-    EditorUI:TextEditorCheckPosition(data)
+    self:TextEditorCheckPosition(data)
 
   end
 end

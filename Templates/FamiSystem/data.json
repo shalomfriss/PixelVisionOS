@@ -22,7 +22,7 @@
     },
     "GameChip":
     {
-        "lockSpecs":false,
+        "lockSpecs":true,
         "maxSize":384,
         "saveSlots":8
     },
@@ -37,7 +37,7 @@
     {
         "totalChannels":5,
         "totalSounds":32,
-        "channelTypes":[-1,-1,-1,-1,-1]
+        "channelTypes":[0,0,4,3,5]
     },
     
     "SpriteChip":{

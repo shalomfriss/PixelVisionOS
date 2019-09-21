@@ -636,6 +636,8 @@ function OnPaste()
 
   local colorID = src.currentSelection + src.altColorOffset
 
+  -- print("Paste", lastMode, src.name, colorID, src.currentSelection, src.altColorOffset)
+
   Color(colorID, copyValue)
   pixelVisionOS:EnableMenuItem(CopyShortcut, true)
   pixelVisionOS:EnableMenuItem(PasteShortcut, false)

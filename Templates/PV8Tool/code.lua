@@ -267,8 +267,6 @@ end
 
 function UpdatePickerButtons(text)
 
-  print("UpdatePickerButtons", text)
-
   if(text == "") then
     text = "0"
   end

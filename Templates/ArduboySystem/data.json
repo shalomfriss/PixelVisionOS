@@ -22,7 +22,7 @@
     },
     "GameChip":
     {
-        "lockSpecs":true,
+        "lockSpecs":false,
         "maxSize":64,
         "saveSlots":8
     },

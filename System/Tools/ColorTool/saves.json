@@ -3,11 +3,11 @@
     "GameChip":
     {
         "savedData":{
-            "sessionID": "201909151028496144",
-            "rootDirectory": "/Disks/PV8Tutorials/Projects/11-Tile-Color-Swap/",
-            "selectedColor": "-1",
+            "selectedSprite": "-1",
             "selectedPalette": "-1",
-            "selectedSprite": "-1"
+            "selectedColor": "-1",
+            "rootDirectory": "/Workspace/NesSpriteDemo/",
+            "sessionID": "201909210914054108"
         }
     }
 }

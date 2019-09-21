@@ -3,10 +3,10 @@
     "GameChip":
     {
         "savedData":{
-            "targetFile": "/Disks/PV8Tutorials/Projects/8-Scren-Wrap/data.json",
-            "sessionID": "201909151028496144",
+            "targetFile": "/Workspace/TestTextEditor/code.lua",
+            "sessionID": "201909201048133127",
             "rootDirectory": "/Workspace/HelloWorld/",
-            "cursor": "1,1",
+            "cursor": "7,3",
             "selectedSprite": "0",
             "scroll": "1,1"
         }

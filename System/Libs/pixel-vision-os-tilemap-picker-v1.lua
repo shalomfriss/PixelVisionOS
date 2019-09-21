@@ -139,6 +139,7 @@ function PixelVisionOS:UpdateTilemapPicker(data)
 
         self:PreRenderMapLayer(data, data.mapRenderMode)
 
+        editorUI.mouseCursor:SetCursor(5, true)
 
         self:InvalidateMap(data)
       end
