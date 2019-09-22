@@ -1,12 +1,1 @@
-{
-    
-    "GameChip":
-    {
-        "savedData":{
-            "editing": "undefined",
-            "sessionID": "201909210914054108",
-            "rootDirectory": "/Disks/PixelVisionOS/System/Tools/TilemapTool/",
-            "selectedSprite": "0"
-        }
-    }
-}
+{"GameChip":{"savedData":{"editing": "undefined","sessionID": "201909221046060225","rootDirectory": "/Workspace/LoadTool/","selectedSprite": "205"}}}

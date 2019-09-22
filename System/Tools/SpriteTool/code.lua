@@ -85,6 +85,8 @@ end
 
 function Init()
 
+
+
   BackgroundColor(22)
 
   -- Disable the back key in this tool
@@ -104,10 +106,8 @@ function Init()
   if(rootDirectory == nil) then
 
   else
-
     -- Load only the game data we really need
     success = gameEditor:Load(rootDirectory, {SaveFlags.System, SaveFlags.Meta, SaveFlags.Colors, SaveFlags.ColorMap, SaveFlags.Sprites}) -- colorEditor:LoadTmpEngine()
-
   end
 
   -- If data loaded activate the tool

@@ -148,11 +148,14 @@ function Init()
 
     end
 
-    cleanCheckboxData = editorUI:CreateButton({x = 176, y = 56, w = 8, h = 8}, "radiobutton", "Toggles doing a clean install.")
+    cleanCheckboxData = editorUI:CreateToggleButton({x = 176, y = 56, w = 8, h = 8}, "radiobutton", "Toggles doing a clean build and removes all previous builds.")
+
+    -- editorUI:ToggleButton(cleanCheckboxData, gameEditor:ReadMetaData("clear", "false") == "true", false)
 
     cleanCheckboxData.onAction = function(value)
 
       if(value == false) then
+        -- InvalidateData()
         return
       end
 
@@ -169,9 +172,11 @@ function Init()
             editorUI:ToggleButton(cleanCheckboxData, true, false)
           end
 
+          -- Force the button to redraw since restoring the modal will show the old state
+          editorUI:Invalidate(cleanCheckboxData)
+          -- InvalidateData()
         end
       )
-
 
     end
 
@@ -308,6 +313,12 @@ end
 
 function OnInstall(rootPath)
 
+  if (cleanCheckboxData.selected == true) then
+    local destPath = NewWorkspacePath(rootPath.."/")
+    if(PathExists(destPath)) then
+      Delete(destPath)
+    end
+  end
   -- print("Install")
 
   installing = true

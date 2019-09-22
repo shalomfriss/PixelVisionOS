@@ -45,7 +45,6 @@ $bios=AutoRun|/PixelVisionOS/Tools/WorkspaceTool/
 /System/Libs/pixel-vision-os-sprite-picker-v3.lua
 /System/Libs/pixel-vision-os-tilemap-picker-v1.lua
 /System/Libs/pixel-vision-os-title-bar-v2.lua
-/System/Libs/pixel-vision-os-ui-builder-v2.lua
 /System/Libs/pixel-vision-os-undo-v2.lua
 /System/Libs/pixel-vision-os-v2.lua
 /System/Libs/pixel-vision-ui-button-v2.lua
