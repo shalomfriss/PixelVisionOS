@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "scroll": "1,1",
-            "selectedSprite": "0",
-            "cursor": "1,1",
+            "targetFile": "/Workspace/MastrSystem/data.json",
+            "sessionID": "201909291451287599",
             "rootDirectory": "/Workspace/HelloWorld/",
-            "sessionID": "201909291333565187",
-            "targetFile": "/Workspace/NewProject/info.json"
+            "cursor": "1,1",
+            "selectedSprite": "0",
+            "scroll": "1,1"
         }
     }
 }

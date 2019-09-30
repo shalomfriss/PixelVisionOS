@@ -100,7 +100,23 @@ function Init()
       local tmpCheckbox = editorUI:CreateToggleButton({x = 16, y = startY, w = 8, h = 8}, "checkbox", "Toggles doing a clean install.")
       tmpCheckbox.onAction = function(value)
 
-        filePaths[i + fileListOffset][2] = value
+        if(Key(Keys.LeftShift) or Key(Keys.RightShift)) then
+
+          -- Loop through all of the files
+          for i = 1, #filePaths do
+
+            -- Change all of the file values
+            filePaths[i][2] = value
+
+          end
+
+          DrawFileList(fileListOffset)
+
+        else
+
+          -- Change a single file value
+          filePaths[i + fileListOffset][2] = value
+        end
 
       end
 

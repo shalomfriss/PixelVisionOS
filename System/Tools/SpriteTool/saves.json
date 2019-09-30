@@ -1,1 +1,14 @@
-{"GameChip":{"savedData":{"editing": "undefined","sessionID": "201909221046060225","rootDirectory": "/Workspace/LoadTool/","selectedSprite": "205"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "editing": "undefined",
+            "sessionID": "201909291828086695",
+            "rootDirectory": "/Workspace/SpaceRanger/",
+            "selectedSprite": "128",
+            "SpriteSize": "undefined",
+            "spriteSize": "2"
+        }
+    }
+}

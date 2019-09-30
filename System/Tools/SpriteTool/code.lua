@@ -27,8 +27,8 @@ local lastSelection = -1
 local lastColorID = 0
 local colorEditorPath = "/"
 local colorCountInvalid = false
-local flipH = false
-local flipV = false
+-- local flipH = false
+-- local flipV = false
 local spriteSize = 1
 local maxSpriteSize = 4
 local uniqueColors = {}
@@ -223,29 +223,6 @@ function Init()
       editorUI:ToggleGroupButton(toolBtnData, rect, tools[i], "Select the '" .. tools[i] .. "' (".. tostring(toolKeys[i]) .. ") tool.")
     end
 
-
-    -- TODO draw flip buttons
-    flipHButton = editorUI:CreateToggleButton({x = 152, y = offsetY + 16 + 8, w = 16, h = 16}, "hflip", "Preview the sprite flipped horizontally.")
-
-    flipHButton.onAction = function(value)
-
-      flipH = value
-
-      ChangeSpriteID(tonumber(spriteIDInputData.text))
-
-
-    end
-
-    flipVButton = editorUI:CreateToggleButton({x = 152, y = offsetY + 32 + 8, w = 16, h = 16}, "vflip", "Preview the sprite flipped vertically.")
-
-    flipVButton.onAction = function(value)
-
-      flipV = value
-
-      ChangeSpriteID(tonumber(spriteIDInputData.text))
-
-    end
-
     canvasData = editorUI:CreateCanvas(
       {
         x = 16,
@@ -263,8 +240,41 @@ function Init()
       pixelVisionOS.emptyColorID
     )
 
+    -- TODO draw flip buttons
+    flipHButton = editorUI:CreateButton({x = 152, y = offsetY + 16 + 8, w = 16, h = 16}, "hflip", "Preview the sprite flipped horizontally.")
+
+    flipHButton.onAction = function(value)
+
+      -- Update the canvas and flip the H value
+      UpdateCanvas(lastSelection, true, false)
+
+      -- Save the new pixel data to history
+      UpdateHistory(editorUI:GetCanvasPixelData(canvasData))
+
+      -- Save the new pixel data back to the sprite chip
+      OnSaveCanvasChanges()
+
+    end
+
+    flipVButton = editorUI:CreateButton({x = 152, y = offsetY + 32 + 8, w = 16, h = 16}, "vflip", "Preview the sprite flipped vertically.")
+
+    flipVButton.onAction = function(value)
+
+      -- Update the canvas and flip the H value
+      UpdateCanvas(lastSelection, false, true)
+
+      -- Save the new pixel data to history
+      UpdateHistory(editorUI:GetCanvasPixelData(canvasData))
+
+      -- Save the new pixel data back to the sprite chip
+      OnSaveCanvasChanges()
+
+    end
+
+
+
     canvasData.onPress = function()
-      local pixelData = gameEditor:FlipPixelData(editorUI:GetCanvasPixelData(canvasData), flipH, flipV)
+      local pixelData = editorUI:GetCanvasPixelData(canvasData)
 
       canvasData.inDrawMode = true
 
@@ -346,55 +356,9 @@ function Init()
 
       local enableCanvas = true
 
-      -- Only count colors when we are not suing the eraser or the eye dropper
-      if(canvasData.tool ~= "eraser" and canvasData.tool ~= "eyedropper") then
-
-        -- local pixelData = editorUI:GetCanvasPixelData(canvasData)
-        --
-        -- -- Clear unique color list
-        -- uniqueColors = {}
-        --
-        -- for i = 1, #pixelData do
-        --   local pixel = pixelData[i] - canvasData.colorOffset
-        --   if(table.indexOf(uniqueColors, pixel) == -1) then
-        --
-        --     -- TODO need to make sure we don't count transparent in non-palette mode
-        --     -- local addColor = true
-        --     --
-        --     -- if(usePalettes == false and pixel == -1) then
-        --     --   addColor = false
-        --     -- end
-        --     --
-        --     if(pixel > - 1) then
-        --       table.insert(uniqueColors, pixel)
-        --     end
-        --
-        --   end
-        -- end
-
-        -- if(table.indexOf(uniqueColors, value) == - 1) then
-        --
-        --   enableCanvas = #uniqueColors < gameEditor:ColorsPerSprite()
-        --
-        -- end
-        --
-        -- if(enableCanvas == false and colorCountInvalid == false) then
-        --   pixelVisionOS:DisplayMessage("Sprite contains the maximum number of colors it can display.")
-        --
-        --   -- pixelVisionOS:ShowMessageModal(toolName .. "Error", "You have reached the maximum number of colors this sprite can have. Please delete a color from the canvas or increase the total colors per sprite value.", 160, false)
-        --
-        --   InvalidateColorCount()
-        --
-        -- end
-
-      end
-
       editorUI:Enable(canvasData, enableCanvas)
-      --
 
-      -- print("paletteColorPickerData.onAction", value)
-
-      -- -- Set the canvas brush color
+      -- Set the canvas brush color
       editorUI:CanvasBrushColor(canvasData, value)
 
     end
@@ -408,21 +372,10 @@ function Init()
         -- Calculate the new color offset
         local newColorOffset = pixelVisionOS.colorOffset + pixelVisionOS.totalPaletteColors + ((value - 1) * 16)
 
-        -- if(usePalettes) then
-        --   canvasData.emptyColorID = newColorOffset
-        --
-        --   editorUI:InvalidateCanvas(canvasData)
-        -- end
-
-        -- Update the sprite picker color offset
-        -- spritePickerData.colorOffset = newColorOffset
-
         pixelVisionOS:ChangeItemPickerColorOffset(spritePickerData, newColorOffset)
 
         -- Update the canvas color offset
         canvasData.colorOffset = newColorOffset
-
-        -- editorUI:ChangeInputField(colorOffsetInputData, newColorOffset - pixelVisionOS.colorOffset, false)
 
         pixelVisionOS:InvalidateItemPickerDisplay(spritePickerData)
 
@@ -445,8 +398,7 @@ function Init()
 
     if(gameEditor:Name() == ReadSaveData("editing", "undefined")) then
       lastSystemColorSelection = tonumber(ReadSaveData("systemColorSelection", "0"))
-      -- lastTab = tonumber(ReadSaveData("tab", "1"))
-      -- lastSelection = tonumber(ReadSaveData("selected", "0"))
+
     end
 
     local pathSplit = string.split(rootDirectory, "/")
@@ -469,6 +421,8 @@ function Init()
 
     if(SessionID() == ReadSaveData("sessionID", "") and rootDirectory == ReadSaveData("rootDirectory", "")) then
       startSprite = tonumber(ReadSaveData("selectedSprite", "0"))
+      spriteSize = tonumber(ReadSaveData("spriteSize", "1")) - 1
+      OnNextSpriteSize()
     end
 
     -- pixelVisionOS:ResetSpritePicker(spritePickerData)
@@ -922,37 +876,16 @@ end
 
 function OnSaveCanvasChanges()
 
-  -- print("Save canvas", pixelVisionOS:IsModalActive())--canvasData.inDrawMode, editorUI.lastInFocusUI.name)
-
-  -- TODO this is a bit of a hack to make sure the correct action happens when dragging a sprite onto the canvas
-  -- if(canvasData.inDrawMode ~= true) then
-  --   print("Block canvas save")
-  --   -- Check to see if the last UI element was the sprite picker
-  --   if(editorUI.lastInFocusUI.name == spritePickerData.picker.name) then
-  --     print("Drag sprite on canvas")
-  --     -- Set the new sprite on the canvas
-  --     -- local destSpriteID = pixelVisionOS:CalculateSpritePickerPosition(spritePickerData).index
-  --     --
-  --     -- ChangeSpriteID(destSpriteID)
-  --   end
-  --
-  --   return
-  -- end
-
-
   canvasData.inDrawMode = false
 
   -- Get the raw pixel data
-  local pixelData = gameEditor:FlipPixelData(editorUI:GetCanvasPixelData(canvasData), flipH, flipV)
+  local pixelData = editorUI:GetCanvasPixelData(canvasData)
 
   -- Get the canvas size
   local canvasSize = editorUI:GetCanvasSize(canvasData)
 
   -- Get the total number of pixel
   local total = #pixelData
-
-  -- Clear unique color list
-  -- uniqueColors = {}
 
   -- Loop through all the pixel data
   for i = 1, total do
@@ -962,11 +895,6 @@ function OnSaveCanvasChanges()
 
     -- Set the new pixel index value
     pixelData[i] = newColor < 0 and - 1 or newColor
-
-    -- Calculate the new unique color table
-    -- if(table.indexOf(uniqueColors, newColor) == -1 and newColor ~= -1) then
-    --   table.insert(uniqueColors, newColor)
-    -- end
 
   end
 
@@ -1174,28 +1102,20 @@ end
 local lastCanvasScale = 0
 local lastCanvasSize = 0
 
-function UpdateCanvas(value)
+function UpdateCanvas(value, flipH, flipV)
 
-  -- local spriteSize = 2
+  flipH = flipH or false
+  flipV = flipV or false
 
   -- Save the original pixel data from the selection
-  local tmpPixelData = gameEditor:ReadGameSpriteData(value, spriteSize, spriteSize, flipH, flipV)--gameEditor:FlipPixelData(gameEditor:Sprite(value), flipH, flipV)
-
-  -- print("Total", #tmpPixelData)
-
+  local tmpPixelData = gameEditor:ReadGameSpriteData(value, spriteSize, spriteSize, flipH, flipV)--
   lastCanvasScale = Clamp(8 * (3 - spriteSize), 4, 16)
-  -- TODO need to get the real scale
+
   lastCanvasSize = NewPoint(8 * spriteSize, 8 * spriteSize)
 
-  -- TODO simulate selecting the first sprite
   editorUI:ResizeCanvas(canvasData, lastCanvasSize, lastCanvasScale, tmpPixelData)
 
-  -- If this is a new selection we want to save the original pixel data for the revert option
-  -- if(value ~= lastSelection) then
-
   originalPixelData = {}
-
-  -- uniqueColors = {}
 
   -- local colorOffset = pixelVisionOS.gameColorOffset
   -- Need to loop through the pixel data and change the offset
@@ -1206,11 +1126,6 @@ function UpdateCanvas(value)
     local newColor = tmpPixelData[i] - colorOffset
 
     originalPixelData[i] = newColor
-
-    -- if(table.indexOf(uniqueColors, newColor) == -1 and newColor ~= -1) then
-    --
-    --   table.insert(uniqueColors, newColor)
-    -- end
 
   end
 
@@ -1225,12 +1140,6 @@ function UpdateCanvas(value)
   pixelVisionOS:EnableMenuItem(CopyShortcut, true)
 
   InvalidateColorPreview()
-
-  -- UpdateHistory(originalPixelData, false)
-
-  -- end
-
-
 
 end
 
@@ -1436,6 +1345,8 @@ function Shutdown()
   WriteSaveData("rootDirectory", rootDirectory)
 
   WriteSaveData("selectedSprite", spritePickerData.currentSelection)
+
+  WriteSaveData("spriteSize", spriteSize)
 
   editorUI:Shutdown()
 

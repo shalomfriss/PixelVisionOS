@@ -87,7 +87,7 @@ function EditorUI:CreateCanvas(rect, size, scale, colorOffset, toolTip, emptyCol
 
 end
 
-function EditorUI:ChangeCanvasTool(data, toolName)
+function EditorUI:ChangeCanvasTool(data, toolName, cursorID)
 
   -- print("Change canvas tool", toolName)
 
@@ -96,12 +96,12 @@ function EditorUI:ChangeCanvasTool(data, toolName)
   -- TODO change the cursor
   if(data.tool == "pen") then
 
-    data.currentCursorID = 6
+    data.currentCursorID = cursorID or 6
     self:ResetCanvasStroke(data)
 
   elseif(data.tool == "eraser") then
 
-    data.currentCursorID = 7
+    data.currentCursorID = cursorID or 7
 
     ReplaceColor(54, data.emptyColorID)
 

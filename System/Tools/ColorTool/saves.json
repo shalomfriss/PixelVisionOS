@@ -3,11 +3,11 @@
     "GameChip":
     {
         "savedData":{
-            "sessionID": "201909220950490901",
-            "rootDirectory": "/Workspace/Artpacks/ReaperBoy/",
-            "selectedColor": "-1",
+            "selectedSprite": "-1",
             "selectedPalette": "-1",
-            "selectedSprite": "-1"
+            "selectedColor": "11",
+            "rootDirectory": "/Workspace/SpaceRanger/",
+            "sessionID": "201909291451287599"
         }
     }
 }
