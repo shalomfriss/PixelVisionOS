@@ -186,7 +186,7 @@ function Init()
       "SpritePicker"
     )
 
-    table.insert(enabledUI, spritePickerData.picker)
+    -- table.insert(enabledUI, spritePickerData.picker)
     table.insert(enabledUI, spritePickerData.vSlider)
 
     -- spritePickerData.scrollScale = 4
@@ -268,9 +268,7 @@ function Init()
 
 
     flagPicker.onAction = function(value)
-      -- print("flagPicker Action")
-      pixelVisionOS:ChangeTilemapPaintFlag(tilePickerData, value)
-
+      pixelVisionOS:ChangeTilemapPaintFlag(tilePickerData, value, toolMode ~= 1 and toolMode ~= 3)
     end
 
     local pathSplit = string.split(rootDirectory, "/")
@@ -774,7 +772,8 @@ function ChangeSpriteID(value)
   pixelVisionOS:SelectSpritePickerIndex(spritePickerData, value, false)
 
   if(tilePickerData ~= nil) then
-    pixelVisionOS:ChangeTilemapPaintSpriteID(tilePickerData, spritePickerData.currentSelection)
+
+    pixelVisionOS:ChangeTilemapPaintSpriteID(tilePickerData, spritePickerData.currentSelection, toolMode ~= 1 and toolMode ~= 3)
   end
 
 end
@@ -796,36 +795,7 @@ end
 
 function OnSelectSprite(value)
 
-  -- TODO need to convert the value to the Real ID
-
-  -- value = pixelVisionOS:CalculateItemPickerPosition(spritePickerData, value)
-
   pixelVisionOS:ChangeTilemapPaintSpriteID(tilePickerData, spritePickerData.pressSelection.index)
-
-  -- if(currentTileSelection ~= nil and toolMode == 1) then
-  --   -- print("Select Sprite", value, dump(currentTileSelection), currentTileSelection.index, CalculatePosition(currentTileSelection.index, mapSize.x))
-  --
-  --   if(Key(Keys.LeftShift)) then
-  --
-  --     -- TODO need to get a sample of the tile size and
-  --     print("Replace all tiles")
-  --
-  --     -- local totalTiles = gameEditor:
-  --     local total = mapSize.x * mapSize.y
-  --
-  --     for i = 1, total do
-  --
-  --       ReplaceTile(i - 1, value, currentTileSelection.spriteID)
-  --
-  --     end
-  --
-  --   else
-  --
-  --     ReplaceTile(currentTileSelection.index, value, currentTileSelection.spriteID)
-  --
-  --   end
-  --
-  -- end
 
 end
 
@@ -957,15 +927,17 @@ function Update(timeDelta)
           pixelVisionOS:DisplayMessage("Rendering Layer " .. tostring(percent).. "% complete.", 2)
 
 
-        elseif(uiLock == true) then
-
+        elseif(uiLock == true or editorUI.mouseCursor.cursorID == 5) then
           pixelVisionOS:EnableMenuItem(QuitShortcut, true)
           editorUI.mouseCursor:SetCursor(1, false)
           for i = 1, #enabledUI do
             editorUI:Enable(enabledUI[i], true)
           end
+
+          pixelVisionOS:EnableItemPicker(spritePickerData, not flagModeActive)
+
           uiLock = false
-          -- pixelVisionOS:InvalidateMap(tilePickerData)
+
         end
 
       end

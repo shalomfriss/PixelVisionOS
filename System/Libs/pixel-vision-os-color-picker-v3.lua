@@ -486,16 +486,16 @@ function PixelVisionOS:SelectColorPickerColor(data, value)
   -- -- Force dragging to be false
   -- data.dragging = false
   --
-  -- -- Calculate the correct page
-  -- local page = math.floor(value / (data.totalPerPage)) + 1
+  -- Calculate the correct page
+  local page = math.floor(value / (data.totalPerPage)) + 1
   --
-  -- -- print("Page", page, value, data.totalPerPage)
+  -- print("Page", page, value, data.totalPerPage)
   --
   -- -- Select the right page
-  -- self:SelectColorPage(data, page)
+  self:SelectColorPage(data, page)
   --
   -- -- Select the color on the page
-  -- self.editorUI:SelectPicker(data.picker, value % data.totalPerPage)
+  -- self.editorUI:SelectPicker(data.picker, page)
   --
   --
 
@@ -510,7 +510,7 @@ function PixelVisionOS:CalculateColorPickerPosition(data)
 end
 
 function PixelVisionOS:SelectColorPage(data, value)
-  -- self.editorUI:SelectToggleButton(data.pages, value)
+  self.editorUI:SelectToggleButton(data.pages, value)
 end
 
 function PixelVisionOS:CalculateRealColorIndex(data, value)

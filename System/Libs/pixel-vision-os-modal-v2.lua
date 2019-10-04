@@ -69,6 +69,8 @@ function PixelVisionOS:CloseModal()
   -- Enable the menu button in the toolbar
   self.editorUI:Enable(self.titleBar.iconButton, true)
 
+  self.editorUI:Invalidate(self.titleBar)
+
 end
 
 function PixelVisionOS:UpdateModal(deltaTime)

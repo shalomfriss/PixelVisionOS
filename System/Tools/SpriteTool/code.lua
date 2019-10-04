@@ -70,21 +70,7 @@ function ResetDataValidation()
 
 end
 
--- function InvalidateColorCount()
---
---   colorCountInvalid = true
---
--- end
---
--- function ResetColorInvalidation()
---
---   colorCountInvalid = false
---
--- end
-
-
 function Init()
-
 
 
   BackgroundColor(22)
@@ -147,7 +133,6 @@ function Init()
 
     pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
-
     -- The first thing we need to do is rebuild the tool's color table to include the game's system and game colors.
 
     ImportColorsFromGame()
@@ -155,10 +140,6 @@ function Init()
     _G["itempickerover"] = {spriteIDs = colorselection.spriteIDs, width = colorselection.width, colorOffset = 28}
 
     _G["itempickerselectedup"] = {spriteIDs = colorselection.spriteIDs, width = colorselection.width, colorOffset = (_G["itempickerover"].colorOffset + 4)}
-
-    -- _G["spritepickerover"] = {spriteIDs = spritepicker.spriteIDs, width = spritepicker.width, colorOffset = 28}
-    --
-    -- _G["spritepickerselectedup"] = {spriteIDs = spritepicker.spriteIDs, width = spritepicker.width, colorOffset = (_G["spritepickerover"].colorOffset + 4)}
 
     ConfigureSpritePickerSelector(1)
 
@@ -169,22 +150,11 @@ function Init()
     spriteIDInputData.max = gameEditor:TotalSprites() - 1
     spriteIDInputData.onAction = ChangeSpriteID
 
-    -- colorOffsetInputData = editorUI:CreateInputField({x = 200, y = 208, w = 24}, "0", "Change the color offset of the sprite preview.", "number")
-    -- colorOffsetInputData.min = 0
-    -- colorOffsetInputData.max = 256 - gameEditor:ColorsPerSprite() -- TODO need to figure out how we want to limit this
-    -- colorOffsetInputData.onAction = ChangeColorOffset
-
-
     sizeBtnData = editorUI:CreateButton({x = 224, y = 200}, "sprite1x", "Pick the sprite size.")
     sizeBtnData.onAction = function() OnNextSpriteSize() end
 
-    -- editorUI:Enable(sizeBtnData, false)
-
     toolBtnData = editorUI:CreateToggleGroup()
     toolBtnData.onAction = OnSelectTool
-
-
-
 
     -- TODO if using palettes, need to replace this with palette color value
     local totalColors = gameEditor:TotalColors(true)--pixelVisionOS.totalSystemColors
@@ -194,10 +164,6 @@ function Init()
 
     -- Check the game editor if palettes are being used
     usePalettes = pixelVisionOS.paletteMode
-
-
-    -- Configure tool for palette mode
-
 
     -- Add the eraser if we are in direct color mode
     table.insert(tools, 2, "eraser")
@@ -212,7 +178,6 @@ function Init()
       -- Change color label to palette
       DrawSprites(gamepalettetext.spriteIDs, 32 / 8, 168 / 8, gamepalettetext.width, false, false, DrawMode.Tile)
 
-      -- editorUI:Enable(colorOffsetInputData, false)
     end
 
     local offsetY = 0
@@ -306,12 +271,6 @@ function Init()
       "SpritePicker"
     )
 
-    -- spritePickerData.scrollScale.x = 4
-    -- spritePickerData.scrollScale.y = 16
-    -- spritePickerData.scrollValueOffset.y = .16
-
-    -- spritePickerData.toolTipLabel = "sprite"
-
     spritePickerData.onRelease = OnSelectSprite
     spritePickerData.onDropTarget = OnSpritePickerDrop
 
@@ -337,15 +296,10 @@ function Init()
 
     paletteColorPickerData.onAction = function(value)
 
-
-
       -- if we are in palette mode, just get the currents selection. If we are in direct color mode calculate the real color index
       if(usePalettes) then
         value = paletteColorPickerData.picker.selected
       end
-
-
-      -- pixelVisionOS:RebuildSpritePickerCache(spritePickerData)
 
       -- Make sure if we select the last color, we mark it as the mask color
       if(value == paletteColorPickerData.total) then
@@ -369,8 +323,10 @@ function Init()
       -- If we are not in palette mode, don't change the sprite color offset
       if(usePalettes == true) then
 
+        local pageOffset = ((value - 1) * 16)
+
         -- Calculate the new color offset
-        local newColorOffset = pixelVisionOS.colorOffset + pixelVisionOS.totalPaletteColors + ((value - 1) * 16)
+        local newColorOffset = pixelVisionOS.colorOffset + pixelVisionOS.totalPaletteColors + pageOffset
 
         pixelVisionOS:ChangeItemPickerColorOffset(spritePickerData, newColorOffset)
 
@@ -383,7 +339,14 @@ function Init()
 
         -- Need to reselect the current color in the new palette if we are in draw mode
         if(canvasData.tool ~= "eraser" or canvasData.tool ~= "eyedropper") then
-          editorUI:SelectPicker(paletteColorPickerData.picker, lastColorID)
+
+          lastColorID = Clamp(lastColorID, 0, 15)
+
+          pixelVisionOS:SelectColorPickerColor(paletteColorPickerData, lastColorID + pageOffset)
+
+          editorUI:CanvasBrushColor(canvasData, lastColorID)
+          -- pixelVisionOS:SelectItemPickerIndex(paletteColorPickerData, lastColorID + pageOffset, true, false)
+
         end
 
         -- Make sure we shift the colors by the new page number
@@ -506,11 +469,6 @@ function DrawColorPerSpriteDisplay()
 
   end
 
-  -- TODO this orders the colors so it's cleaner in the UI but not accurate to the real order when an image is parsed
-  -- table.sort(uniqueColors)
-
-  -- uniqueColors = uniqueColors
-
   local backgroundSprites = {
     _G["colorbarleft"],
     _G["colorbarright"],
@@ -518,9 +476,11 @@ function DrawColorPerSpriteDisplay()
 
   local totalSections = math.ceil(cps / 2)
 
+  local totalColors = Clamp(#uniqueColors, 2, 16)
+
   -- TODO need to fix this
-  if(#uniqueColors / 2 > totalSections) then
-    totalSections = #uniqueColors / 2
+  if(totalColors / 2 > totalSections) then
+    totalSections = totalColors / 2
   end
 
   for i = 1, totalSections do
@@ -845,6 +805,7 @@ function OnOptimize()
     function()
       if(pixelVisionOS.messageModal.selectionValue == true) then
         TriggerOptimization()
+        InvalidateData()
       end
     end
   )
@@ -864,12 +825,7 @@ function TriggerOptimization()
   local percent = Clamp(100 - math.ceil(newCount / oldCount * 100), 0, 100)
 
   -- Show summary modal and invalidate the data when the modal is closed
-  pixelVisionOS:ShowMessageModal("Optimization Complete", "The sprite optimizer was able to compress sprite memory by ".. percent .. "%. If you save your changes, the previous 'sprite.png' file will be overwritten.", 160, false,
-    function()
-      -- TODO this is not being called
-      InvalidateData()
-    end
-  )
+  pixelVisionOS:ShowMessageModal("Optimization Complete", "The sprite optimizer was able to compress sprite memory by ".. percent .. "%. If you save your changes, the previous 'sprite.png' file will be overwritten.", 160, false)
 
 
 end
@@ -1254,16 +1210,7 @@ function Update(timeDelta)
 
       if(canvasData.tool == "eyedropper" and canvasData.inFocus and MouseButton(0)) then
 
-        print("select color")
-
         local colorID = canvasData.overColor
-
-        --
-
-        -- print("Color ID", colorID)
-
-        -- TODO need to account for direct color mode or palette mode
-        -- TODO in palette mode, use % to find the correct color on any page since you only paint with 0 - 16
 
         -- Only update the color selection when it's new
         if(colorID ~= lastColorID) then
@@ -1272,45 +1219,51 @@ function Update(timeDelta)
 
           if(colorID < 0) then
 
-            pixelVisionOS:ClearColorPickerSelection(paletteColorPickerData)
+            pixelVisionOS:ClearItemPickerSelection(paletteColorPickerData)
 
             -- Force the lastColorID to be back in range so there is a color to draw with
             lastColorID = 0
 
           else
 
-            -- Seelect the
-            pixelVisionOS:SelectColorPickerColor(paletteColorPickerData, lastColorID)
-
             editorUI:CanvasBrushColor(canvasData, lastColorID)
+
+            local selectionID = lastColorID
+
+            -- Check to see if in palette mode
+            if(usePalettes == true) then
+              local pageOffset = ((paletteColorPickerData.pages.currentSelection - 1) * 16)
+
+              selectionID = Clamp(lastColorID, 0, 15) + pageOffset
+              -- pixelVisionOS:SelectColorPickerColor(paletteColorPickerData, Clamp(lastColorID, 0, 15) + pageOffset)
+            end
+            -- else
+            pixelVisionOS:SelectColorPickerColor(paletteColorPickerData, selectionID)
+
+            -- end
+
+
+            -- Select the
+
 
           end
 
         end
 
-
       end
-
-
 
       editorUI:UpdateToggleGroup(toolBtnData)
 
       -- System picker
-      -- pixelVisionOS:UpdateColorPicker(systemColorPickerData)
       pixelVisionOS:UpdateColorPicker(paletteColorPickerData)
 
       pixelVisionOS:UpdateSpritePicker(spritePickerData)
 
-      -- pixelVisionOS:UpdateSpritePicker(spritePickerData)
       if(IsExporting()) then
-        -- print("Exporting", tostring(ReadExportPercent()).. "% complete.")
         pixelVisionOS:DisplayMessage("Saving " .. tostring(ReadExportPercent()).. "% complete.", 2)
       end
 
-
       if(colorPreviewInvalid == true) then
-
-        -- print("Redraw Colors Per Sprite")
 
         DrawColorPerSpriteDisplay()
 

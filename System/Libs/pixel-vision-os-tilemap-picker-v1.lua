@@ -131,6 +131,7 @@ function PixelVisionOS:UpdateTilemapPicker(data)
 
       elseif(data.mode == 4) then
 
+
         -- TODO need a way to capture the state of the tilemap before the fill so we an restore it if undone
         gameEditor:FloodFillTilemap(data.mapRenderMode == 0 and data.paintTileIndex or data.paintFlagIndex, overPos.x, overPos.y, data.mapRenderMode, data.scale, data.scale, data.paintColorOffset)
 
@@ -520,7 +521,7 @@ function PixelVisionOS:ResetMapValidation(data)
   data.mapInvalid = false
 end
 
-function PixelVisionOS:ChangeTilemapPaintFlag(data, value)
+function PixelVisionOS:ChangeTilemapPaintFlag(data, value, updatePreview)
 
   -- TODO need to update this flag graphic immediately
   data.paintFlagIndex = value
@@ -535,12 +536,14 @@ function PixelVisionOS:ChangeTilemapPaintFlag(data, value)
 
   data.overFlagPixelData = tmpCanvas:GetPixels()
 
-  -- Force the over item draw to display the new pixel data
-  data.overItemDrawArgs[1] = data.overFlagPixelData
+  if(updatePreview ~= false) then
+    -- Force the over item draw to display the new pixel data
+    data.overItemDrawArgs[1] = data.overFlagPixelData
+  end
 
 end
 
-function PixelVisionOS:ChangeTilemapPaintSpriteID(data, value)
+function PixelVisionOS:ChangeTilemapPaintSpriteID(data, value, updatePreview)
 
   -- TODO need to update this flag graphic immediately
 
@@ -548,7 +551,8 @@ function PixelVisionOS:ChangeTilemapPaintSpriteID(data, value)
 
   data.overTilePixelData = gameEditor:ReadGameSpriteData(data.paintTileIndex, data.scale, data.scale)
 
-  -- Force the over item draw to display the new pixel data
-  data.overItemDrawArgs[1] = data.overTilePixelData
-
+  if(updatePreview ~= false) then
+    -- Force the over item draw to display the new pixel data
+    data.overItemDrawArgs[1] = data.overTilePixelData
+  end
 end

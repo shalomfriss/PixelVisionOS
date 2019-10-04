@@ -3,11 +3,11 @@
     "GameChip":
     {
         "savedData":{
-            "selectedSprite": "-1",
-            "selectedPalette": "-1",
-            "selectedColor": "11",
+            "sessionID": "201910040640506199",
             "rootDirectory": "/Workspace/SpaceRanger/",
-            "sessionID": "201909291451287599"
+            "selectedColor": "-1",
+            "selectedPalette": "32",
+            "selectedSprite": "-1"
         }
     }
 }

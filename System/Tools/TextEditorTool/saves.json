@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "targetFile": "/Workspace/MastrSystem/data.json",
-            "sessionID": "201909291451287599",
-            "rootDirectory": "/Workspace/HelloWorld/",
-            "cursor": "1,1",
+            "scroll": "210,1",
             "selectedSprite": "0",
-            "scroll": "1,1"
+            "cursor": "1,1",
+            "rootDirectory": "/Workspace/HelloWorld/",
+            "sessionID": "201910040640506199",
+            "targetFile": "/Workspace/SpaceRanger/License.txt"
         }
     }
 }

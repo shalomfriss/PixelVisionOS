@@ -27,7 +27,6 @@ LoadScript("pixel-vision-os-modal-v2")
 LoadScript("pixel-vision-os-message-modal-v2")
 LoadScript("pixel-vision-os-color-utils-v2")
 LoadScript("pixel-vision-os-undo-v2")
--- LoadScript("pixel-vision-os-menu-v2")
 
 function PixelVisionOS:Init()
   -- Create a new object for the instance and register it
@@ -140,34 +139,9 @@ function PixelVisionOS:ShowMessageModal(title, message, width, showCancel, onClo
 
 end
 
--- function PixelVisionOS:ValidateGameInDir(path, requiredFiles)
---
---   if (OldPathExists(path) == false) then
---     return false
---   end
---
---   requiredFiles = requiredFiles or {}
---
---   -- Make sure a data file is part of the list
---   table.insert(requiredFiles, "data.json")
---
---   local flag = 0
---
---   local total = #requiredFiles
---
---   for i = 1, total do
---     if(OldPathExists(path .. requiredFiles[i]) == true) then
---       flag = flag + 1
---     end
---   end
---
---   return flag == total
---
--- end
-
 function PixelVisionOS:FindEditors()
 
-  local editors = {}--new Dictionary<string, string>();
+  local editors = {}
 
   local paths = 
   {
@@ -190,7 +164,6 @@ function PixelVisionOS:FindEditors()
 
     local path = paths[i];
 
-    -- print("Tool Path", path, "exists", PathExists(path))
     if (PathExists(path)) then
 
       local folders = GetEntities(path);
@@ -236,11 +209,6 @@ function PixelVisionOS:ValidateGameInDir(workspacePath, requiredFiles)
   end
 
   requiredFiles = requiredFiles or {"data.json", "info.json"}
-
-  -- if(table.indexOf(requiredFiles, "data.json") == -1) then
-  --   -- Make sure a data file is part of the list
-  --   table.insert(requiredFiles, "data.json")
-  -- end
 
   local flag = 0
 

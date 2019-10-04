@@ -71,12 +71,12 @@ local fileTypeMap =
 
 local extToTypeMap = 
 {
-  colors = "png",
+  colors = ".png",
   system = "json",
-  font = "font.png",
+  font = ".font.png",
   music = "json",
   sounds = "json",
-  sprites = "png",
+  sprites = ".png",
   tilemap = "json",
   installer = "txt",
   info = "json",
@@ -488,8 +488,6 @@ function OnRenameFile(text)
 
     end
 
-    -- print("Rename", )
-
     MoveTo(NewWorkspacePath(file.path), NewWorkspacePath(file.parentPath .. text))
     -- Rename the file by moving it and giving it a new name
     -- if(MoveFile(file.path, file.parentPath .. text)) then
@@ -597,6 +595,9 @@ function OnCopy()
       -- Enable the paste shortcut
       pixelVisionOS:EnableMenuItemByName(PasteShortcut, true)
 
+      -- TODO eventually need to change the message to handle multiple files
+      pixelVisionOS:DisplayMessage(file.name .. " has been copied.", 2)
+
     else
 
       -- Display a message that the file can not be copied
@@ -637,6 +638,8 @@ function OnPaste(dest)
 
   -- Perform the file action validation
   OnSingleFileAction(NewWorkspacePath(filesToCopy[1].path), destPath, "copy")
+
+  pixelVisionOS:DisplayMessage(filesToCopy[1].name .. " has been pasted.", 2)
 
   -- Clear the files to copy variable
   filesToCopy = nil

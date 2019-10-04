@@ -375,6 +375,8 @@ function Init()
       pixelVisionOS:OnColorPickerPage(paletteColorPickerData, 1)
     end
 
+    RefreshBGColorIcon()
+
     -- Reset the validation to update the title and set the validation flag correctly for any changes
     ResetDataValidation()
 
@@ -1069,17 +1071,23 @@ function DeleteSystemColor(value)
 
   pixelVisionOS:SelectColorPickerIndex(systemColorPickerData, Clamp(currentSelection - 1, 0, 255))
 
-  -- Correct the BG color if needed
-  if(gameEditor:BackgroundColor() == pixelVisionOS.totalSystemColors) then
-
-    gameEditor:BackgroundColor(pixelVisionOS.totalSystemColors - 1)
-
-    UpdateBGIconPosition(pixelVisionOS.totalSystemColors - 1)
-
-  end
+  RefreshBGColorIcon()
 
   -- Invalidate the tool's data
   InvalidateData()
+
+end
+
+function RefreshBGColorIcon()
+
+  -- Correct the BG color if needed
+  if(gameEditor:BackgroundColor() >= pixelVisionOS.totalSystemColors) then
+
+    gameEditor:BackgroundColor(pixelVisionOS.totalSystemColors - 1)
+
+  end
+
+  UpdateBGIconPosition(gameEditor:BackgroundColor())
 
 end
 
@@ -1273,7 +1281,7 @@ function OnSetBGColor()
 
         showBGIcon = true
 
-        UpdateBGIconPosition(colorID)
+        RefreshBGColorIcon()
 
         InvalidateData()
       end
