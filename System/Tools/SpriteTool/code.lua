@@ -113,21 +113,22 @@ function Init()
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
       {divider = true},
       {name = "Edit Colors", enabled = colorEditorPath ~= nil, action = OnEditColors, toolTip = "Open the color editor."},
-      {name = "Clear", action = OnClear, enabled = false, key = Keys.D, toolTip = "Clear the currently selected color."}, -- Reset all the values
-      {name = "Save", action = OnSave, key = Keys.S, enabled = false, toolTip = "Save changes made to the colors.png file."}, -- Reset all the values
+      {name = "Clear", action = OnClear, enabled = false, key = Keys.D, toolTip = "Clear the currently selected sprite."}, -- Reset all the values
+      {name = "Save", action = OnSave, key = Keys.S, enabled = false, toolTip = "Save changes made to the sprites file."}, -- Reset all the values
 
-      {name = "Revert", action = OnRevert, enabled = false, key = Keys.R, toolTip = "Revert the colors.png file to its previous state."}, -- Reset all the values
+      {name = "Revert", action = OnRevert, enabled = false, toolTip = "Revert the sprite to its previous state."}, -- Reset all the values
       {divider = true},
       {name = "Undo", action = OnUndo, enabled = false, key = Keys.Z, toolTip = "Undo the last action."}, -- Reset all the values
       {name = "Redo", action = OnRedo, enabled = false, key = Keys.Y, toolTip = "Redo the last undo."}, -- Reset all the values
-      {name = "Copy", action = OnCopySprite, enabled = false, key = Keys.C, toolTip = "Copy the currently selected sound."}, -- Reset all the values
-      {name = "Paste", action = OnPasteSprite, enabled = false, key = Keys.V, toolTip = "Paste the last copied sound."}, -- Reset all the values
+      {name = "Copy", action = OnCopySprite, enabled = false, key = Keys.C, toolTip = "Copy the currently selected sprite."}, -- Reset all the values
+      {name = "Paste", action = OnPasteSprite, enabled = false, key = Keys.V, toolTip = "Paste the last copied sprite."}, -- Reset all the values
 
       {divider = true},
       {name = "BG Color", action = function() ToggleBackgroundColor(not showBGColor) end, key = Keys.B, toolTip = "Toggle background color."},
       {name = "Optimize", action = OnOptimize, toolTip = "Remove duplicate sprites."},
       {name = "Sprite Builder", action = OnSpriteBuilder, toolTip = "Generate a sprite table from a project's SpriteBuilder dir."}, -- Reset all the values
       {divider = true},
+      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
 
@@ -1416,5 +1417,26 @@ function ToggleBackgroundColor(value)
   -- pixelVisionOS:InvalidateItemPickerDisplay(spritePickerData)
 
   -- DrawRect(viewport.x, viewport.y, viewport.w, viewport.h, pixelVisionOS.emptyColorID, DrawMode.TilemapCache)
+
+end
+
+function OnRunGame()
+
+  if(invalid == true) then
+
+    pixelVisionOS:ShowMessageModal("Unsaved Changes", "You have unsaved changes. You will lose those changes if you run the game now?", 160, true,
+      function()
+        if(pixelVisionOS.messageModal.selectionValue == true) then
+          LoadGame(NewWorkspacePath(rootDirectory))
+        end
+
+      end
+    )
+
+  else
+
+    LoadGame(NewWorkspacePath(rootDirectory))
+
+  end
 
 end

@@ -224,7 +224,7 @@ function Init()
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
       {divider = true},
       {name = "New", action = OnNewSound, key = Keys.N, toolTip = "Revert the sound to empty."}, -- Reset all the values
-      {name = "Save", action = OnSave, key = Keys.S, toolTip = "Save changes made to the sound.json file."}, -- Reset all the values
+      {name = "Save", action = OnSave, key = Keys.S, toolTip = "Save changes made to the sounds file."}, -- Reset all the values
       {name = "Export SFX", action = function() OnExport(currentID, true) end, key = Keys.E, enabled = canExport, toolTip = "Create a wav for the current SFX file."}, -- Reset all the values
       {name = "Export All", action = OnExportAll, enabled = canExport, toolTip = "Export all sound effects to wavs."}, -- Reset all the values
 
@@ -236,6 +236,7 @@ function Init()
       {name = "Paste", action = OnPasteSound, key = Keys.V, enabled = false, toolTip = "Paste the last copied sound."}, -- Reset all the values
       {name = "Mutate", action = OnMutate, key = Keys.M, toolTip = "Mutate the sound to produce random variations."}, -- Reset all the values
       {divider = true},
+      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
 
@@ -1155,7 +1156,6 @@ function Shutdown()
   -- Make sure we don't save paths in the tmp directory
   WriteSaveData("currentID", currentID)
 
-
 end
 
 function OnQuit()
@@ -1179,6 +1179,28 @@ function OnQuit()
   else
     -- Quit the tool
     QuitCurrentTool()
+  end
+
+end
+
+function OnRunGame()
+  -- TODO should this ask to launch the game first?
+
+  if(invalid == true) then
+
+    pixelVisionOS:ShowMessageModal("Unsaved Changes", "You have unsaved changes. You will lose those changes if you run the game now?", 160, true,
+      function()
+        if(pixelVisionOS.messageModal.selectionValue == true) then
+          LoadGame(NewWorkspacePath(rootDirectory))
+        end
+
+      end
+    )
+
+  else
+
+    LoadGame(NewWorkspacePath(rootDirectory))
+
   end
 
 end

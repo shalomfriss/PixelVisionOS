@@ -129,6 +129,7 @@ function Init()
       {name = "Flip H", action = OnFlipH, enabled = false, key = Keys.Z, toolTip = "Flip the current tile horizontally."}, -- Reset all the values
       {name = "Flip V", action = OnFlipV, enabled = false, key = Keys.X, toolTip = "Flip the current tile vertically."}, -- Reset all the values
       {divider = true},
+      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
 
@@ -521,30 +522,18 @@ function ChangeMode(value)
 
     tilePickerData.showBGColor = false
 
-    -- TODO need to disable bg menu option
+    -- Disable bg menu option
     pixelVisionOS:EnableMenuItem(BGColorShortcut, false)
-
-    pixelVisionOS:EnableMenuItem(BGColorShortcut, false)
-
-    -- TODO need to make sure old bg color is removed
-    -- DrawRect(viewport.x, viewport.y, viewport.w, viewport.h, - 1, DrawMode.TilemapCache)
 
     pixelVisionOS:InvalidateItemPickerDisplay(tilePickerData)
 
-    -- editorUI:Enable(bgBtnData, false)
-
-    -- print("Flag Mode")
-
     DrawFlagPage()
-
 
   else
     -- Swicth back to tile modes
 
     -- Restore background color state
     tilePickerData.showBGColor = lastBGState
-
-    -- Enable bg menu option
 
     -- editorUI:Ena ble(bgBtnData, true)
     pixelVisionOS:EnableMenuItem(BGColorShortcut, true)
@@ -554,9 +543,6 @@ function ChangeMode(value)
     pixelVisionOS:SelectColorPage(paletteColorPickerData, 1)
 
   end
-
-  flagBtnData.selected = value
-  editorUI:Invalidate(flagBtnData)
 
   -- Clear history between layers
   ClearHistory()
@@ -648,12 +634,12 @@ function SelectLayer(value)
     pixelVisionOS:EnableItemPicker(spritePickerData, false, true)
     pixelVisionOS:ChangeItemPickerColorOffset(tilePickerData, 0)
 
-    if(paletteColorPickerData.currentSelection == -1) then
+    -- If the flag has been cleared, make sure we select one
+    -- if(tilePickerData.paintFlagIndex == -1) then
 
-      -- print("Select flag 0")
-      editorUI:SelectPicker(flagPicker, 0)
-      -- ChangeSpriteID(tilePickerData.paintFlagIndex)
-    end
+    editorUI:SelectPicker(flagPicker, tilePickerData.paintFlagIndex)
+
+    -- end
 
   end
 
@@ -850,6 +836,11 @@ function Update(timeDelta)
         pixelVisionOS:UpdateColorPicker(paletteColorPickerData)
       elseif(layerMode == 1) then
         editorUI:UpdatePicker(flagPicker)
+
+        local over = editorUI:CalculatePickerPosition(flagPicker)
+
+        flagPicker.toolTip = "Select flag " .. CalculateIndex(over.x, over.y, flagPicker.columns) .."."
+
       end
 
       if(IsExporting()) then
@@ -1120,5 +1111,27 @@ function OnPNGExport()
   )
 
   --
+
+end
+
+function OnRunGame()
+  -- TODO should this ask to launch the game first?
+
+  if(invalid == true) then
+
+    pixelVisionOS:ShowMessageModal("Unsaved Changes", "You have unsaved changes. You will lose those changes if you run the game now?", 160, true,
+      function()
+        if(pixelVisionOS.messageModal.selectionValue == true) then
+          LoadGame(NewWorkspacePath(rootDirectory))
+        end
+
+      end
+    )
+
+  else
+
+    LoadGame(NewWorkspacePath(rootDirectory))
+
+  end
 
 end

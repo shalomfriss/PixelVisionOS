@@ -179,8 +179,8 @@ function Init()
       {name = "Edit Generator", action = OnConfig, enabled = canEdit, toolTip = "Configure the song generation tool."},
       {name = "Reset Generator", action = OnResetConfig, enabled = canEdit, toolTip = "Reset the music generator to its default values."},
       {divider = true},
-      {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the colors.png file."}, -- Reset all the values
-      {name = "Revert", action = nil, enabled = false, key = Keys.R, toolTip = "Revert the colors.png file to its previous state."}, -- Reset all the values
+      {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the music file."}, -- Reset all the values
+      {name = "Revert", action = nil, enabled = false, toolTip = "Revert the music file to its previous state."}, -- Reset all the values
       {divider = true},
       {name = "Undo Note", action = OnUndo, enabled = false, key = Keys.Z, toolTip = "Undo last note change."}, -- Reset all the values
       {name = "Redo Note", action = OnRedo, enabled = false, key = Keys.Y, toolTip = "Redo last note change."}, -- Reset all the values
@@ -192,6 +192,7 @@ function Init()
       {name = "Export Song", action = function() OnExportSong(currentSongID, true) end, enabled = canEdit, toolTip = "Export the current song."},
       {name = "Export All Songs", action = OnExportAllSongs, enabled = false, toolTip = "Export the current song."},
       {divider = true},
+      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
 
@@ -1779,6 +1780,27 @@ function Shutdown()
     local octRange = gameEditor:ConfigTrackOctaveRange(trackID)
 
     WriteSaveData("configTrack" .. tostring(trackID), tostring(sfx) .. "," .. tostring(instrument) .. "," .. tostring(octRange.x) .. "," .. tostring(octRange.y))
+
+  end
+
+end
+
+function OnRunGame()
+
+  if(invalid == true) then
+
+    pixelVisionOS:ShowMessageModal("Unsaved Changes", "You have unsaved changes. You will lose those changes if you run the game now?", 160, true,
+      function()
+        if(pixelVisionOS.messageModal.selectionValue == true) then
+          LoadGame(NewWorkspacePath(rootDirectory))
+        end
+
+      end
+    )
+
+  else
+
+    LoadGame(NewWorkspacePath(rootDirectory))
 
   end
 

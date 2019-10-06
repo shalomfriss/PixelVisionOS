@@ -171,7 +171,7 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
     data.vSlider = editorUI:CreateSlider(
       { x = rect.x + rect.w + 1, y = rect.y, w = 16, h = rect.h},
       "vsliderhandle",
-      "Scroll text horizontally.",
+      "Scroll vertically.",
       false
     )
 
@@ -188,7 +188,7 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
     data.hSlider = editorUI:CreateSlider(
       { x = rect.x, y = rect.y + rect.h + 1, w = rect.w, h = 10},
       "hsliderhandle",
-      "Scroll text horizontally.",
+      "Scroll horizontally.",
       true
     )
 

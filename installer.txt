@@ -1,5 +1,5 @@
 # installer values
-# $dir=System
+
 $readme=Welcome to the Pixel Vision OS installer. This will install the base OS into the root of the Workspace drive. This process will enable PV8 to boot without the need of the startup disk. After the installer is finished, eject the disk in order to reboot from the Workspace drive. You can do a clean install if you want to wipe the contents of the Workspace and start with a fresh install of Pixel Vision OS. You will lose any changes made to files in the Libs and Tools folder.
 
 # bios values

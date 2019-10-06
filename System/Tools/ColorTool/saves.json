@@ -1,13 +1,1 @@
-{
-    
-    "GameChip":
-    {
-        "savedData":{
-            "sessionID": "201910040640506199",
-            "rootDirectory": "/Workspace/SpaceRanger/",
-            "selectedColor": "-1",
-            "selectedPalette": "32",
-            "selectedSprite": "-1"
-        }
-    }
-}
+{"GameChip":{"savedData":{"selectedSprite": "-1","selectedPalette": "-1","selectedColor": "-1","rootDirectory": "/Disks/ReaperBoyLD40/","sessionID": "201910060626001603"}}}

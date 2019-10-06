@@ -160,8 +160,8 @@ function Init()
       {name = "Redo", action = OnRevert, enabled = false, key = Keys.X, toolTip = "Redo the last undo."}, -- Reset all the values
       {name = "Copy", action = OnCopy, enabled = false, key = Keys.C, toolTip = "Copy the currently selected sound."}, -- Reset all the values
       {name = "Paste", action = OnPaste, enabled = false, key = Keys.V, toolTip = "Paste the last copied sound."}, -- Reset all the values
-
       {divider = true},
+      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
 
@@ -1296,5 +1296,27 @@ function UpdateBGIconPosition(id)
 
   BGIconX = pos.x * 16
   BGIconY = pos.y * 16
+
+end
+
+function OnRunGame()
+  -- TODO should this ask to launch the game first?
+
+  if(invalid == true) then
+
+    pixelVisionOS:ShowMessageModal("Unsaved Changes", "You have unsaved changes. You will lose those changes if you run the game now?", 160, true,
+      function()
+        if(pixelVisionOS.messageModal.selectionValue == true) then
+          LoadGame(NewWorkspacePath(rootDirectory))
+        end
+
+      end
+    )
+
+  else
+
+    LoadGame(NewWorkspacePath(rootDirectory))
+
+  end
 
 end
