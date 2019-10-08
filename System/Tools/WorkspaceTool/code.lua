@@ -312,39 +312,67 @@ local wallPaperThemes = {
   {5, 5}
 }
 
-
 function DrawWallpaper()
 
+  -- Check version
+
+
   -- Set up logo values
-  local logoSpriteData = _G["logo"]
+  local logoSpriteData = runningFromDisk == false and _G["logo"] or nil
+  local colorOffset = 0
+  local backgroundColor = 5
 
-  -- themeID = 1
-  --
-  -- -- Set logo
-  -- if(not runningFromDisk) then
-  --   --   logoSpriteData = _G["logomake"]
-  --   -- colorOffset = 0
-  --   -- backgroundColor = 5
-  --   -- elseif(runnerName == DrawVersion) then
-  --   --   logoSpriteData = _G["logodraw"]
-  --   themeID = 2
-  --   -- elseif(runnerName == TuneVersion) then
-  --   --   logoSpriteData = _G["logotune"]
-  --   --   -- colorOffset = 0
-  --   --   backgroundColor = 8
-  -- end
-
-  local theme = wallPaperThemes[runningFromDisk == true and 2 or 1]
+  if(runnerName == DrawVersion) then
+    logoSpriteData = _G["logodraw"]
+    colorOffset = 5
+    backgroundColor = 1
+  elseif(runnerName == TuneVersion) then
+    logoSpriteData = _G["logotune"]
+    -- colorOffset = 0
+    backgroundColor = 8
+  end
 
   -- Update background
-  BackgroundColor(theme[2])
+  BackgroundColor(backgroundColor)
 
   -- Draw logo
   if(logoSpriteData ~= nil) then
-    UpdateTiles(13, 13, logoSpriteData.width, logoSpriteData.spriteIDs, theme[1])
+    UpdateTiles(13, 13, logoSpriteData.width, logoSpriteData.spriteIDs, colorOffset)
   end
 
 end
+-- function DrawWallpaper()
+--
+--   -- Set up logo values
+--   local logoSpriteData = _G["logo"]
+--
+--   -- themeID = 1
+--   --
+--   -- -- Set logo
+--   -- if(not runningFromDisk) then
+--   --   --   logoSpriteData = _G["logomake"]
+--   --   -- colorOffset = 0
+--   --   -- backgroundColor = 5
+--   --   -- elseif(runnerName == DrawVersion) then
+--   --   --   logoSpriteData = _G["logodraw"]
+--   --   themeID = 2
+--   --   -- elseif(runnerName == TuneVersion) then
+--   --   --   logoSpriteData = _G["logotune"]
+--   --   --   -- colorOffset = 0
+--   --   --   backgroundColor = 8
+--   -- end
+--
+--   local theme = wallPaperThemes[runningFromDisk == true and 2 or 1]
+--
+--   -- Update background
+--   BackgroundColor(theme[2])
+--
+--   -- Draw logo
+--   if(logoSpriteData ~= nil) then
+--     UpdateTiles(13, 13, logoSpriteData.width, logoSpriteData.spriteIDs, theme[1])
+--   end
+--
+-- end
 
 
 
