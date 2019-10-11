@@ -300,24 +300,8 @@ end
 
 function EditorUI:DrawOnCanvas(data, mousePos, toolID)
 
-
-  -- data.tool = "pen" -- toolID or data.currentTool
-
-  -- TODO make sure the mouse is still inside of the canvas
-
-  -- print("Draw", "Pos", pos.x, pos.y, "Start Pos", data.startPos.x, data.startPos.y)
-
-  -- TODO force draw
-  -- data.drawMode = true
-
-
-
-  -- if(data.drawMode == true or data.overMenu == nil) then
-
   -- Get the start position for a new drawing
   if(data.startPos ~= nil) then
-
-
 
     -- Test for the data.tool and perform a draw action
     if(data.tool == "pen") then
@@ -403,15 +387,7 @@ function EditorUI:DrawOnCanvas(data, mousePos, toolID)
 
         data.tmpPaintCanvas:Clear()
 
-        -- print("Clear Rect")
       end
-
-      -- data.tmpPaintCanvas:Clear()
-      --
-      -- -- Change the stroke to a single pixel
-      -- data.tmpPaintCanvas:SetStroke({0, 1}, 2, 1)
-      --
-      -- data.tmpPaintCanvas:DrawSquare(data.startPos.x, data.startPos.y, mousePos.x, mousePos.y, false)
 
     elseif(data.tool == "circle") then
 
@@ -445,11 +421,6 @@ end
 
 function EditorUI:ResetCanvasStroke(data)
 
-  -- Set stroke to 1 if no stroke has been selected or use the stroke value from the picker
-  -- if(self.modalLineEditor == nil)then
-
-  --print("Canvas", data.brushColor, data.colorOffset)
-
   local tmpColor = data.brushColor
 
   local realBrushColor = tmpColor + data.colorOffset
@@ -468,12 +439,6 @@ function EditorUI:ResetCanvasStroke(data)
   end
 
   ReplaceColor(54, tmpColor + 256)
-
-
-  -- else
-  --   local stroke = self.modalLineEditor.lines[self.modalLineEditor.currentSelection]
-  --   self.tmpPaintCanvas:SetStroke(stroke.pattern, stroke.size.x, stroke.size.y)
-  -- end
 
 end
 
@@ -553,22 +518,10 @@ function EditorUI:CanvasRelease(data, callAction)
     return
   end
 
-  -- if(data.tmpPaintCanvas.invalid == true) then
-
-  -- TODO Removed the validation here, need to see why this doesn't work?
-
-  -- print("Copy tmp canvas buffer")
-  -- Save the last drawing
-  -- data.lastDrawing = data.tmpPaintCanvas:GetPixels()
-
   if(data.tmpPaintCanvas.invalid == true) then
 
-    -- print("Merge tmp canvas", )
     -- Merge the pixel data from the tmp canvas into the main canvas before it renders
     data.paintCanvas:MergeCanvas(data.tmpPaintCanvas, 0, true)
-
-    -- Clear the last drawing value
-    -- data.lastDrawing = nil
 
     -- Clear the canvas
     data.tmpPaintCanvas:Clear()
@@ -577,10 +530,6 @@ function EditorUI:CanvasRelease(data, callAction)
     data.tmpPaintCanvas:ResetValidation()
 
   end
-  --
-  --
-
-  -- end
 
   -- trigger the canvas action callback
   if(data.onAction ~= nil and callAction ~= false) then
@@ -673,22 +622,6 @@ function EditorUI:CanvasBrushColor(data, value)
   data.brushColor = value
 
   self:ResetCanvasStroke(data)
-
-
-  -- -- Check to see if we are in palete mode
-  -- if(pixelVisionOS.paletteMode == true) then
-  --
-  --   -- TODO this is hard coded to look for a palette color picker
-  --
-  --   -- Shift the value to offset for the palette
-  --   value = value + PaletteOffset(paletteColorPickerData.pages.currentSelection - 1)
-  --
-  -- end
-  --
-  -- ReplaceColor(54, value + 256)
-  -- ReplaceColor(47, colorID)
-
-  -- TODO need to change the color offset for the pixel selection
 
 end
 

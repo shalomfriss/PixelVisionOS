@@ -116,9 +116,6 @@ end
 
 function MouseCursor:Update(timeDelta, collisionState)
 
-  -- Get the collision state's mouse cursor values
-  --self.cursorID = collisionState.cursorID
-
   -- save the current mouse position
   self.pos.x = collisionState.mousePos.x
   self.pos.y = collisionState.mousePos.y

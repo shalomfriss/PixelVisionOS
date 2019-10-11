@@ -111,8 +111,6 @@ function EditorUI:UpdateStepperButtons(data, value, min, max)
 
 end
 
--- TODO Need to disable buttons
-
 function EditorUI:EnableStepper(data, value)
 
   self:Enable(data, value)

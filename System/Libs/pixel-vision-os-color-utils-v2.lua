@@ -45,9 +45,6 @@ function PixelVisionOS:ImportColorsFromGame()
   -- Calculate the total available system colors based on the palette mode
   self.totalSystemColors = self.paletteMode and self.totalColors / 2 or self.totalColors
 
-  -- We want to subtract 1 from the system colors to make sure the last color is always empty for the mask
-  -- self.totalSystemColors = Clamp(self.totalSystemColors, 0, gameEditor:MaximumColors())
-
   -- There are always 128 total palette colors in memory
   self.totalPaletteColors = 0
 
@@ -56,8 +53,6 @@ function PixelVisionOS:ImportColorsFromGame()
 
   -- We display 16 palette colors per page
   self.paletteColorsPerPage = Clamp(gameEditor:ColorsPerSprite(), 2, 16)
-
-  -- We need to copy over all of the game's colors to the tools color memory.
 
   -- Get all of the game's colors
   local gameColors = gameEditor:Colors()
@@ -73,19 +68,14 @@ function PixelVisionOS:ImportColorsFromGame()
     -- Calculate the color's index
     local index = i - 1
 
-    -- Get the color from the game
-    -- local tmpColor = gameEditor:Color(index)
-
     -- get the game color at the current index
     local color = gameColors[i]
 
     local ignoreColor = false
 
-    -- if(self.paletteMode == true) then
     if(color == self.maskColor or table.indexOf(self.systemColors, color) ~= -1) then
       ignoreColor = true
     end
-    -- end
 
     -- Look to see if we have the system color or if its not the mask color
     if(ignoreColor == false) then
@@ -110,8 +100,6 @@ function PixelVisionOS:ImportColorsFromGame()
 
   end
 
-  -- self.paletteColors = {}
-
   if(self.paletteMode == true) then
 
     self.totalPaletteColors = 128
@@ -126,7 +114,6 @@ function PixelVisionOS:ImportColorsFromGame()
       local colorID = table.indexOf(self.systemColors, color)
 
       local paletteIndex = (i - 129) % 16
-      -- We shouldn't have missing colors in the palettes so use the first color
 
       -- Mask off any colors outside of the palette
       if(paletteIndex >= self.colorsPerSprite) then
@@ -155,9 +142,6 @@ function PixelVisionOS:CopyToolColorsToGameMemory()
 
   -- Clear the game's colors
   gameEditor:ClearColors()
-
-  -- Force the game to have 256 colors
-  -- gameEditor:ColorPages(4)
 
   -- Copy over all the new system colors from the tool's memory
   for i = 1, self.totalColors do

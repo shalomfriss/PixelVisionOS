@@ -24,8 +24,6 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
     y = y or 0
   }
 
-  -- data.spriteSize = SpriteSize()
-
   data.invalid = true
   data.textColorOffset = 15
   data.font = "medium"
@@ -36,7 +34,6 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
   data.showTimeDivider = true
   data.productName = product or SystemName()
   data.title = title or "Untitled"
-
   data.debugTime = ReadBiosData("DebugTime") == "True"
 
   data.productDrawArgs = {
@@ -107,8 +104,6 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
     0
   }
 
-
-
   self.editorUI:Invalidate(data)
 
   -- Draw background
@@ -130,7 +125,6 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
     this.titleBar.menu.showMenu = true
   end
   data.iconButton.onAction = function(value)
-    -- print("Hide menu", value)
     this.titleBar.menu.showMenu = false
     data.iconButton.toolTip = this.titleBar.menu.defaultToolTip
   end
@@ -141,8 +135,6 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
   -- Create mute button
   data.muteBtnData = self.editorUI:CreateButton({x = data.muteDrawArgs[2], y = data.muteDrawArgs[3]}, "", "Toggle systme wide mute.")
   data.muteBtnData.hitRect = {x = data.muteDrawArgs[2], y = data.muteDrawArgs[3], w = 8, h = 11}
-
-
 
   data.muteBtnData.onAction = function()
     local value = Mute(not Mute())
@@ -203,9 +195,6 @@ function PixelVisionOS:CreateTitleBarMenu(items, toolTip)
 
   -- Create a solid background pattern
   canvas:SetPattern({12}, 1, 1)
-
-  -- Create a rect for the menu
-  -- local rect =
 
   -- Draw border
   canvas:DrawSquare(0, 0, canvas.width - 8, canvas.height - 8, true)
@@ -295,8 +284,8 @@ end
 function PixelVisionOS:DrawTitleBarMenuItem(canvas, option, bgColor2)
 
   local bgColor = 12
-  -- local bgColor2 = 14
   bgColor2 = option.enabled == false and 11 or bgColor2
+
   local divColor = 5
   local t1Color = option.enabled == false and 11 or 0
   local t2Color = t2Color or 12
@@ -304,7 +293,7 @@ function PixelVisionOS:DrawTitleBarMenuItem(canvas, option, bgColor2)
 
   if(option.divider == true) then
     canvas:SetStroke({divColor}, 1, 1)
-    local y = 2-- math.floor(canvas.height / 2)
+    local y = 2
     canvas:DrawLine(0, y, canvas.width, y)
   else
 
@@ -419,7 +408,6 @@ function PixelVisionOS:UpdateTitleBar(data, timeDelta)
         -- Test for collision
         if(menuData.showMenu == true and option.rect ~= nil and option.rect.Contains(mousePos.x, mousePos.y)) then
 
-          -- print("Test Option", i)
           -- Update menu selection
           menuData.menuSelection = i
 
@@ -469,13 +457,6 @@ end
 
 function PixelVisionOS:EnableMenuItemByName( name, value)
 
-  -- self.titleBar.menu
-
-  -- if(self.titleBar.menu == nil) then
-  --   self.titleBar.menu = self:CreateTitleBarMenu(menuData.options, menuData.defaultToolTip)
-  --
-  -- end
-
   local options = self.titleBar.menu.options
 
   local total = #options
@@ -499,17 +480,7 @@ end
 
 function PixelVisionOS:EnableMenuItem( id, value)
 
-  -- if(self.titleBar.menu == nil) then
-  --   self.titleBar.menu = self:CreateTitleBarMenu(menuData.options, menuData.defaultToolTip)
-  --
-  -- end
-
-
   local menuData = self.titleBar.menu
-  --
-  -- if(menuData.options[id] == nil) then
-  --   return
-  -- end
 
   if(menuData.options[id].enabled ~= value) then
 
@@ -536,17 +507,11 @@ function PixelVisionOS:DrawTitleBar(data)
 
   end
 
-
   if(data.invalid == true) then
-    local displayWidth = Display().x -- - (OverscanBorder().x * SpriteSize().x)
+    local displayWidth = Display().x
     local offsetRight = 8
     local charWidth = 4
-
-    -- -- Create the string for the date/time on the right hand side
-    -- local date = string.upper(os.date("%a         1985"))
-
     local date = ReadBiosData("DebugTime") == "True" and string.upper(os.date("SAT         1985")) or string.upper(os.date("%a         1985"))
-
 
     offsetRight = ((#date * charWidth) + offsetRight)
 
@@ -561,16 +526,12 @@ function PixelVisionOS:DrawTitleBar(data)
       self.editorUI:NewDraw("DrawSprite", data.titleIconDrawArgs)
     end
 
-    -- TODO Clear title area
-
     -- Draw title text
     local nameWidth = #data.title * charWidth
     data.titleDrawArgs[1] = string.upper(data.title)
     self.editorUI:NewDraw("DrawText", data.titleDrawArgs)
 
     data.lastTimeStamp = ""
-
-    -- Center the title between the app name and the time
 
     -- Reset the titlebar validation
     self.editorUI:ResetValidation(data)
@@ -586,7 +547,6 @@ function PixelVisionOS:DrawTitleBar(data)
   local newMuteValue = Mute()
 
   if(self.lastMuteValue ~= newMuteValue) then
-    -- print("Redaw Mute", newMuteValue)
 
     data.muteDrawArgs[1] = newMuteValue and titlebarvolumeoff.spriteIDs or titlebarvolumeon.spriteIDs
 
@@ -599,8 +559,6 @@ function PixelVisionOS:DrawTitleBar(data)
 
   if(menuData ~= nil and menuData.showMenu ~= false) then
 
-    -- self.editorUI:NewDraw("DrawPixels", menuData.menuDrawArgs)
-    -- TODO this all needs to be optimized, it shouldn't copy pixel data, instead save the canvas for each button and update accordingly
     menuData.canvas:DrawPixels(menuData.menuDrawArgs[2], menuData.menuDrawArgs[3], DrawMode.UI)
 
     if(menuData.menuSelection > 0) then

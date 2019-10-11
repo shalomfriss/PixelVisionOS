@@ -10,8 +10,6 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
   -- Create the viewport based on the size of the component passed in
   data.viewport = NewRect(0, 0, rect.w, rect.h)
 
-  -- DrawRect(rect.x, rect.y, rect.w, rect.h, 0, DrawMode.TilemapCache)
-
   data.tmpItemRect = NewRect(0, 0, 8, 8)
 
   -- Calculate the real viewport
@@ -28,8 +26,6 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
 
   data.total = columns * rows
 
-  -- print("size", data.visibleRect.w, data.visibleRect.h)
-
   -- Create a canvas to store pixel data for rendering
   data.canvas = NewCanvas(data.realWidth, data.realHeight)
 
@@ -38,11 +34,6 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
   data.colorOffset = colorOffset
 
   data.showBGColor = false
-
-  -- data.itemSize = SpriteSize()
-
-  -- Bounds represent the real size of the component
-  -- data.bounds = NewRect(0, 0, columns * itemSize.x, rows * itemSize.w)
 
   -- Store the default columns and rows
   data.columns = columns
@@ -74,8 +65,6 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
   data.totalItemStringPadding = #tostring(data.totalItems)
   data.totalColStringPadding = #tostring(columns)
   data.totalRowStringPadding = #tostring(rows)
-
-  -- TODO this should be a position value like pressSelection
   data.currentSelection = -1
   data.pressSelection = nil
 
@@ -124,8 +113,6 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
 
   data.picker.onAction = function(value, doubleClick)
 
-    -- TODO need to offset the value by the scroll value
-
     data.pressSelection = nil
 
     value = self:CalculateItemPickerPosition(data).index
@@ -143,19 +130,12 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
     -- Store the current ID being pressed
     data.pressSelection = self:CalculateItemPickerPosition(data)
 
-    -- print("press", data.pressSelection.x, data.pressSelection.y, data.pressSelection.index)
-
     if(data.onPress ~= nil) then
       data.onPress(data.pressSelection.index)
     end
 
     if(data.onStartDrag ~= nil) then
 
-      -- Get the slider rect
-      -- local rect = data.slider.rect
-      --
-      -- -- Check to see if the mouse is not inside of the slider rect
-      -- if(self.editorUI.collisionManager:MouseInRect(rect) == false) then
       data.onStartDrag(data)
       -- end
 
@@ -215,7 +195,6 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
       data.pressSelection = nil
     end
 
-    -- print("Enable dragging", data.dragging, data.dragDelay)
   end
 
   return data
@@ -304,7 +283,6 @@ function PixelVisionOS:OnItemPickerVerticalScroll(data, value)
 
     value = testScale2 / data.scrollScale.y
 
-    -- print("value", data.maxScale, data.realHeight, value, scaleOffset, testScale2, data.scrollScale.y, data.visibleRows)
     editorUI:ChangeSlider(data.vSlider, value, false)
 
     if(value ~= data.lastVValue) then
@@ -332,7 +310,6 @@ function PixelVisionOS:UpdateItemPicker(data)
 
     self:UpdateItemPickerSelection(data)
 
-    -- print(data.name, "redraw")
     -- Calculate the bg color
     local bgColor = data.showBGColor and gameEditor:BackgroundColor() or (self.emptyColorID - data.colorOffset - 1)
 
@@ -343,7 +320,7 @@ function PixelVisionOS:UpdateItemPicker(data)
 
   end
 
-  -- clear dragging value if dragging is not enabled
+  -- Clear dragging value if dragging is not enabled
   if(data.enableDragging == false) then
     data.dragging = false
     data.pressSelection = nil
@@ -436,9 +413,6 @@ function PixelVisionOS:UpdateItemPicker(data)
     data.picker.overDrawArgs[2] = overPos.x - data.picker.borderOffset
     data.picker.overDrawArgs[3] = overPos.y - data.picker.borderOffset
 
-    -- TODO need to fix this offset so it captures the correct pixel data below
-
-
     -- Only update the sprite data when over a new sprite
     if(data.lastOverID ~= overPos.index) then
 
@@ -465,7 +439,6 @@ function PixelVisionOS:UpdateItemPicker(data)
 
     local offscreen = Clamp(data.tmpItemRect.width / 2, 0, 8)
 
-    -- TODO need to fix this since it's too sensitive around the edges
     if( overPos.x > - offscreen and (overPos.x + data.tmpItemRect.width) < (data.displaySize.x + offscreen) and overPos.y > - offscreen and (overPos.y + data.tmpItemRect.height) < (data.displaySize.y + offscreen)) then
       -- -- Draw rect behind the over selection
       self.editorUI:NewDraw("DrawRect", data.maskSpriteDrawArgs)
@@ -477,8 +450,6 @@ function PixelVisionOS:UpdateItemPicker(data)
       self.editorUI:NewDraw("DrawSprites", data.picker.overDrawArgs)
 
     end
-    -- TODO This should always be saved in the picker
-    -- local overPos = self:CalculateItemPickerPosition(data)
 
     if(data.dragging) then
 
@@ -496,8 +467,7 @@ function PixelVisionOS:UpdateItemPicker(data)
     else
       data.picker.toolTip = ""
     end
-    --
-    -- print(data.dragging)
+
   end
 
 end
@@ -580,8 +550,6 @@ function PixelVisionOS:CalculateItemPickerPosition(data, x, y)
 
 end
 
--- function PixelVisionOS:
-
 function PixelVisionOS:ChangeItemPickerScale(data, scale)
 
   if(data == nil) then
@@ -650,34 +618,21 @@ function PixelVisionOS:UpdateItemPickerPixelDataAt(data, index, pixelData, width
 
   data.canvas:Clear(-1, pos.x, pos.y, width, height)
 
-  -- TODO draw new pixel data at area
   data.canvas:SetPixels(pos.x, pos.y, width, height, pixelData)
   data.invalidateDisplay = true
-
-  -- data.canvas:
 
 end
 
 function PixelVisionOS:ClearItemPickerSelection(data)
-  -- print("TODO need to enable clear item picker selection")
   data.currentSelection = -1
   editorUI:ClearPickerSelection(data.picker)
-
-  -- self:InvalidateItemPickerDisplay(data)
 
 end
 
 function PixelVisionOS:EnableItemPicker (data, value)
 
-  -- Set the flag on the component
-  -- editorUI:Enable(data)
-
   -- Set the flag on the picker
   editorUI:Enable(data.picker, value)
-
-  -- TODO should the scrollbars also be disabled?
-  -- editorUI:Enable(data.vSlider, value)
-  -- editorUI:Enable(data.hSlider, value)
 
 end
 

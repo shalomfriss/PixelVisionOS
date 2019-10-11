@@ -68,14 +68,11 @@ function PixelVisionOS:CreateColorPicker(rect, tileSize, total, totalPerPage, ma
 
     self:SelectItemPickerIndex(data, value.index, true, false)
 
-    -- data.picker.selectedDrawArgs[4] = _G["spritepickerselectedup"].width
-
     data.selectedPixelDrawArgs[1] = self:ReadItemPickerOverPixelData(data, value.x, value.y)
 
     if(data.onAction ~= nil) then
       data.onAction(value.index, doubleClick)
     end
-    -- self:NewDraw("DrawSprites", data.selectedDrawArgs)
 
   end
 
@@ -123,10 +120,6 @@ function PixelVisionOS:CreateColorPicker(rect, tileSize, total, totalPerPage, ma
 
   self:ColorPickerVisiblePerPage(data, totalPerPage)
 
-  -- self:RebuildPickerPages(data, data.totalPages)
-
-
-
   return data
 
 end
@@ -154,9 +147,7 @@ function PixelVisionOS:ColorPickerVisiblePerPage(data, value)
   data.visiblePerPage = value
 
   self:InvalidateColorPickerCache(data)
-  --
-  -- self:RebuildColorPickerCache(data)
-  --
+
   self:InvalidateItemPickerDisplay(data)
 
 end
@@ -182,27 +173,23 @@ function PixelVisionOS:RebuildColorPickerCache(data)
   data.buildCacheDelay = .05
   data.buildCacheTime = 0
 
-  -- Capture the current page
-  -- data.lastSelectedPage = data.pages.currentSelection
-
   -- flag the cache to build on the update loop
   data.buildingCache = true
 
 end
 
 function PixelVisionOS:OnNextColorPickerCacheStep(data)
-  -- print(data.name, "OnNextColorPickerCacheStep")
 
   for i = data.nextCacheIndex, data.nextLoopTotal do
 
     -- Lua loops start at 1 but we need to start at 0
     index = i - 1
-    -- print("Draw Color", index)
+
     self:DrawColorPickerColorItem(data, index)
 
     if(i > data.nextCacheTotal) then
       data.buildingCache = false
-      -- print(data.name, "auto select page", data.lastSelectedPage)
+
       self:OnColorPickerPage(data, data.lastSelectedPage)
       data.lastOverID = -1
       self:InvalidateItemPickerDisplay(data)
@@ -212,12 +199,6 @@ function PixelVisionOS:OnNextColorPickerCacheStep(data)
   end
 
   data.nextLoopTotal = data.nextLoopTotal + data.nextLoopBlock
-
-
-  -- Get all the sprite pixel data
-  -- local pixelData = gameEditor:ReadGameSpriteData(0, data.columns, data.rows)
-  --
-
 
   self:InvalidateItemPickerDisplay(data)
 
@@ -234,7 +215,7 @@ function PixelVisionOS:DrawColorPickerColorItem(data, id)
 
   if(id < data.total and (id % data.totalPerPage) < data.visiblePerPage) then
     local colorID = id + data.altColorOffset
-    -- print(data.name, "color", id, colorID, Color(colorID), tostring(Color(colorID) == self.maskColor))
+
     if(Color(colorID) == self.maskColor) then
       data.canvas.DrawSprites(emptymaskcolor.spriteIDs, x, y, emptymaskcolor.width, false, false)
     else
@@ -264,10 +245,6 @@ function PixelVisionOS:UpdateColorPicker(data)
   if(data.invalidPixelCache == true) then
     self:RebuildColorPickerCache(data)
 
-
-    -- print("data.pages.currentSelection", data.pages.currentSelection)
-    -- self:OnColorPickerPage(data, data.pages.currentSelection)
-
     data.invalidPixelCache = false
   end
 
@@ -291,8 +268,6 @@ function PixelVisionOS:UpdateColorPicker(data)
       local tmpButton = pageButtons[i]
 
       local hitRect = tmpButton.rect
-
-      -- TODO need to offset for size?
 
       if(self.editorUI.collisionManager:MouseInRect(hitRect) == true and tmpButton.enabled == true) then
 
@@ -327,10 +302,6 @@ function PixelVisionOS:UpdateColorPicker(data)
 end
 
 function PixelVisionOS:OnColorPickerPage(data, value)
-
-
-
-
 
   value = value or 0
 
@@ -395,7 +366,6 @@ function PixelVisionOS:ChangeColorPickerTotal(data, value, invalidateCache)
 
   data.total = value
 
-
   if(invalidateCache == true) then
     self:InvalidateColorPickerCache(data)
   end
@@ -419,29 +389,16 @@ function PixelVisionOS:RebuildPickerPages(data, totalPages)
     -- If there are colors, calculate the correct number of pages
     data.totalPages = Clamp(totalPages ~= nil and totalPages or math.ceil(data.total / data.totalPerPage), 1, data.maxPages)
 
-    -- -- Make sure the pages don't go high
-    -- if(data.totalPages > data.maxPages) then
-    --   data.totalPages = data.maxPages
-    -- end
-
   end
-
-  -- print(data.name, "Rebuild Picker Pages", data.totalPages, data.total, data.totalPerPage)
 
   -- local totalPages = data.totalPages
   local position = data.pagePosition
   local maxPages = data.maxPages or 10
   local toolTipTemplate = data.pageToolTipTemplate or "Select page "
 
-  -- if(data == nil or data.pages == nil) then
-  --   return
-  -- end
-
   -- Clear all the existing buttons
   editorUI:ClearToggleGroup(data.pages)
 
-
-  -- print("Build pages", data.totalPages, data.maxPages)
   -- Need to shift the offset to the left
   local tmpPosX = position.x - (maxPages * 8)
 
@@ -481,44 +438,18 @@ end
 
 function PixelVisionOS:SelectColorPickerColor(data, value)
 
-  -- TODO see if we can replace this with the direct call to the item picker in the tool's code
   self:SelectItemPickerIndex(data, value)
-  -- -- Force dragging to be false
-  -- data.dragging = false
-  --
+
   -- Calculate the correct page
   local page = math.floor(value / (data.totalPerPage)) + 1
-  --
-  -- print("Page", page, value, data.totalPerPage)
-  --
-  -- -- Select the right page
+
+  -- Select the right page
   self:SelectColorPage(data, page)
-  --
-  -- -- Select the color on the page
-  -- self.editorUI:SelectPicker(data.picker, page)
-  --
-  --
-
-end
-
-function PixelVisionOS:CalculateColorPickerPosition(data)
-  --
-  -- local pos = self.editorUI:CalculatePickerPosition(data.picker)
-  -- pos.index = self:CalculateRealColorIndex(data, pos.index)
-  -- return pos
 
 end
 
 function PixelVisionOS:SelectColorPage(data, value)
   self.editorUI:SelectToggleButton(data.pages, value)
-end
-
-function PixelVisionOS:CalculateRealColorIndex(data, value)
-  --
-  -- value = value or data.picker.selected
-  --
-  -- return value + ((data.pages.currentSelection - 1) * data.totalPerPage)
-
 end
 
 function PixelVisionOS:RefreshColorPickerColor(data, colorID)
@@ -550,30 +481,13 @@ function PixelVisionOS:RemoveColorFromPicker(data)
   self:DrawColorPickerColorItem(data, data.total)
 
   self:RebuildPickerPages(data)
-  -- self:ChangeColorPickerTotal(data, data.total - 1)
-
-end
-
-function PixelVisionOS:EnableColorPicker(data, pickerEnabled, pagesEnabled)
-
-  -- self.editorUI:Enable(data.picker, pickerEnabled)
-  -- self.editorUI:Enable(data.pages, pagesEnabled)
 
 end
 
 function PixelVisionOS:RemoveColorPicker(data)
   data.visiblePerPage = 0
 
-  -- for i = 1, data.totalPerPage do
-  --   self:DrawColorPickerColorItem(data, i - 1)
-  -- end
-  --
-  -- self:InvalidateItemPickerDisplay(data)
-  --
-  -- self:UpdateColorPicker(data)
-  --
   self:RebuildPickerPages(data, 0)
 
-  -- print("rect", data.rect.x, data.rect.y, data.rect.w, data.rect.h)
   DrawRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h, 0, DrawMode.TilemapCache)
 end

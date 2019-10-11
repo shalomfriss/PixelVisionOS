@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "scroll": "1,1",
+            "scroll": "2,1",
             "selectedSprite": "0",
-            "cursor": "25,2",
+            "cursor": "5,8",
             "rootDirectory": "/Workspace/HelloWorld/",
-            "sessionID": "201910061253226432",
-            "targetFile": "/Disks/ReaperBoyLD40/info.json"
+            "sessionID": "201910110601559734",
+            "targetFile": "/Workspace/NewProject/code.lua"
         }
     }
 }

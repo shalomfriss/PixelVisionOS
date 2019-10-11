@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "editing": "undefined",
-            "sessionID": "201910081815215476",
-            "rootDirectory": "/Disks/PixelVisionOS/System/Tools/WorkspaceTool/",
-            "selectedSprite": "0",
+            "spriteSize": "1",
             "SpriteSize": "undefined",
-            "spriteSize": "1"
+            "selectedSprite": "0",
+            "rootDirectory": "/Workspace/NewProject/",
+            "sessionID": "201910110601559734",
+            "editing": "undefined"
         }
     }
 }

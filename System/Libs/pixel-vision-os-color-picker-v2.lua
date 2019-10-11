@@ -15,8 +15,6 @@
 -- Shawn Rakowski - @shwany
 --
 
-
-
 -- Creating a composite component (Picker, ToggleGroup, Buttons)
 function PixelVisionOS:CreateColorPicker(rect, tileSize, total, totalPerPage, maxPages, colorOffset, spriteName, toolTip, modifyPages, enableDragging, dragBetweenPages)
 
@@ -26,15 +24,12 @@ function PixelVisionOS:CreateColorPicker(rect, tileSize, total, totalPerPage, ma
 
   -- Modify the name to a ColorPicker
   data.name = "ColorPicker" .. data.name
-
   data.totalPerPage = totalPerPage
-
   data.visiblePerPage = totalPerPage
   data.colorOffset = colorOffset
   data.tileSize = tileSize
   data.maxPages = maxPages
   data.pageToolTipTemplate = "Select color page "
-
   data.dragBetweenPages = dragBetweenPages or false
   data.pageOverTime = 0
   data.pageOverDelay = .5
@@ -69,11 +64,7 @@ function PixelVisionOS:CreateColorPicker(rect, tileSize, total, totalPerPage, ma
     -- Clear current press
     data.currentPress = nil
 
-    -- -- Set current selection
-
-
     -- Trigger action
-    -- print(data.name, "picker action")
     if(data.onColorAction ~= nil) then
       data.onColorAction(value)
     end
@@ -100,8 +91,6 @@ function PixelVisionOS:CreateColorPicker(rect, tileSize, total, totalPerPage, ma
     rect.x + rect.w,
     rect.y + rect.h
   )
-
-  -- TODO need to have a flag that tells if we should include empty color pages as pages
 
   if(modifyPages == true) then
     self:CreateModifyPageButtons(data)
@@ -132,8 +121,6 @@ function PixelVisionOS:CreateModifyPageButtons(data)
   )
 
   data.addPageButton.onAction = function()
-
-    -- print("Add new page", data.totalPages)
 
     data.totalPages = data.totalPages + 1
 
@@ -179,9 +166,6 @@ end
 
 function PixelVisionOS:UpdateModifyPageButtonState(data)
 
-  -- print("Rebuild pages", data.totalPages)
-
-  -- TODO need to call the following based on the data's pagination
   if(data.addPageButton ~= nil) then
     editorUI:Enable(data.addPageButton, data.totalPages < data.maxPages)
   end
@@ -217,7 +201,6 @@ function PixelVisionOS:OnColorPageClick(data, pageID, select)
 
     local tmpPage = math.ceil(data.currentSelection / data.totalPerPage)
 
-    -- TODO the picker forgets the page it started on, we need to still show the selection without breaking the drag
     if(pageID == tmpPage and data.dragging == false) then
 
       self.editorUI:SelectPicker(data.picker, data.currentSelection % data.totalPerPage)
@@ -227,7 +210,6 @@ function PixelVisionOS:OnColorPageClick(data, pageID, select)
     end
 
   end
-
 
 end
 
@@ -248,11 +230,8 @@ function PixelVisionOS:UpdateColorPicker(data)
   -- Update color palette to reflect color selector
   if(data.currentPress ~= nil) then
 
-    -- local colorID = 0
-
     local colorID = data.currentPress + data.colorOffset
 
-    -- TODO these ids need to be part of the component's data, not hard coded
     if(Color(colorID) ~= self.maskColor) then
       ReplaceColor(50, colorID)
       ReplaceColor(51, colorID)
@@ -269,7 +248,6 @@ function PixelVisionOS:UpdateColorPicker(data)
 
     data.picker.toolTip = data.toolTip .. string.lpad(tostring((colorID - 256)), 3, "0")
 
-    -- TODO these ids need to be part of the component's data, not hard coded
     if(Color(colorID) ~= self.maskColor) then
       ReplaceColor(46, colorID)
       ReplaceColor(47, colorID)
@@ -283,7 +261,6 @@ function PixelVisionOS:UpdateColorPicker(data)
 
   if(data.dragging == true and self.editorUI.collisionManager.dragTime > data.dragDelay) then
 
-    -- print(data.name, data.dragging)
     data.picker.overDrawArgs[2] = self.editorUI.collisionManager.mousePos.x - 10
     data.picker.overDrawArgs[3] = self.editorUI.collisionManager.mousePos.y - 10
     self.editorUI:NewDraw("DrawSprites", data.picker.overDrawArgs)
@@ -334,23 +311,16 @@ function PixelVisionOS:DrawColorPage(data, page)
   -- Default to the currently selected page
   page = page or data.pages.currentSelection
 
-  -- print(data.name, "Draw Color Page", data.picker.total, data.totalPerPage)
-
   local startID = data.colorOffset - 1
   local total = data.picker.total
   local pageOffset = page
-  -- local totalPerPage = data.totalPerPage
   local rect = data.rect
   local tileSize = data.tileSize
-
   local totalPixels = tileSize.x * tileSize.y
   local width = math.floor(rect.w / tileSize.x)
   local height = math.floor(rect.h / tileSize.y)
-
   local totalItems = width * height
-
   local pixelData = {}
-
   local x = 0
   local y = 0
 
@@ -364,8 +334,6 @@ function PixelVisionOS:DrawColorPage(data, page)
 
     local pageOffset = ((pageOffset - 1) * data.totalPerPage)
     local colorID = i + pageOffset
-
-    -- TODO need to make sure the total is never greater than then the visible per page value
 
     if(i <= total and i <= data.visiblePerPage) then
 
@@ -392,45 +360,6 @@ function PixelVisionOS:DrawColorPage(data, page)
 
 end
 
--- function PixelVisionOS:RebuildColorPage(colors, page, colorsPerPage, rect, tileSize)
---
---   local totalPixels = tileSize.x * tileSize.y
---   local width = math.floor(rect.width / tileSize.x)
---   local height = math.floor(rect.height / tileSize.y)
---
---   local total = width * height
---
---   local pixelData = {}
---
---   local x = 0
---   local y = 0
---
---   for i = 1, total do
---
---     -- Lua loops start at 1 but we need to start at 0
---     index = i - 1
---
---     x = (index % width) * tileSize.x + rect.x
---     y = math.floor(index / width) * tileSize.y + rect.y
---
---     if(i <= colorsPerPage) then
---
---       local pageOffset = ((page - 1) * colorsPerPage)
---       local colorID = i + pageOffset
---
---       for j = 1, totalPixels do
---         pixelData[j] = colors[colorID] -- TODO need to change the offset based on the page
---       end
---
---       DrawPixels(pixelData, x, y, tileSize.x, tileSize.y, false, false, DrawMode.TilemapCache, 0)
---     else
---       DrawSprites(emptycolor.spriteIDs, x, y, emptycolor.width, false, false, DrawMode.TilemapCache)
---     end
---
---   end
---
--- end
-
 function PixelVisionOS:ClearColorPickerSelection(data)
 
   if(data == nil) then
@@ -440,8 +369,6 @@ function PixelVisionOS:ClearColorPickerSelection(data)
   self.editorUI:ClearPickerSelection(data.picker)
 
   data.currentSelection = -1
-  -- Select the right page
-  -- self:SelectColorPage(data, 1)
 
 end
 
@@ -475,8 +402,6 @@ function PixelVisionOS:RebuildPickerPages(data, totalPages)
 
   end
 
-  -- print(data.name, "Rebuild Picker Pages", data.totalPages, data.total, data.totalPerPage)
-
   local totalPages = data.totalPages
   local position = data.pagePosition
   local maxPages = data.maxPages or 10
@@ -485,12 +410,6 @@ function PixelVisionOS:RebuildPickerPages(data, totalPages)
   if(data == nil or data.pages == nil) then
     return
   end
-
-  -- data = data.pages
-  -- maxPages = maxPages or 10
-
-  -- Get the current selection
-  -- local selection = data.currentSelection
 
   -- Clear all the existing buttons
   editorUI:ClearToggleGroup(data.pages)
@@ -513,10 +432,6 @@ function PixelVisionOS:RebuildPickerPages(data, totalPages)
     end
   end
 
-  -- data.totalPages = totalPages
-  -- Once everything is loaded, set the max number of colors on the color id field
-
-
 end
 
 function PixelVisionOS:SelectColorPickerColor(data, value)
@@ -527,15 +442,11 @@ function PixelVisionOS:SelectColorPickerColor(data, value)
   -- Calculate the correct page
   local page = math.floor(value / (data.totalPerPage)) + 1
 
-  -- print("Page", page, value, data.totalPerPage)
-
   -- Select the right page
   self:SelectColorPage(data, page)
 
   -- Select the color on the page
   self.editorUI:SelectPicker(data.picker, value % data.totalPerPage)
-
-
 
 end
 

@@ -1,8 +1,6 @@
 LoadScript("code-highlighter")
 LoadScript("lume")
 
--- local colorShift = 28
-
 function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
 
   local colorShift = colorOffset or 44
@@ -29,16 +27,12 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
     highlighter:setTheme(data.highlighterTheme)
   end
 
-data.lastCX = 0
+  data.lastCX = 0
 
   data.editable = true
 
   data.viewPort = NewRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h)
-  -- local ce = {}
-  -- setmetatable(ce, TextEditor)
   data.cursorPos = {x = 0, y = 0, color = 0}
-  -- local screenW = Display().x
-  -- local screenH = Display().y
   data.inputDelay = .15
   data.flavorBack = 0
   data.tiles.heme = {
@@ -64,19 +58,10 @@ data.lastCX = 0
   data.undoStack = {} -- Keep a stack of undo info, each one is {data, state}
   data.redoStack = {} -- Keep a stack of redo info, each one is {data, state}
 
-  -- data.rect.w, data.rect.h = screenSize()
-
-  -- data.charGrid = {0, 8, data.rect.w, data.rect.h, data.tiles.w, data.tiles.h}
-
   data.colorize = false --Color lua syntax
   data.autoDeselect = true
 
   data.buffer = {}
-  -- data.touches = {}
-  -- data.touchesNum = 0
-  -- data.touchscrollx = 0
-  -- data.touchscrolly = 0
-  -- data.touchskipinput = false
   data.font = font or "input"
   data.invalidateLine = true
   data.invalidateBuffer = true
@@ -109,17 +94,6 @@ data.lastCX = 0
     DrawMode.TilemapCache
   }
 
-  -- data.drawArguments = {
-  --   "",
-  --   0,
-  --   0,
-  --   data.drawMode,
-  --   data.font,
-  --   data.colorOffset,
-  --   data.spacing,
-  --   data.viewPort
-  -- }
-
   data.cursorDrawArguments = {
     data.blinkChar,
     0,
@@ -137,7 +111,6 @@ data.lastCX = 0
 
   data.keymap = {
     ["return"] = function(targetData)
-      -- if targetData.readonly then _systemMessage("The file is readonly !", 1, 9, 4) return end
       if targetData.sxs then self:TextEditorDeleteSelection(targetData) end
       self:TextEditorInsertNewLine(targetData)
     end,
@@ -154,7 +127,7 @@ data.lastCX = 0
         end
       end
       self:TextEditorResetCursorBlink(targetData)
-      self:TextEditorCheckPosition(targetData)-- or flag then self:TextEditorDrawBuffer(targetData) else self:TextEditorDrawLine(targetData) end
+      self:TextEditorCheckPosition(targetData)-- or flag then
       self:TextEditorDrawLineNum(targetData)
     end,
 
@@ -170,7 +143,7 @@ data.lastCX = 0
         end
       end
       self:TextEditorResetCursorBlink(targetData)
-      self:TextEditorCheckPosition(targetData)-- or flag then self:TextEditorDrawBuffer(targetData) else self:TextEditorDrawLine(targetData) end
+      self:TextEditorCheckPosition(targetData)-- or flag then
       self:TextEditorDrawLineNum(targetData)
     end,
     ["shift-up"] = function(targetData)
@@ -344,7 +317,6 @@ data.lastCX = 0
 
     ["pagedown"] = function(targetData)
 
-      --print("Page down", targetData.vy, targetData.vy, targetData.tiles.h)
       targetData.vy = targetData.vy + targetData.tiles.h
       targetData.cy = targetData.cy + targetData.tiles.h
 
@@ -362,16 +334,7 @@ data.lastCX = 0
     ["tab"] = function(targetData)
       self:TextEditorTextInput(targetData, targetData.tabChar)
     end,
-    -- ["ctrl-i"] = function(targetData)
-    --   if targetData.incsearch == nil or targetData.incsearch == false then
-    --     targetData.incsearch = true
-    --     self:TextEditorDrawIncSearchState(targetData)
-    --   else
-    --     targetData.incsearch = false
-    --     targetData.searchtxt = ""
-    --     self:TextEditorDrawLineNum(targetData)
-    --   end
-    -- end,
+
     ["ctrl-k"] = function(targetData)
       if targetData.incsearch == true then
         self:TextEditorSearchTextAndNavigate(targetData, targetData.cy)
@@ -407,8 +370,6 @@ data.lastCX = 0
     end
   }
 
-  -- self:TextEditorImport(data, text)
-
   return data
 
 end
@@ -416,7 +377,6 @@ end
 
 function EditorUI:TextEditorMoveCursor(data, x, y, color)
 
-  -- print("pre cursor", x, y)
   if(x ~= nil) then
     data.cursorPos.x = x
   end
@@ -430,7 +390,6 @@ function EditorUI:TextEditorMoveCursor(data, x, y, color)
     data.cursorPos.color = color
   end
 
-  -- print("cursor", dump(data.cursorPos))
   return data.cursorPos
 
 end
@@ -459,38 +418,14 @@ function EditorUI:TextEditorDrawCharactersAtCursor(data, text, x, y)
     data.spacing,
     data.viewPort
   }
-  -- data.drawArguments[1] = text
-  -- data.drawArguments[2] = data.rect.x + x
-  -- data.drawArguments[3] = data.rect.y + y
-  -- data.drawArguments[6] = data.cursorPos.color
 
   self:NewDraw("DrawText", drawArguments)
-
-  -- DrawText(text, data.rect.x + x, data.rect.y + y, DrawMode.TilemapCache, data.font, data.cursorPos.color)
-
-
-
-  -- TODO This doesn't work with colored text
-
-  -- x = x or (data.cursorPos.x * 8)
-  -- y = y or (data.cursorPos.y * 8)
-  --
-  -- local rightBounds = data.rect.x-- Clamp(data.rect.x + x, 0, data.rect.x + data.rect.w - 8)
-  -- local start = ((x / 8) * - 1) + 1
-  -- --
-  -- text = text:sub(start, Clamp(#text + start, 0, data.tiles.w) + start - 1)--math.min(#text, data.tiles.w))
-  --
-  -- data.cursorPos.x = x + #text
-  -- -- print("Draw chars", start, start + #text, math.min(start + #text - 1, data.tiles.w))
-  --
-  -- DrawText(text, rightBounds, data.rect.y + y, DrawMode.TilemapCache, data.font, data.cursorPos.color)
 
 end
 
 
 --A usefull print function with color support !
 function EditorUI:TextEditorDrawColoredTextAtCursor(data, tbl)
-  -- pushColor()
   if type(tbl) == "string" then
     self:TextEditorCursorColor(data, data.highlighterTheme.text)
     self:TextEditorDrawCharactersAtCursor(data, tbl)--, false, true)
@@ -502,7 +437,6 @@ function EditorUI:TextEditorDrawColoredTextAtCursor(data, tbl)
       self:TextEditorDrawCharactersAtCursor(data, txt)--, false, true)--Disable auto newline
     end
   end
-  -- popColor()
 end
 
 --Check the position of the cursor so the view includes it
@@ -522,12 +456,7 @@ function EditorUI:TextEditorCheckPosition(data)
   --X position checking--
   if data.buffer[data.cy]:len() < data.cx - 1 then data.cx = data.buffer[data.cy]:len() + 1 end --Passed the end of the line !
 
-  data.cx = Clamp(data.cx, 1, data.maxLineWidth+1)
-
-  -- if(data.cx > data.lastCX) then
-  --   data.lastCX = data.cx
-  --   print("Save CX", data.cx, data.lastCX)
-  -- end
+  data.cx = Clamp(data.cx, 1, data.maxLineWidth + 1)
 
   if data.cx > data.tiles.w + (data.vx - 1) then --Passed the screen to the right
     data.vx = data.cx - (data.tiles.w - 1); flag = true
@@ -536,34 +465,13 @@ function EditorUI:TextEditorCheckPosition(data)
     data.vx = data.cx; flag = true
   end
 
-  -- print(data.name, "Invalidate Flag", flag)
-
   if(flag) then
     self:TextEditorInvalidateBuffer(data)
-    -- else
-    --   self:TextEditorInvalidateLine(data)
+
   end
 
   return flag
 end
-
--- function EditorUI:TextEditorClampPosition(data, x, y)
---   --Y position checking--
---   if y > #data.buffer then y = #data.buffer end --Passed the end of the file
---
---   if y < data.vy then --Passed the screen to the top
---     if y < 1 then y = 1 end
---   end
---
---   --X position checking--
---   if data.buffer[y]:len() < x - 1 then x = data.buffer[y]:len() + 1 end --Passed the end of the line !
---
---   if x < data.vx then --Passed the screen to the left
---     if x < 1 then x = 1 end
---   end
---
---   return x, y
--- end
 
 -- Make the cursor visible and reset the blink timer
 function EditorUI:TextEditorResetCursorBlink(data)
@@ -583,7 +491,6 @@ function EditorUI:TextEditorDrawBlink(data)
     local by = (data.cy - data.vy) * (data.fh)
 
     local charIndex = data.cx--(data.cx - data.vx) + 1 -- bx / 8 + 1
-    -- print("cursor", bx, by, "vs", cx, cy)
 
     local char = data.buffer[data.cy]:sub(charIndex, charIndex)
 
@@ -597,8 +504,6 @@ function EditorUI:TextEditorDrawBlink(data)
 
     self:NewDraw("DrawText", data.cursorDrawArguments)
 
-    -- DrawText(char, data.rect.x + bx, data.rect.y + by, DrawMode.Sprite, data.font, data.highlighterTheme.selection)
-
   end
 
 end
@@ -608,19 +513,12 @@ function EditorUI:TextEditorDrawBuffer(data)
 
   if data.invalidateBuffer == false then return end
 
-  --print(data.name, "Draw Buffer")
-
-
   self:TextEditorResetBufferValidation(data)
 
   local vbuffer = lume.slice(data.buffer, data.vy, data.vy + data.tiles.h - 1) --Visible buffer
   local cbuffer = (data.colorize and highlighter ~= nil) and highlighter:highlightLines(vbuffer, data.vy) or vbuffer
 
   self:NewDraw("DrawRect", data.bgMaskDrawArguments)
-  -- Clear the viewport by drawing a rect with the background color
-  -- DrawRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h, data.tiles.heme.bg, DrawMode.TilemapCache)
-
-  -- TODO highlight is not working correctly on the first line
 
   for k, l in ipairs(cbuffer) do
 
@@ -651,7 +549,6 @@ function EditorUI:TextEditorDrawBuffer(data)
       -- Highlight start
       local hs = data.vx + data.cursorPos.x
 
-      --print("hs", hs)
       local he = hs + linelen - 1
 
       local char = data.buffer[data.vy + k - 1]:sub(hs, he)
@@ -660,9 +557,7 @@ function EditorUI:TextEditorDrawBuffer(data)
         char = " "
       end
 
-      self:TextEditorDrawCharactersAtCursor(data, char)--, false, true)
-      -- else
-
+      self:TextEditorDrawCharactersAtCursor(data, char)
 
     end
   end
@@ -684,14 +579,10 @@ function EditorUI:TextEditorDrawLine(data)
 
   end
 
-  -- TODO need a way to check the size has changed since the last time incase we need to decrease the value
-
   -- get the line's new width to see if it's larger than the max counter
   data.maxLineWidth = math.max(#data.buffer[data.cy], data.maxLineWidth)
-  --print(data.name, "Draw line")
 
   -- Reset validation
-
   if data.cy - data.vy < 0 or data.cy - data.vy > data.tiles.h - 1 then return end
   local cline, colateral
   if (data.colorize and highlighter ~= nil) then
@@ -705,8 +596,6 @@ function EditorUI:TextEditorDrawLine(data)
   data.lineMaskDrawArguments[4] = data.fh
 
   self:NewDraw("DrawRect", data.lineMaskDrawArguments)
-
-  -- DrawRect(data.rect.x, data.rect.y + y - 8, data.rect.w, data.fh, data.tiles.heme.bg, DrawMode.TilemapCache)
 
   self:TextEditorMoveCursor(data, - (data.vx - 2) - 1, y / 8, data.tiles.heme.bg)
   if not colateral then
@@ -741,8 +630,6 @@ function EditorUI:TextEditorResetTextValidation(data)
   data.invalidText = false
 end
 
-
-
 --Clear the selection just incase
 function EditorUI:TextEditorDeselect(data)
 
@@ -771,20 +658,7 @@ function EditorUI:TextEditorDrawLineNum(data)
 
   local linestr = "LINE "..tostring(data.cy).."/"..tostring(#data.buffer).."  CHAR "..tostring(data.cx - 1).."/"..tostring(data.buffer[data.cy]:len())
 
-  -- TODO this should update an object an external renderer can use to display this text
-
-  -- EditorUI:TextEditorCursorColor(data, data.flavorBack) EditorUI:TextEditorDrawTextAtCursor(data, linestr, 1, data.rect.h - data.fh)
 end
-
--- function EditorUI:TextEditorDrawIncSearchState(data)
---   -- eapi:drawBottomBar()
---   local linestr = "ISRCH: "
---   if data.searchtxt then
---     linestr = linestr..data.searchtxt
---   end
---   self:TextEditorCursorColor(data, data.flavorBack) self:TextEditorDrawTextAtCursor(data, linestr, 1, data.rect.h - data.fh)
--- end
-
 
 function EditorUI:TextEditorSearchNextFunction(data)
   for i, t in ipairs(data.buffer)
@@ -796,7 +670,6 @@ function EditorUI:TextEditorSearchNextFunction(data)
         -- Force the buffer to redraw
         self:TextEditorInvalidateBuffer(data)
 
-        -- EditorUI:TextEditorDrawBuffer(data)
         break
       end
     end
@@ -820,12 +693,9 @@ function EditorUI:TextEditorSearchPreviousFunction(data)
     self:TextEditorCheckPosition(data)
     -- Force the buffer to redraw
     self:TextEditorInvalidateBuffer(data)
-    -- EditorUI:TextEditorDrawBuffer(data)
   end
 
 end
-
-
 
 function EditorUI:TextEditorSearchTextAndNavigate(data, from_line)
   for i, t in ipairs(data.buffer)
@@ -837,7 +707,6 @@ function EditorUI:TextEditorSearchTextAndNavigate(data, from_line)
         self:TextEditorCheckPosition(data)
         self:TextEditorInvalidateBuffer(data)
 
-        -- EditorUI:TextEditorDrawBuffer(data)
         break
       end
     end
@@ -846,7 +715,7 @@ function EditorUI:TextEditorSearchTextAndNavigate(data, from_line)
 end
 
 function EditorUI:TextEditorTextInput(data, t)
-  -- if data.readonly then _systemMessage("The file is readonly !", 1, 9, 4) return end
+
   if data.incsearch then
     if data.searchtxt == nil then data.searchtxt = "" end
     data.searchtxt = data.searchtxt..t
@@ -860,8 +729,6 @@ function EditorUI:TextEditorTextInput(data, t)
     if data.sxs then self:TextEditorDeleteSelection(data); delsel = true end
     data.buffer[data.cy] = data.buffer[data.cy]:sub(0, data.cx - 1)..t..data.buffer[data.cy]:sub(data.cx, - 1)
 
-
-
     data.cx = data.cx + t:len()
 
     -- Update the line length
@@ -869,11 +736,9 @@ function EditorUI:TextEditorTextInput(data, t)
 
     self:TextEditorResetCursorBlink(data)
     self:TextEditorInvalidateLine(data)
-    self:TextEditorCheckPosition(data)-- or delsel then self:TextEditorDrawBuffer(data) else self:TextEditorDrawLine(data) end
+    self:TextEditorCheckPosition(data)
     self:TextEditorDrawLineNum(data)
-
     self:TextEditorEndUndoable(data)
-
     self:TextEditorInvalidateText(data)
   end
 end
@@ -883,7 +748,7 @@ function EditorUI:TextEditorGotoLineStart(data)
   data.cx = 1
   self:TextEditorResetCursorBlink(data)
   if self:TextEditorCheckPosition(data) then self:TextEditorDrawBuffer(data) else self:TextEditorDrawLine(data) end
-  -- EditorUI:TextEditorDrawLineNum(data)
+
 end
 
 function EditorUI:TextEditorGotoLineEnd(data)
@@ -891,7 +756,7 @@ function EditorUI:TextEditorGotoLineEnd(data)
   data.cx = data.buffer[data.cy]:len() + 1
   self:TextEditorResetCursorBlink(data)
   if self:TextEditorCheckPosition(data) then self:TextEditorDrawBuffer(data) else self:TextEditorDrawLine(data) end
-  -- EditorUI:TextEditorDrawLineNum(data)
+
 end
 
 function EditorUI:TextEditorInsertNewLine(data)
@@ -1155,19 +1020,12 @@ end
 -- Last used key, this should be set to the last keymap used from the data.keymap table
 
 function EditorUI:TextEditorMousepressed(data, cx, cy)--, istouch)
-  -- if istouch then return end
-
-  -- print("Press", self.collisionManager.mousePos.c, self.collisionManager.mousePos.r)
-
 
   -- local cx, cy = self:TextEditorWhereInGrid(x, y, data.charGrid)
   if (not data.mflag and data.inFocus) then
 
     cx = data.vx + (cx)
     cy = data.vy + (cy)
-
-
-    --print(data.name, "Mouse Down", dt, data.mflag)
 
     data.mflag = true
 
@@ -1201,7 +1059,6 @@ function EditorUI:TextEditorMouseMoved(data, cx, cy)--, dx, dy, it)
 
     data.bflag = false --Disable blinking
     if not data.sxs then --Start the selection
-      --print(data.name, "Start selection", cx, data.cx, cy, data.cy)
       data.sxs, data.sys = cx2, cy2
       data.sxe, data.sye = data.cx, data.cy
       -- Note: the ordered selection is given by EditorUI:TextEditorGetOrderedSelect(data)
@@ -1237,26 +1094,11 @@ function EditorUI:TextEditorMouseMoved(data, cx, cy)--, dx, dy, it)
 
 
   end
-  -- EditorUI:TextEditorDrawBuffer(data)
-  -- elseif data.sxs then --Top bar
-  --   data.bflag = false --Disable blinking
-  -- end
-
-  -- TODO need to fix scroll calulation here
-  -- if cy > data.tiles.h - 1 then
-  --   data.sflag.y = 1
-  -- elseif cy < 1 then
-  --   data.sflag.y = -1
-  -- else
-  --   data.sflag.y = 0
-  -- end
 
 end
 -- end
 
 function EditorUI:TextEditorMouseReleased(data)--, b, it)
-
-  --print(data.name, "Mouse Released")
 
   data.mflag = false
   data.sflag.x = 0
@@ -1282,8 +1124,6 @@ end
 
 function EditorUI:TextEditorUpdate(data, dt)
 
-
-
   local overrideFocus = (data.inFocus == true and self.collisionManager.mouseDown)
 
   -- TODO this should be only happen when in focus
@@ -1301,23 +1141,7 @@ function EditorUI:TextEditorUpdate(data, dt)
         self:SetFocus(data, 3)
       end
 
-
-      -- -- Track the mouse in the component if it is in focus
-      -- local mousePos = MousePosition()
-      -- mousePos.x = mousePos.x - data.rect.x
-      -- mousePos.y = mousePos.y - data.rect.y
-      --
-      -- print(data.name, "Mouse pos", cx, self.collisionManager.mousePos.c, mousePos.y)
-
       self:TextEditorMouseMoved(data, cx, cy)
-
-      -- if(MouseButton(0)) then
-      --   self:TextEditorMousepressed(data, cx, cy, 0)
-      -- elseif(MouseButton(0, InputState.Released)) then
-      --   self:TextEditorMouseReleased(data)
-      -- end
-
-
 
       if(self.collisionManager.mouseReleased == true and data.editing == false) then
 
@@ -1447,8 +1271,6 @@ function EditorUI:TextEditorUpdate(data, dt)
         data.lastKeyCounter = 0
       end
 
-      -- end
-
       -- We only want to insert text if there the ctrl key is not being pressed
       if(Key(Keys.LeftControl) == false and Key(Keys.RightControl) == false) then
         local lastInput = data.captureInput(data)
@@ -1465,15 +1287,12 @@ function EditorUI:TextEditorUpdate(data, dt)
           data.btimer = 0--data.btimer % data.btime
           data.bflag = not data.bflag
 
-
-          -- -- EditorUI:TextEditorDrawBlink(data)
-          -- EditorUI:TextEditorDrawLine(data) --Redraw the current line
         end
 
         if(data.bflag == true) then
           self:TextEditorDrawBlink(data)
         end
-        -- print("Blink", data.bflag)
+
       elseif data.sflag.x ~= 0 or data.sflag.y ~= 0 then -- if selecting with the mouse and scrolling up/down
         data.stimer = data.stimer + dt
         if data.stimer > data.stime then
@@ -1482,11 +1301,6 @@ function EditorUI:TextEditorUpdate(data, dt)
           data.vx = Clamp(data.vx + data.sflag.x, 1, data.maxLineWidth - data.tiles.w)
 
           data.vy = Clamp(data.vy + data.sflag.y, 1, #data.buffer - data.tiles.h)
-          -- if data.vy <= 0 then
-          --   data.vy = 1
-          -- elseif data.vy > #data.buffer then
-          --   data.vy = #data.buffer
-          -- end
 
           -- EditorUI:TextEditorDrawBuffer(data)
         end
@@ -1559,26 +1373,6 @@ function EditorUI:TextEditorExport(data)
   return table.concat(data.buffer, "\n")
 end
 
--- function EditorUI:TextEditorIsInRect(x, y, rect)
---   if (x >= rect[1] and y >= rect[2] and x <= rect[1] + rect[3] - 1 and y <= rect[2] + rect[4] - 1) then
---     return true
---   end
---   return false
--- end
---
--- function EditorUI:TextEditorWhereInGrid(x, y, grid) --Grid X, Grid Y, Grid Width, Grid Height, NumOfCells in width, NumOfCells in height
---   local gx, gy, gw, gh, cw, ch = unpack(grid)
---
---   if self:TextEditorIsInRect(x, y, {gx, gy, gw, gh}) then
---     local clw, clh = math.floor(gw / cw), math.floor(gh / ch)
---     local x, y = x - gx, y - gy
---     local hx = math.floor(x / clw) + 1 hx = hx <= cw and hx or hx - 1
---     local hy = math.floor(y / clh) + 1 hy = hy <= ch and hy or hy - 1
---     return hx, hy
---   end
---   return false, false
--- end
-
 function EditorUI:TextEditorClipboard(value)
 
   -- TODO this should be tied to the OS scope
@@ -1644,47 +1438,28 @@ end
 
 function EditorUI:ResizeTexdtEditor(data, width, height, x, y)
 
-  -- TODO need to fix this
-
-
   if(data.rect.x == x and data.rect.y == y and data.rect.w == width and data.rect.h == height) then
     return
   end
-
-  -- print(data.name, "Resize", x, y, width, height)
 
   -- Update the rect value
   data.rect.x = x
   data.rect.y = y
   data.rect.w = width
   data.rect.h = height
-  --
-  -- -- Create new tile dimensions
-  -- data.tiles = {
   data.tiles.c = math.floor(data.rect.x / self.spriteSize.x)
   data.tiles.r = math.floor(data.rect.y / self.spriteSize.y)
   data.tiles.w = math.ceil(data.rect.w / self.spriteSize.x)
   data.tiles.h = math.ceil(data.rect.h / self.spriteSize.y)
-  -- }
-
   data.viewPort = NewRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h)
-
   data.bgMaskDrawArguments[1] = data.rect.x
   data.bgMaskDrawArguments[2] = data.rect.y
   data.bgMaskDrawArguments[3] = data.rect.w
   data.bgMaskDrawArguments[4] = data.rect.h
-
   data.lineMaskDrawArguments[1] = data.rect.x
   data.lineMaskDrawArguments[2] = data.rect.y
   data.lineMaskDrawArguments[3] = data.rect.w
   data.lineMaskDrawArguments[4] = data.rect.h
-
-  -- Update the input field's character width and height
-  -- data.width = data.tiles.w
-  -- data.height = data.tiles.h
-
-  -- Adjust scroll right
-  -- data.scrollRight = data.scrollLeft + data.width - 1
 
   self:TextEditorInvalidateBuffer(data)
 

@@ -165,7 +165,6 @@ end
 function EditorUI:ChangeInputField(data, text, trigger)
   -- Input fields need to process the text before setting it
 
-  -- print(data.name, "Change Input Field", text)
   -- Look for any custom validation
   if(data.onValidate ~= nil) then
     text = data.onValidate(text)
@@ -215,14 +214,9 @@ function EditorUI:ChangeInputField(data, text, trigger)
   if(trigger ~= false)then
     trigger = data.text ~= text
   end
-  --
-  -- -- Make the text contents of the input field easy to access since there is only one line of it
-  -- data.text = text
 
   -- Route the modified text to ChangeInputArea()
   self:ChangeInputArea(data, text, trigger)
-
-  -- Make sure to limit the imput field
 
   -- Update the text value
   data.text = self:TextEditorExport(data)

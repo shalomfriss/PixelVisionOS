@@ -21,19 +21,12 @@ function PixelVisionOS:CreateTilemapPicker(rect, itemSize, columns, rows, colorO
   local data = self:CreateItemPicker(rect, itemSize, columns, rows, colorOffset, spriteName, toolTip, enableDragging, draggingLabel)
 
   data.name = "TilemapPicker" .. data.name
-  -- data.toolTipLabel = "tile"
   data.mode = 1
-
   data.layerCache = {}
-
   data.maxPerLoop = 100
-
   data.paintTileIndex = 0
-
   data.paintFlagIndex = 0
-
   data.paintColorOffset = 0
-
   data.lastOverPos = NewPoint(-1, - 1)
 
   data.onOverRender = function(data, tmpX, tmpY)
@@ -58,12 +51,6 @@ function PixelVisionOS:CreateTilemapPicker(rect, itemSize, columns, rows, colorO
 
   return data
 
-end
-
-function PixelVisionOS:ClearTilemapPickerSelection(data)
-  print("Need to add code for ClearTilemapPickerSelection")
-  -- TODO not sure why this isn't working
-  -- self.editorUI:ClearPickerSelection(data.picker)
 end
 
 function PixelVisionOS:ReadTilePickerOverPixelData(data, tmpX, tmpY)
@@ -118,9 +105,6 @@ function PixelVisionOS:UpdateTilemapPicker(data)
 
         local tileData = gameEditor:Tile(overPos.x, overPos.y);
 
-        -- TODO need to find the correct color offset value
-        -- data.paintColorOffset = 0--data.colorOffset - 128
-
         if(data.mapRenderMode == 0) then
           self:ChangeTile(data, overPos.x, overPos.y, data.paintTileIndex, data.paintColorOffset, tileData.flag)
         elseif(data.mapRenderMode == 1) then
@@ -131,8 +115,6 @@ function PixelVisionOS:UpdateTilemapPicker(data)
 
       elseif(data.mode == 4) then
 
-
-        -- TODO need a way to capture the state of the tilemap before the fill so we an restore it if undone
         gameEditor:FloodFillTilemap(data.mapRenderMode == 0 and data.paintTileIndex or data.paintFlagIndex, overPos.x, overPos.y, data.mapRenderMode, data.scale, data.scale, data.paintColorOffset)
 
         -- Clear the current layer's cache
@@ -146,9 +128,6 @@ function PixelVisionOS:UpdateTilemapPicker(data)
       end
 
     end
-
-    -- data.lastOverPos = overPos
-    -- end
 
   end
 
@@ -197,8 +176,6 @@ function PixelVisionOS:UpdateFlagID(data, col, row, flagID)
         flag = currentTile.flag
       }
 
-      -- TODO only do this if the data is different
-
       table.insert(tileHistory, savedTile)
 
       self:OnChangeTile(data, nextCol, nextRow, nextSpriteID, nextColorOffset, flagID)
@@ -237,8 +214,6 @@ function PixelVisionOS:ChangeTile(data, col, row, spriteID, colorOffset, flagID,
 
     local currentTile = gameEditor:Tile(nextCol, nextRow)
 
-    -- TODO only do this if the data is different
-
     if(currentTile.spriteID ~= nextSpriteID or currentTile.colorOffset ~= colorOffset or currentTile.flag ~= flagID) then
 
       local savedTile = {
@@ -249,17 +224,12 @@ function PixelVisionOS:ChangeTile(data, col, row, spriteID, colorOffset, flagID,
         flag = currentTile.flag
       }
 
-      -- TODO need to save changes to history?
-      -- print("Tile History", currentTile.spriteID, nextSpriteID)
       table.insert(tileHistory, savedTile)
-
-      -- local tile = gameEditor:Tile(nextCol, nextRow, nextSpriteID, colorOffset, flag)
-
       self:OnChangeTile(data, nextCol, nextRow, nextSpriteID, colorOffset, flagID)
+
     end
   end
 
-  -- TODO need to do callback when done
   UpdateHistory(tileHistory)
 
 end
@@ -291,7 +261,7 @@ function PixelVisionOS:SwapTiles(data, srcTile, destTile)
       colorOffset = nextSrcTile.colorOffset,
       flag = nextSrcTile.flag
     }
-    -- TODO only do this if the data is different
+
     local nextDestCol = destPos.x + offset.x
     local nextDestRow = destPos.y + offset.y
 
@@ -326,7 +296,6 @@ function PixelVisionOS:OnChangeTile(data, col, row, spriteID, colorOffset, flag)
 
   self:InvalidateMap(tilePickerData)
 
-  -- TODO This is hard coded and should be in the tool not here?
   InvalidateData()
 
 end
@@ -364,11 +333,9 @@ function PixelVisionOS:PreRenderMapLayer(data, mode)
   -- Rebuild the map if it hasn't been rendered yet.
   if (data.renderingMap) then
 
-    data.canvas.Clear(-1)--mapRenderMode == 0 and gameEditor:BackgroundColor() or - 2)
+    data.canvas.Clear(-1)
 
     data.totalTiles = data.mapSize.x * data.mapSize.y
-
-    -- Array.Resize(ref tmpPixelData, spriteChip.width * spriteChip.height);
 
     data.renderingMap = true
 
@@ -399,7 +366,7 @@ function PixelVisionOS:NextRenderStep(data)
 
     end
 
-    local pos = CalculatePosition(index, data.mapSize.x)--gameChip.CalculatePosition(index, tilemapChip.columns);
+    local pos = CalculatePosition(index, data.mapSize.x)
 
     local tileData = gameEditor:Tile(pos.x, pos.y);
 
@@ -411,9 +378,6 @@ function PixelVisionOS:NextRenderStep(data)
 
         -- Update the tile with the new palette offset
         tileData = gameEditor:Tile(pos.x, pos.y, tileData.spriteID, 128, tileData.flag)
-
-        -- data.fixedPalettes = true
-
 
       end
 
@@ -449,12 +413,6 @@ function PixelVisionOS:RenderTile(data, tileData, col, row)
         if(pixelVisionOS.paletteMode == true) then
           local spriteData = gameEditor:Sprite(tileData.spriteID)
 
-          -- for i = 1, 64 do
-          --   if(spriteData[i] == 0) then
-          --     spriteData[i] = -tileData.colorOffset - 1
-          --   end
-          --
-          -- end
           layer:MergePixels(col, row, 8, 8, spriteData, false, false, tileData.colorOffset, true)
         else
           layer:DrawSprite(tileData.spriteID, col, row, false, false, tileData.colorOffset)
@@ -508,9 +466,6 @@ function PixelVisionOS:ChangeTilemapPickerMode(data, value)
 
   end
 
-
-
-
 end
 
 function PixelVisionOS:InvalidateMap(data)
@@ -523,7 +478,6 @@ end
 
 function PixelVisionOS:ChangeTilemapPaintFlag(data, value, updatePreview)
 
-  -- TODO need to update this flag graphic immediately
   data.paintFlagIndex = value
 
   local size = NewPoint(data.scale * 8, data.scale * 8)
@@ -544,8 +498,6 @@ function PixelVisionOS:ChangeTilemapPaintFlag(data, value, updatePreview)
 end
 
 function PixelVisionOS:ChangeTilemapPaintSpriteID(data, value, updatePreview)
-
-  -- TODO need to update this flag graphic immediately
 
   data.paintTileIndex = value
 

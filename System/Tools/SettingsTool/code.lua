@@ -23,7 +23,6 @@ local keyCodeMap = {
   {name = Backspace, keyCode = 8, char = "!"},
   {name = Tab, keyCode = 9, char = "@"},
   {name = Enter, keyCode = 13, char = "#"},
-  -- {name = Escape, keyCode = 27, char = "$"},
   {name = Space, keyCode = 32, char = "%"},
   {name = Left, keyCode = 37, char = "^"},
   {name = Up, keyCode = 38, char = "&"},
@@ -182,7 +181,7 @@ local blinkTime = 0
 local blinkDelay = .1
 local blinkActive = false
 
-local SaveShortcut = 3
+local SaveShortcut = 5
 
 function InvalidateData()
 
@@ -234,6 +233,8 @@ function Init()
   {
     -- About ID 1
     {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
+    {divider = true},
+    {name = "Reformat", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."}, -- Reset all the values
     {divider = true},
     {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the controller mapping."}, -- Reset all the values
     {name = "Reset", action = OnReset, key = Keys.R, toolTip = "Revert controller mapping to its default value."}, -- Reset all the values
@@ -402,17 +403,10 @@ function Init()
       -- TODO need to see what mode we are in and pass the correct used keys
       local usedKeys = usedControllerKeys
 
-
-
-      return ValidateInput(field, usedKeys)
+      return ValidateInput(field, usedKeys, field.text)
 
     end
     field.onAction = function(value)
-
-      -- print("Remap", "Player", tostring(selectedPlayerID), field.type, "Key")
-
-      -- TODO Only remap the player when we save
-      -- RemapKey("Player" ..tostring(selectedPlayerID) .. field.type .. "Key", ConvertKeyToKeyCode(value))
 
       DrawInputSprite(field.type)
 
@@ -423,8 +417,6 @@ function Init()
   end
 
   editorUI:SelectToggleButton(playerButtonGroupData, 1)
-
-  -- RebuildUsedKeys()
 
 end
 
@@ -442,8 +434,6 @@ end
 
 function DrawInputSprite(type)
 
-  -- print("DrawInputSprite", type)
-
   local data = buttonSpriteMap[type]
 
   if(data ~= nil) then
@@ -459,7 +449,7 @@ function DrawInputSprite(type)
 
 end
 
-function ValidateInput(field, useKeys)
+function ValidateInput(field, useKeys, defaultValue)
 
   local key = OnCaptureKey()
 
@@ -469,7 +459,9 @@ function ValidateInput(field, useKeys)
     -- Look for douplicate keys
     if(CheckActionKeyDoups(key, useKeys) == true) then
 
-      editorUI:EditInputField(field, false)
+      editorUI:EditInputArea(field, false)
+
+      editorUI:ChangeInputField(field, defaultValue, false)
 
       -- TODO this used to show the key but it would require adding sprites to small font
       pixelVisionOS:DisplayMessage("The key is already being used.", 2)
@@ -492,7 +484,6 @@ function CheckActionKeyDoups(key, keyMap)
   local value = false
 
   for k, v in pairs(keyMap) do
-    -- print("Checking", k, v)
 
     if(key == v) then
       return true
@@ -520,8 +511,6 @@ function ConvertKeyCodeToChar(keyCode)
 end
 
 function ConvertKeyToKeyCode(key)
-
-  -- print("Convert Key", key)
 
   local keyCode = -1
 
@@ -575,8 +564,6 @@ function OnVolumeFieldUpdate(text)
 
   local value = tonumber(text / 100)
 
-  -- editorUI:ChangeSlider(hSliderData, value, false)
-  -- editorUI:ChangeSlider(vSliderData, value, false)
   editorUI:ChangeKnob(volumeKnobData, value, false)
 
 end
@@ -631,8 +618,6 @@ function OnPlayerSelection(value)
           OnSave()
 
         end
-
-        -- TODO looks like there may be a race condition when switching between players here and selection is not displayed correctly from tilemap cache
 
         -- Quit the tool
         TriggerPlayerSelection(value)
@@ -725,32 +710,7 @@ function TriggerInputSelection(value)
     editorUI:ChangeInputField(field, ConvertKeyCodeToChar(tonumber(ReadMetaData(inputMap[i]))), false)
   end
 
-  -- Update the input fields with all the correct values
-  -- upInputData
-  -- downInputData
-  -- leftInputData
-  -- rightInputData
-  -- selectInputData
-  -- startInputData
-  -- aInputData
-  -- bInputData
 end
-
--- function UpdatePickerButtons(text)
---
---   print("UpdatePickerButtons", text)
---
---   if(text == "") then
---     text = "0"
---   end
---   -- convert the text value to a number
---   local value = tonumber(text)
---
---   -- update buttons
---   editorUI:Enable(backBtnData, value > scaleInputData.min)
---   editorUI:Enable(nextBtnData, value < scaleInputData.max)
---
--- end
 
 function OnMute(value)
 
@@ -758,10 +718,6 @@ function OnMute(value)
 
   WriteBiosData("Mute", value == true and "True" or "False")
 
-  -- Enable or disable the volume input field and sliders based on the mute value
-  -- editorUI:Enable(volumeInputData, not value)
-  -- editorUI:Enable(hSliderData, not value)
-  -- editorUI:Enable(vSliderData, not value)
   editorUI:Enable(volumeKnobData, not value)
 end
 
@@ -784,13 +740,6 @@ function Update(timeDelta)
     editorUI:UpdateKnob(brightnessKnobData)
     editorUI:UpdateKnob(sharpnessKnobData)
 
-
-
-    --
-    -- Update buttons
-    -- editorUI:UpdateButton(muteBtnData)
-
-
     -- Update toggle groups
     editorUI:UpdateToggleGroup(checkboxGroupData)
     editorUI:UpdateToggleGroup(playerButtonGroupData)
@@ -809,7 +758,7 @@ function Update(timeDelta)
     if(editorUI.collisionManager.mouseDown == false and playSound == true) then
       PlayRawSound("0,1,,.2,,.2,.3,.1266,,,,,,,,,,,,,,,,,,1,,,,,,")
       playSound = false
-      -- print("Play sound")
+
     end
 
     -- Loop through all of the inputs and see if a controller button should be pressed
@@ -888,15 +837,12 @@ end
 
 function OnSave()
 
-  -- TODO loop through all of the input fields and make sure they are saved to the bios
-
   for i = 1, #inputFields do
 
     local field = inputFields[i]
     local value = field.text
     RemapKey("Player" ..tostring(selectedPlayerID) .. field.type .. "Key", ConvertKeyToKeyCode(value))
-    --
-    -- print("Save", tostring(selectedPlayerID) .. field.type .. "Key", ConvertKeyToKeyCode(value))
+
   end
 
   ResetDataValidation()
@@ -960,7 +906,5 @@ function OnToggleCRT(value)
 
   editorUI:Enable(brightnessKnobData, value)
   editorUI:Enable(sharpnessKnobData, value)
-
-
 
 end

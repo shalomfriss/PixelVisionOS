@@ -73,10 +73,6 @@ function EditorUI:CreateSlider(rect, spriteName, toolTip, horizontal, offset)
   -- Need to account for the correct orientation
   data.handleCenter = data.handleSize / 2
 
-  -- Make sure that the tilemap has the correct flag values
-
-  -- self:SetUIFlags(data.tiles.c, data.tiles.r, data.tiles.w, data.tiles.h, data.flagID)
-
   -- Return the data
   return data
 
@@ -99,13 +95,9 @@ function EditorUI:UpdateSlider(data)
     -- Ready to test finer collision if needed
     if(self.collisionManager:MouseInRect(data.rect) == true or overrideFocus) then
 
-      -- TODO need to fix focus when you have the mouse down from another UI element and roll over a slider
-      -- Set focus
-
       if(self.inFocusUI == nil) then
 
         self:SetFocus(data)
-
 
       end
 
@@ -127,12 +119,7 @@ function EditorUI:UpdateSlider(data)
     end
 
   end
-  -- else
-  --
-  --   -- If the mouse isn't over the component clear the focus
-  --   self:ClearFocus(data)
-  --
-  --   -- If the component has changes and the mouse isn't over it, update the handle
+
   if(data.invalid == true) then
 
     -- If the mouse isn't on the slider, make sure it's position is correct
@@ -152,10 +139,6 @@ function EditorUI:UpdateSlider(data)
     self:ResetValidation(data)
 
   end
-  --
-  -- end
-
-  -- Only draw the slider if it is enabled
 
   if(data.enabled == true) then
 

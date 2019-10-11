@@ -1,1 +1,11 @@
-{"GameChip":{"savedData":{"currentID": "0","rootDirectory": "/Disks/ReaperBoyLD40/","sessionID": "201910060626001603"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "sessionID": "201910110601559734",
+            "rootDirectory": "/Workspace/NewProject/",
+            "currentID": "0"
+        }
+    }
+}

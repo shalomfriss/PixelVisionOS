@@ -32,7 +32,6 @@ function EditorUI:CreateButton(rect, spriteName, toolTip, forceDraw)
   -- Customize the default name by adding Button to it
   data.name = "Button" .. data.name
 
-
   -- Internal CallBacks (These can be re-mapped when needed)
 
   -- On click
@@ -44,7 +43,6 @@ function EditorUI:CreateButton(rect, spriteName, toolTip, forceDraw)
 
       tmpData.doubleClickTime = 0
       tmpData.doubleClickActive = true
-      -- TODO added this to reset the double click since it's not being reset below
       tmpData.doubleClick = true
     end
   end
@@ -115,7 +113,6 @@ function EditorUI:UpdateButton(data, hitRect)
     end
 
     -- See if the button needs to be redrawn.
-    -- self:RedrawButton(data)
     data.onRedraw(data)
     -- Shouldn't update the button if its disabled
     return
@@ -184,8 +181,6 @@ function EditorUI:UpdateButton(data, hitRect)
 
     end
 
-    -- TODO need to make sure we only register a click when over the right button. If the mouse was down and rolls over then releases, that shouldn't trigger a click
-
     -- Check to see if the button is pressed and has an onAction callback
     if(self.collisionManager.mouseReleased == true) then
 
@@ -215,15 +210,6 @@ function EditorUI:UpdateButton(data, hitRect)
 
   end
 
-  -- else
-  --
-  --   -- If the mouse is not over the button, clear the focus for this button
-  --   self:ClearFocus(data)
-  --
-  -- end
-
-  -- Make sure we don't need to redraw the button.
-  -- self:RedrawButton(data)
   data.onRedraw(data)
 
 end
@@ -279,8 +265,6 @@ function EditorUI:RedrawButton(data)
 
 end
 
--- TODO make sure this still works
-
 function EditorUI:ClearButton(data, flag)
 
   -- We want to clear the flag if no value is supplied
@@ -303,8 +287,6 @@ function EditorUI:ClearButton(data, flag)
     data.tileDrawArgs[8] = spriteData.colorOffset or 0
 
     self:NewDraw("DrawSprites", data.tileDrawArgs)
-
-    -- self:SetUIFlags(data.tiles.c, data.tiles.r, data.tiles.w, data.tiles.h, flag)
 
   end
 

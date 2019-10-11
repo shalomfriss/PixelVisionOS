@@ -63,16 +63,12 @@ function EditorUI:CreateToggleGroup(singleSelection)
 
   local data = self:CreateData()
 
-  -- flagID = flag,
-  -- x = x,
-  -- y = y,
   data.buttons = {}
   data.currentSelection = 0
   data.onAction = nil
   data.invalid = false
   data.hovered = 0
   data.singleSelection = singleSelection
-  -- }
 
   return data
 
@@ -129,8 +125,6 @@ function EditorUI:ToggleGroupRemoveButton(data, id)
 
   data.invalid = true
 
-  --TODO Call remove button method on editor ui
-
 end
 
 function EditorUI:UpdateToggleGroup(data)
@@ -159,14 +153,12 @@ function EditorUI:SelectToggleButton(data, id, trigger)
   -- TODO need to make sure we handle multiple selections vs one at a time
   -- Get the new button to select
   local buttonData = data.buttons[id]
-  --print("Select", id, #data.buttons)
 
   -- Make sure there is button data and the button is not disabled
   if(buttonData == nil or buttonData.enabled == false)then
     return
   end
 
-  -- if the button is already selected, just ignore the request
   if(id == buttonData.selected) then
     return
   end

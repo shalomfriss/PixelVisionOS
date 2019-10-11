@@ -39,7 +39,7 @@ function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, t
 
   data.overIndex = -1
   data.selected = -1
-  data.lastOverIndex = -1 -- TODO do we need this?
+  data.lastOverIndex = -1
 
   data.borderOffset = 2
 
@@ -145,10 +145,7 @@ function EditorUI:UpdatePicker(data, hitRect)
       end
     end
 
-    -- TODO this needs to be more dynamic
     local tmpPos = self:CalculatePickerPosition(data)
-
-    -- print("tmpPos", tmpPos.index, data.total)
 
     -- Check to see if the mouse is over a valid area
     if(tmpPos.index > - 1 and tmpPos.index < data.total) then
@@ -163,14 +160,10 @@ function EditorUI:UpdatePicker(data, hitRect)
         state = "selected" .. state
       end
 
-
       if(state == "over") then
-
-
 
         data.tmpX = tmpPos.x
         data.tmpY = tmpPos.y
-
         data.overIndex = tmpPos.index < data.total and tmpPos.index or - 1
 
       elseif(state == "down")then
@@ -220,13 +213,6 @@ function EditorUI:UpdatePicker(data, hitRect)
 
 
   end
-
-  -- else
-  --
-  --   -- If the mouse is not over the button, clear the focus for this button
-  --   self:ClearFocus(data)
-  --
-  -- end
 
   -- Make sure we don't need to redraw the button.
   self:RedrawPicker(data)
@@ -314,7 +300,6 @@ function EditorUI:PickerPress(data, callAction)
     data.selectedDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
     data.selectedDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
 
-    -- print("Update pos", data.selectedDrawArgs[2], data.selectedDrawArgs[3], data.selected)
   end
 
   if(data.onPress ~= nil and callAction ~= false) then
@@ -335,20 +320,12 @@ function EditorUI:SelectPicker(data, value, callAction)
   data.selectedDrawArgs[2] = (pos.x * data.itemWidth) + data.rect.x - data.borderOffset
   data.selectedDrawArgs[3] = (pos.y * data.itemHeight) + data.rect.y - data.borderOffset
 
-  -- TODO this should be routed into the correct action callback
   if(data.onAction ~= nil and callAction ~= false) then
 
     -- Trigger the onAction call back and pass in the double click value if the button is set up to use it
     data.onAction(data.selected, doubleClick)
 
   end
-
-  -- if(data.onPress ~= nil and callAction ~= false) then
-  --
-  --   -- Trigger the onPress
-  --   data.onPress(data.selected)
-  --
-  -- end
 
   self:Invalidate(data)
 end

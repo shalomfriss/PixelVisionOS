@@ -98,12 +98,6 @@ table.indexOf = function( t, object )
   end
 end
 
--- function magiclines(s)
---   if s:sub(-1) ~= "\n" then s = s.."\n" end
---   -- TODO original gmatch was too complex for MoonSharp
---   return s:gmatch("([^\n]*)\n?") -- "([^\n]*)\n?"
--- end
-
 function dump(o)
   if type(o) == 'table' then
     local s = '{ '
@@ -128,5 +122,3 @@ function ExplodeSettings(str)
   table.insert(arr, tonumber(string.sub(str, pos)))
   return arr
 end
-
--- Editor Helpers

@@ -73,11 +73,6 @@ function CollisionManager:Update(timeDelta)
   self.mouseDown = MouseButton(0, InputState.Down)
   self.mouseReleased = MouseButton(0, InputState.Released)
 
-  -- Calculate what flag the mouse is under
-  -- self.hovered = self:CalculateFlag()
-  -- self.mousePos.x = self.mousePos.x-- + self.scrollPos.x
-  -- self.mousePos.y = self.mousePos.y-- + self.scrollPos.y
-
   -- Calculate the current mouse column
   self.mousePos.c = math.floor(self.mousePos.x / self.spriteSize.x)
 
@@ -126,48 +121,33 @@ end
 
 function CollisionManager:StartDrag(source)
 
-  -- -- Switch out the tool tip when dragging
-  -- if(source.toolTipDragging ~= nil) then
-  --   self.currentDragSourceToolTip = source.toolTip
-  --   source.toolTip = source.toolTipDragging
-  -- end
-
   -- If drag delay is set to -1, dragging is disabled
   if(source.dragDelay == -1) then
     return
   end
 
-  -- print("Collision Manager", source.name, "Start Drag", source.dragDelay)
   self.currentDragSource = source
   self.dragTime = 0
-  -- self.currentDragSource.dragging = true
 end
 
 function CollisionManager:EndDrag(source)
 
   if(source.dragging == true) then
 
-    -- print("Collision Manager", source.name, "End Drag", "Targets", #self.dragTargets)
-
     -- Look for drop targets
     for i = 1, #self.dragTargets do
 
       local dest = self.dragTargets[i]
 
-      -- Only find drop targets not equal to the source
-      -- if(dest.name ~= source.name) then
-
       -- Look for a collision with the dest
       if(self:MouseInRect(dest.hitRect ~= nil and dest.hitRect or dest.rect)) then
 
         if(dest.onDropTarget ~= nil) then
-          -- print(source.name, "Drop On", dest.name)
           dest.onDropTarget(source, dest)
           break
         end
 
       end
-      -- end
 
     end
 
@@ -191,14 +171,11 @@ function CollisionManager:EnableDragging(target, dragDelay, type)
   target.dragDelay = dragDelay or .5
   target.dragging = false
 
-  -- print("Enable Drag", target.name)
   target.onStartDrag = function(data)
-    -- print("Start drag")
     self:StartDrag(target)
   end
 
   target.onEndDrag = function(data)
-    -- print("End drag")
     self:EndDrag(target)
   end
 

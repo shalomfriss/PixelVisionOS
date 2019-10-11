@@ -401,46 +401,13 @@ function Init()
     table.insert(disableWhenPlaying, trackStepper.inputField)
     table.insert(disableWhenPlaying, trackStepper.nextButton)
 
-    -- waveStepper = editorUI:CreateStringStepper({x = 80, y = 152}, 16, "aa", validWaves, "top", "Change the channel's default wave type.")
-    --
-    -- -- TODO need to change the waveStepper's tool tip
-    --
-    -- waveStepper.inputField.editable = false
-    -- waveStepper.inputField.editable = false
-    -- waveStepper.inputField.forceCase = "upper"
-    -- waveStepper.inputField.allowEmptyString = true
-
-    -- waveStepper.onInputAction = UpdateNoteFromFields
-
-    -- editorUI:CreateInputField({x=50, y=})
-
-    -- editorUI:Enable(muteToggleButton, false)
-
-    -- TODO need to create a midi to note map for this input field
-    -- noteInputData = editorUI:CreateInputField({x = 112 - 8, y = 160, w = 24}, "0", "Enter a note from 0 to 127.", "number")
-    -- noteInputData.min = 0
-    -- noteInputData.max = 127
-    -- noteInputData.colorOffset = 32
-    -- noteInputData.disabledColorOffset = 34
-    -- noteInputData.onAction = OnNoteChange
-    -- table.insert(disableWhenPlaying, noteInputData)
-
     octaveStepper = editorUI:CreateNumberStepper({x = 208, y = 152 + 8}, 8, 0, octaveRange.x, octaveRange.y, "top", "Change the length of the pattern.")
 
     octaveStepper.onInputAction = UpdateNoteFromFields
 
-
     table.insert(disableWhenPlaying, octaveStepper.backButton)
     table.insert(disableWhenPlaying, octaveStepper.inputField)
     table.insert(disableWhenPlaying, octaveStepper.nextButton)
-
-    -- volumeStepper = editorUI:CreateNumberStepper({x = 192, y = 152}, 24, 0, 0, 100, "top", "Change the length of the pattern.")
-    --
-    -- editorUI:EnableStepper(volumeStepper, false)
-
-    -- table.insert(disableWhenPlaying, volumeStepper.backButton)
-    -- table.insert(disableWhenPlaying, volumeStepper.inputField)
-    -- table.insert(disableWhenPlaying, volumeStepper.nextButton)
 
     generateButtonData = editorUI:CreateButton({x = 8, y = 16}, "toolgenbutton", "Randomly generate a new song.")
     generateButtonData.onAction = GenerateSong
@@ -783,30 +750,15 @@ function OnSelectSongField(value)
 
   local realIndex = currentSelectedSong - songScrollOffset
 
-  -- print("OnSelectSongField", realIndex)
-
   LoadLoop(tonumber(songInputFields[realIndex].text))
 
-  -- TODO need to calculate where the selected field is to scroll to the right position
   OnSongScroll()
-
-  -- print("Song input selected", value, currentSelectedSong)
 
 end
 
 function OnSongIDChange(value)
 
-  -- if(currentSongPatterns ~= nil) then
-  --
-  --   print("Save song changes", currentSongID, #currentSongPatterns)
-  --
-  --   gameEditor:SongPatterns(currentSongID, currentSongPatterns)
-  --
-  -- end
-
   currentSongID = tonumber(value)
-
-  -- local name = gameEditor:SongName(currentSongID)
 
   -- Change the label value but don't trigger the callback
   editorUI:ChangeInputField(songNameInputData, gameEditor:SongName(currentSongID), false)
@@ -825,20 +777,6 @@ function OnSongIDChange(value)
   editorUI:SelectSongInputField(songInputFields[1], true)
 
 end
-
--- function LoadSongID(value)
---
--- end
---
--- function RefreshSongScroller()
---
---   -- TODO refresh song scroller
---
---   print("Redraw song scroller")
---
---
---
--- end
 
 function SetMidiNote(value)
 
@@ -862,15 +800,12 @@ function OnSongScroll(value)
 
   editorUI:ClearGroupSelections(songEndButtons)
 
-  -- if(currentSelectedSong ~= nil) then
   -- Clear music selection
   local realIndex = currentSelectedSong - songScrollOffset
 
   if(realIndex > 0 and realIndex < totalSongFields) then
     editorUI:SelectSongInputField(songInputFields[realIndex], false)
   end
-
-  -- end
 
   local enabled = false
   local field = nil
@@ -906,15 +841,11 @@ function OnSongScroll(value)
     enabled = index >= songStartPos and index <= songEndPos
     field = songInputFields[i]
 
-    -- field.allowEmptyString = not enabled
-
     editorUI:ChangeInputField(field, tostring(tmpValue), false)
-
 
     editorUI:SelectSongInputField(songInputFields[i], currentSelectedSong == (i + songScrollOffset), false)
 
     editorUI:Enable(field, enabled)
-
 
   end
 
@@ -949,8 +880,6 @@ function OnChangePlayMode(value)
   playMode = value
 
   if(playMode == 1)then
-    -- -- Stop playback if currently playing and go into record mode
-    -- OnStop()
 
     RewindSong()
 
@@ -958,16 +887,9 @@ function OnChangePlayMode(value)
 
     editorUI:Enable(stopButtonData, true)
 
-
-    -- OnPlaySong(false)
-
   elseif(playMode == 2) then
 
-    -- OnStop()
-
     RewindSong()
-
-    -- OnPlaySong(false)
 
     -- TODO need to pass in the current start position
     gameEditor:PlaySong(currentSongID, true, currentSelectedSong - 1)
@@ -976,27 +898,14 @@ function OnChangePlayMode(value)
 
   elseif(playMode == 3)then
 
-
-    --
-    -- if(currentBeat >= 31) then
     RewindSong()
-    -- end
 
     -- TODO need to play the current selected song pattern
     gameEditor:PlayPattern(currentPatternID)
 
-    -- OnPlaySong(true)
-    --
-    -- gameEditor:StartSequencer(loop)
-
-    -- TODO play the current pattern on repeate
-
     editorUI:Enable(stopButtonData, true)
 
   end
-
-  -- Stop automatically deselects the group so reselect the correct button
-  -- editorUI:SelectToggleButton(playToggleGroupData, playMode, false)
 
   -- Disable UI when playing back
   local total = #disableWhenPlaying
@@ -1022,9 +931,6 @@ function OnLoopID(text)
 
   LoadLoop(value)
 
-  -- print("Load song", text)
-
-  -- TODO need to call Load Loop method
 end
 
 
@@ -1035,12 +941,10 @@ function LoadLoop(id)
   if(currentPatternID == value) then
     return
   end
-  -- print("Load song " .. id)
 
   -- Need to make sure we load the song through the editor bridge
   gameEditor:LoadLoop(id)
 
-  -- currentTrack = 1
   currentPatternID = id
 
   totalBeats = gameEditor:NotesPerTrack()
@@ -1065,9 +969,7 @@ function LoadLoop(id)
   -- Reset the undo history so it's ready for the tool
   pixelVisionOS:ResetUndoHistory()
 
-  -- if(not isPlaying) then
   UpdateHistoryButtons()
-  -- end
 
 end
 
@@ -1083,8 +985,6 @@ function OnTempoChange(text)
 
   local value = tonumber(text)
 
-  -- print("OnTempoChange", text)
-
   gameEditor:Tempo(value)
 
   Invalidate()
@@ -1095,11 +995,8 @@ function OnSFXChange(text)
 
   local value = tonumber(text)
   gameEditor:ConfigTrackSFX(currentTrack, value)
-  -- gameEditor:TrackInstrument(currentTrack, value)
 
   PlayCurrentNote()
-
-  -- print("OnSFXChange", text)
 
   Invalidate()
 
@@ -1124,8 +1021,6 @@ end
 
 function OnStop()
 
-  -- TODO need to see what mode we are in and stop it
-
   -- Clear play mode
   if(playMode > 0) then
     playMode = 0
@@ -1149,13 +1044,6 @@ function OnStop()
   editorUI:Enable(playLoopButtonData, true)
   editorUI:Enable(stopButtonData, false)
 
-
-  -- Refresh all the stepped
-
-  -- TODO these need to be activated once all fields are working
-  -- editorUI:RefreshNumberStepper(songIDStepper)
-  -- editorUI:RefreshNumberStepper(patternLengthStepper)
-  -- editorUI:RefreshNumberStepper(volumeStepper)
   editorUI:RefreshNumberStepper(trackStepper)
 
   editorUI:RefreshNumberStepper(patternIDStepper)
@@ -1172,8 +1060,6 @@ end
 
 -- Preview the currently selected note
 function PlayCurrentNote()
-
-  -- TODO need to stop this if the menu is open
 
   -- Find the current track and beat
   -- local realTrack = currentTrack
@@ -1561,11 +1447,6 @@ function SelectOctave(value)
   -- octave = Repeat(value, octaveRange.y)
   octave = Clamp(value, octaveRange.x, octaveRange.y)
 
-  -- TODO need to update the octave label
-  -- Redraw the labels for the octave to the screen buffer
-  -- UpdateTiles(64 / 8, 164 / 8, 2, octNumberSprites[value + 1].spriteIDs, 0)
-  -- UpdateTiles(176 / 8, 164 / 8, 2, octNumberSprites[value + 2].spriteIDs, 0)
-
   for i = 1, #keyPositions do
 
     local data = keyPositions[i]
@@ -1573,12 +1454,11 @@ function SelectOctave(value)
     local keyButton = keys[i]
     keyButton.note = data.note + (12 * octave)
 
-    -- TODO the last note isn't C
-    -- print("Note", data.note % 12)
-
     keyButton.toolTip = "Note " .. ConvertMidiToNote(keyButton.note) .. " (Midi ".. keyButton.note ..")."
 
   end
+
+  editorUI:ChangeNumberStepperValue(octaveStepper, octave, false)
 
 end
 
@@ -1593,10 +1473,6 @@ function UpdateCurrentNote(value, saveHistory)
   if(saveHistory ~= false) then
     UpdateHistory(currentTrack, currentBeat, value, oldNote)
   end
-
-  -- editorUI:ChangeInputField(noteInputData, tostring(value), false)
-  --
-  -- editorUI:ChangeInputField(octaveInputData, tostring(value / 12), false)
 
   DrawNote(currentTrack, currentBeat, true, false)
 
@@ -1690,11 +1566,6 @@ function OnQuit()
 
 end
 
-
-
-
-
-
 function UpdateNoteFromFields(value)
 
   if(value == "") then
@@ -1738,35 +1609,16 @@ function OnPasteNote()
 end
 
 function Shutdown()
-
-  -- print("Shutdown")
-
   -- Save the current session ID
   WriteSaveData("sessionID", SessionID())
-
   WriteSaveData("rootDirectory", rootDirectory)
-
-  -- WriteSaveData("editing", gameEditor:Name())
-  --
   WriteSaveData("currentPatternID", currentPatternID)
-
-  -- TODO need to add current position in song
-
-
-  -- 	density = 0,
   WriteSaveData("configDensity", tostring(gameEditor.pcgDensity))
-
-  -- 	funk = 0,
   WriteSaveData("configFunk", tostring(gameEditor.pcgFunk))
-
-  -- 	layering = 0,
   WriteSaveData("configLayering", tostring(gameEditor.pcgLayering))
-
   -- Increase scale by 1 to account for Lua 1 base array index
   WriteSaveData("configScale", tostring(gameEditor.scale))
-
   WriteSaveData("configSpeedMin", tostring(gameEditor.pcgMinTempo))
-
   WriteSaveData("configSpeedMax", tostring(gameEditor.pcgMaxTempo))
 
   local total = totalTracks

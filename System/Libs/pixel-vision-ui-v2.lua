@@ -225,23 +225,6 @@ function EditorUI:Enable(data, value)
   self:Invalidate(data)
 end
 
--- function EditorUI:SetUIFlags(rect, flag)
---
---   local startCol = rect.c - 1
---   local startRow = rect.r - 1
---
---   for i = 1, rect.h do
---
---     for j = 1, rect.w do
---
---       Flag(startCol + j, startRow + i, flag)
---
---     end
---
---   end
---
--- end
-
 function EditorUI:SetFocus(data, cursor)
 
 
@@ -262,17 +245,10 @@ function EditorUI:SetFocus(data, cursor)
   end
 
   -- Check to see if the passed in component is in focus
-  -- if(data.inFocus == false) then
   data.inFocus = true
-  -- end
-
-
 
   -- Set the current component's data to be in focus in the editor UI
   self.inFocusUI = data
-
-  -- print("Set Focus", self.inFocusUI.name, self.collisionManager.mouseDown, data.name)
-
 
 end
 
@@ -295,21 +271,11 @@ function EditorUI:ClearFocus(data)
     return
   end
 
-  -- print("Clear Focus", data.name)
-
-
   -- Set the component to not be in focus
   data.inFocus = false
 
   -- Return the cursor back to the pointer
   self.cursorID = 1
-
-  -- Clear the hover state
-  -- self.collisionManager:ClearHovered()
-
-  -- TODO need to look into if we should clear any UI in focus or just the same one?
-
-  -- Remove the component in focus from the editor UI
 
   -- Clear the focus of the last UI object
   if(self.inFocusUI ~= nil) then
@@ -317,6 +283,5 @@ function EditorUI:ClearFocus(data)
   end
 
   self.inFocusUI = nil
-
 
 end

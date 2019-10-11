@@ -1,1 +1,13 @@
-{"GameChip":{"savedData":{"selectedSprite": "-1","selectedPalette": "-1","selectedColor": "-1","rootDirectory": "/Disks/ReaperBoyLD40/","sessionID": "201910060626001603"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "sessionID": "201910110601559734",
+            "rootDirectory": "/Workspace/NewProject/",
+            "selectedColor": "2",
+            "selectedPalette": "-1",
+            "selectedSprite": "-1"
+        }
+    }
+}

@@ -17,7 +17,6 @@
 
 function PixelVisionOS:CreateMessageBar(x, y, maxChars, clearColorID)
 
-  -- TODO need to use UI Data creator
   local data = {
     textColorOffset = 15,
     font = "medium",
@@ -108,7 +107,6 @@ end
 
 function PixelVisionOS:DisplayMessage(text, delay, data)
 
-
   -- My default, we want to use the built in message bar but can accept an alternative one
   data = data or self.messageBar
 
@@ -116,8 +114,6 @@ function PixelVisionOS:DisplayMessage(text, delay, data)
   if(data == nil) then
     return
   end
-
-
 
   if(text == data.currentMessage) then
     return
@@ -133,6 +129,7 @@ function PixelVisionOS:DisplayMessage(text, delay, data)
   data.time = 0
   data.mode = data.modes.Message
   self.editorUI:Invalidate(data)
+
 end
 
 
@@ -161,7 +158,7 @@ function PixelVisionOS:ClearMessage(data)
   -- My default, we want to use the built in message bar but can accept an alternative one
   data = data or self.messageBar
 
-  -- If no messageBar exists, exit out of the method
+  -- If no message bar exists, exit out of the method
   if(data == nil) then
     return
   end

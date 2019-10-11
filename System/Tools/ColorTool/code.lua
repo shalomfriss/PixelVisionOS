@@ -26,22 +26,16 @@ local dragTime = 0
 local dragDelay = .5
 
 local canEdit = EditColorModal ~= nil
-
--- Default palette options
--- local pixelVisionOS.paletteColorsPerPage = 0
 local maxPalettePages = 8
 local paletteOffset = 0
 local paletteColorPages = 0
 local spriteEditorPath = ""
 spritesInvalid = false
--- local pixelVisionOS.totalPaletteColors = 0
 local totalPalettePages = 0
 local debugMode = false
 local showBGIcon = false
 local BGIconX = 0
 local BGIconY = 0
--- local pixelVisionOS.paletteColors = {}
--- local maxColorsPerPalette = 16
 
 local SaveShortcut, AddShortcut, EditShortcut, ClearShortcut, DeleteShortcut, BGShortcut, UndoShortcut, RedoShortcut, CopyShortcut, PasteShortcut = 5, 7, 8, 9, 10, 11, 13, 14, 15, 16
 
@@ -98,12 +92,6 @@ function Init()
 
   rootDirectory = ReadMetaData("directory", nil)
 
-  -- TODO For testing, we need a path
-  -- rootDirectory = "/Workspace/Games/GGSystem/"
-  -- rootDirectory = "/Workspace/Games/JumpNShootMan/"
-  -- rootDirectory = "/Workspace/Games/ZeldaIIPalaceAnimation/"
-  -- rootDirectory = "/Workspace/Games/ReaperBoyLD42Disk2/"
-
   if(rootDirectory ~= nil) then
 
     -- Load only the game data we really need
@@ -122,21 +110,6 @@ function Init()
 
     -- The first thing we need to do is rebuild the tool's color table to include the game's system and game colors.
     pixelVisionOS:ImportColorsFromGame()
-
-    --
-    -- if(canEdit == true) then
-    --
-    -- end
-    -- spriteEditorPath = ReadMetaData("RootPath", "/") .."SpriteTool/"
-    --
-    -- -- Get the path to the editor from the bios
-    -- local bioPath = ReadBiosData("SpriteEditor")
-    --
-    -- if(biosPath ~= nil) then
-    --   spriteEditorPath = bioPath
-    -- end
-
-    -- print("Sprite Editor Path", spriteEditorPath)
 
     local menuOptions = 
     {
@@ -214,13 +187,6 @@ function Init()
     -- Call the UpdateHexColor function when a change is made
     colorHexInputData.onAction = UpdateHexColor
 
-    -- Override string capture and only send uppercase characters to the field
-    -- colorHexInputData.captureInput = function()
-    --   return string.upper(InputString())
-    -- end
-
-    -- It's time to calculate the total number of system and palette colors
-
     -- Get the palette mode
     usePalettes = pixelVisionOS.paletteMode
 
@@ -251,17 +217,8 @@ function Init()
 
     end
 
-
-
     -- Force the BG color to draw for the first time
     systemColorPickerData.onPageAction(1)
-    --pixelVisionOS:OnColorPickerPage(systemColorPickerData, 1)
-
-    -- systemColorPickerData.onStartDrag = function()
-    --
-    --
-    --
-    -- end
 
     -- Create a function to handle what happens when a color is dropped onto the system color picker
     systemColorPickerData.onDropTarget = OnSystemColorDropTarget
@@ -304,31 +261,14 @@ function Init()
     -- TODO this shouldn't have to be called?
     pixelVisionOS:RebuildColorPickerCache(paletteColorPickerData)
 
-    -- Change the background drag sprite to empty
-    -- pixelVisionOS:ConfigureEmptyDragColorPickerSprites(paletteColorPickerData, emptymaskcolor.spriteIDs[1])
-
-    -- pixelVisionOS:ColorPickerVisiblePerPage(paletteColorPickerData, pixelVisionOS.paletteColorsPerPage)
-
-    -- Force the palette picker to only display the total colors per sprite
-    -- paletteColorPickerData.visiblePerPage = pixelVisionOS.paletteColorsPerPage
-
     paletteColorPickerData.onAction = function(value)
       ForcePickerFocus(paletteColorPickerData)
 
       OnSelectPaletteColor(value)
 
-      -- StartPickerDrag(systemColorPickerData.picker)
     end
 
-    -- paletteColorPickerData.onAddPage = AddPalettePage
-    -- paletteColorPickerData.onRemovePage = RemovePalettePage
-
     paletteColorPickerData.onDropTarget = OnPalettePickerDrop
-
-    -- Copy over all the palette colors to memory if we are in palette mode
-    -- if(usePalettes) then
-    --   pixelVisionOS:CopyPaletteColorsToMemory()
-    -- end
 
     -- Get sprite texture dimensions
     local totalSprites = gameEditor:TotalSprites()
@@ -355,21 +295,9 @@ function Init()
     -- Wire up the picker to change the color offset of the sprite picker
     paletteColorPickerData.onPageAction = function(value)
 
-      -- TODO need to update the sprite page with new color offset
-
-
       pixelVisionOS:ChangeItemPickerColorOffset(spritePickerData, pixelVisionOS.colorOffset + pixelVisionOS.totalPaletteColors + ((value - 1) * 16))
-      -- spritePickerData.colorOffset =
-
-      -- pixelVisionOS:RedrawSpritePickerPage(spritePickerData)
 
     end
-
-    -- pixelVisionOS:OnColorPickerPage(systemColorPickerData, 1)
-
-    -- pixelVisionOS:OnSpritePickerPage(spritePickerData, 1)
-
-
 
     if(usePalettes == true) then
       pixelVisionOS:OnColorPickerPage(paletteColorPickerData, 1)
@@ -389,18 +317,12 @@ function Init()
 
     -- Left panel
     DrawRect(8, 32, 128, 128, 0, DrawMode.TilemapCache)
-
     DrawRect(152, 32, 96, 128, 0, DrawMode.TilemapCache)
-
     DrawRect(152, 208, 24, 8, 0, DrawMode.TilemapCache)
-
     DrawRect(200, 208, 48, 8, 0, DrawMode.TilemapCache)
-
     DrawRect(136, 164, 3, 9, BackgroundColor(), DrawMode.TilemapCache)
     DrawRect(248, 180, 3, 9, BackgroundColor(), DrawMode.TilemapCache)
     DrawRect(136, 220, 3, 9, BackgroundColor(), DrawMode.TilemapCache)
-
-
 
     pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
@@ -909,8 +831,6 @@ function OnDelete()
 end
 
 function UpdateHexColor(value)
-
-  -- print("Update Hex Color", value)
 
   if(selectionMode == PaletteMode) then
     return false

@@ -22,11 +22,6 @@ function EditorUI:CreateKnob(rect, spriteName, toolTip)
 
   data.rotation = 
   {
-    -- "0",
-    -- "10",
-    -- "20",
-    -- "30",
-    -- "40",
     "50",
     "60",
     "70",
@@ -55,9 +50,6 @@ function EditorUI:CreateKnob(rect, spriteName, toolTip)
     "300",
     "310",
     "320",
-    -- "330",
-    -- "340",
-    -- "350"
   }
 
   -- Add the name of the component type to the default data name value
@@ -80,13 +72,13 @@ function EditorUI:CreateKnob(rect, spriteName, toolTip)
 
   -- Calculate the handle's size based on the sprite
   local spriteData = _G[data.spriteName .. data.rotation[1]]
-  --
-  -- -- If there is a sprite calculate the handle size
+
   if(spriteData ~= nil) then
 
     data.spriteDrawArgs = {spriteData.spriteIDs, data.rect.x, data.rect.y, spriteData.width, false, false, DrawMode.TilemapCache, 0, false}
 
   end
+
   -- Need to account for the correct orientation
   data.handleCenter = data.handleSize / 2
 
@@ -118,13 +110,9 @@ function EditorUI:UpdateKnob(data, hitRect)
     -- Ready to test finer collision if needed
     if(self.collisionManager:MouseInRect(hitRect) == true or overrideFocus) then
 
-      -- TODO need to fix focus when you have the mouse down from another UI element and roll over a slider
-      -- Set focus
-
       if(self.inFocusUI == nil) then
 
         self:SetFocus(data)
-
 
       end
 

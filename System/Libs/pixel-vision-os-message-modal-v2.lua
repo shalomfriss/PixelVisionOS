@@ -6,12 +6,7 @@ function MessageModal:Init(title, message, width, showCancel)
   local _messageModal = {} -- our new object
   setmetatable(_messageModal, MessageModal) -- make Account handle lookup
 
-
   _messageModal:Configure(title, message, width, showCancel)
-  -- _messageModal.currentSelection = 1
-  -- _messageModal.message = message
-
-
 
   return _messageModal
 
@@ -77,23 +72,16 @@ function MessageModal:Open()
     self.canvas:DrawLine(3, 9, self.canvas.width - 5, 9)
     self.canvas:DrawLine(3, 9, 3, self.canvas.height - 5)
 
-
-    -- Draw message text
-    -- local wrap = WordWrap(self.message, (self.rect.w / 4) - 4)
-    -- local lines = SplitLines(wrap)
     local total = #self.lines
-    local startX = 8--
-    local startY = 16--self.rect.y + 8
+    local startX = 8
+    local startY = 16
 
     -- We want to render the text from the bottom of the screen so we offset it and loop backwards.
     for i = 1, total do
       self.canvas:DrawText(self.lines[i]:upper(), startX, (startY + ((i - 1) * 8)), "medium", 0, - 4)
     end
 
-
     self.buttons = {}
-
-    -- TODO Create button states?
 
     local buttonSize = {x = 32, y = 16}
 
@@ -142,8 +130,6 @@ function MessageModal:Open()
 
     end
 
-
-
     self.firstRun = false;
 
   end
@@ -156,21 +142,10 @@ function MessageModal:Open()
 
 end
 
-function MessageModal:Close()
-  -- print("Modal Close")
-  -- if(self.onParentClose ~= nil) then
-  --   self.onParentClose()
-  -- end
-end
-
 function MessageModal:Update(timeDelta)
 
   for i = 1, #self.buttons do
     self.editorUI:UpdateButton(self.buttons[i])
   end
-
-end
-
-function MessageModal:Draw()
 
 end

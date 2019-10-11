@@ -16,9 +16,6 @@
 --
 function PixelVisionOS:OpenModal(modal, callBack)
 
-  -- Try to close the modal first
-  -- self:CloseModal()
-
   SaveTilemapCache()
 
   -- Clear the previous mouse focus
@@ -44,21 +41,19 @@ end
 
 function PixelVisionOS:CloseModal()
   if(self.activeModal ~= nil) then
-    self.activeModal:Close()
+
+    if(self.activeModal.Close ~= nil) then
+      self.activeModal:Close()
+    end
 
     self.editorUI:ClearFocus()
 
     RestoreTilemapCache()
 
-
-
-    -- TODO need to restore the title bar time
-
   end
 
   self.activeModal = nil
 
-  -- print("Modal Callback", onCloseCallback ~= nil)
   -- Trigger the callback so other objects can know when the modal is closed
   if(self.onCloseCallback ~= nil) then
     self.onCloseCallback()
@@ -85,7 +80,7 @@ end
 
 function PixelVisionOS:DrawModal()
 
-  if(self.activeModal == nil) then
+  if(self.activeModal == nil or self.activeModal.Draw == nil) then
     return;
   end
 
