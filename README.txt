@@ -11,12 +11,11 @@ need to start making your
 own PV8 games!
 
 Visit PixelVision8.com to
-get create your new
-account.
+create your new account.
 
 You can also join the
 community on the official
 discord server by visiting
 discord.gg/pixelvision8 or
-follow us on twitter at
+follow on twitter at
 @pixelvision8

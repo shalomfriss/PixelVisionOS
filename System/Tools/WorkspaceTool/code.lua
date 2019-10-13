@@ -90,7 +90,7 @@ local windowScrollHistory = {}
 
 local newFileModal = nil
 
-local fileTemplatePath = NewWorkspacePath(rootPath .. gameName .. "/FileTemplates/")
+local fileTemplatePath = NewWorkspacePath(rootPath .. gameName .. "/ProjectTemplate/")
 
 -- This this is an empty game, we will the following text. We combined two sets of fonts into
 -- the default.font.png. Use uppercase for larger characters and lowercase for a smaller one.

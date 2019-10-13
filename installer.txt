@@ -11,47 +11,47 @@ $dir=System
 #Files to install
 
 # This will be installed in the parent directory
-../ReadMe.txt
+/ReadMe.txt|../ReadMe.txt
 
 # Tools
-/Tools/ColorTool/
-/Tools/ImagePreviewTool/
-/Tools/InstallerTool/
-/Tools/MusicTool/
-/Tools/SettingsTool/
-/Tools/SFXTool/
-/Tools/SpriteTool/
-/Tools/TextEditorTool/
-/Tools/TilemapTool/
-/Tools/WorkspaceTool/
+/System/Tools/ColorTool/|/Tools/ColorTool/
+/System/Tools/ImagePreviewTool/|/Tools/ImagePreviewTool/
+/System/Tools/InstallerTool/|/Tools/InstallerTool/
+/System/Tools/MusicTool/|/Tools/MusicTool/
+/System/Tools/SettingsTool/|/Tools/SettingsTool/
+/System/Tools/SFXTool/|/Tools/SFXTool/
+/System/Tools/SpriteTool/|/Tools/SpriteTool/
+/System/Tools/TextEditorTool/|/Tools/TextEditorTool/
+/System/Tools/TilemapTool/|/Tools/TilemapTool/
+/System/Tools/WorkspaceTool/|/Tools/WorkspaceTool/
 
 # Library Files
-/Libs/lume.lua
-/Libs/pixel-vision-os-canvas-v2.lua
-/Libs/pixel-vision-os-color-picker-v2.lua
-/Libs/pixel-vision-os-color-picker-v3.lua
-/Libs/pixel-vision-os-color-utils-v2.lua
-/Libs/pixel-vision-os-item-picker-v1.lua
-/Libs/pixel-vision-os-message-bar-v2.lua
-/Libs/pixel-vision-os-message-modal-v2.lua
-/Libs/pixel-vision-os-modal-v2.lua
-/Libs/pixel-vision-os-sprite-picker-v3.lua
-/Libs/pixel-vision-os-tilemap-picker-v1.lua
-/Libs/pixel-vision-os-title-bar-v2.lua
-/Libs/pixel-vision-os-undo-v2.lua
-/Libs/pixel-vision-os-v2.lua
-/Libs/pixel-vision-ui-button-v2.lua
-/Libs/pixel-vision-ui-collision-manager-v2.lua
-/Libs/pixel-vision-ui-input-area-v3.lua
-/Libs/pixel-vision-ui-input-field-v3.lua
-/Libs/pixel-vision-ui-knob-v2.lua
-/Libs/pixel-vision-ui-mouse-cursor-v2.lua
-/Libs/pixel-vision-ui-number-stepper-v2.lua
-/Libs/pixel-vision-ui-picker-v2.lua
-/Libs/pixel-vision-ui-slider-v2.lua
-/Libs/pixel-vision-ui-string-stepper-v2.lua
-/Libs/pixel-vision-ui-text-editor-v1.lua
-/Libs/pixel-vision-ui-text-v2.lua
-/Libs/pixel-vision-ui-toggle-group-v2.lua
-/Libs/pixel-vision-ui-utils-v2.lua
-/Libs/pixel-vision-ui-v2.lua
+/System/Libs/lume.lua|/Libs/lume.lua
+/System/Libs/pixel-vision-os-canvas-v2.lua|/Libs/pixel-vision-os-canvas-v2.lua
+/System/Libs/pixel-vision-os-color-picker-v2.lua|/Libs/pixel-vision-os-color-picker-v2.lua
+/System/Libs/pixel-vision-os-color-picker-v3.lua|/Libs/pixel-vision-os-color-picker-v3.lua
+/System/Libs/pixel-vision-os-color-utils-v2.lua|/Libs/pixel-vision-os-color-utils-v2.lua
+/System/Libs/pixel-vision-os-item-picker-v1.lua|/Libs/pixel-vision-os-item-picker-v1.lua
+/System/Libs/pixel-vision-os-message-bar-v2.lua|/Libs/pixel-vision-os-message-bar-v2.lua
+/System/Libs/pixel-vision-os-message-modal-v2.lua|/Libs/pixel-vision-os-message-modal-v2.lua
+/System/Libs/pixel-vision-os-modal-v2.lua|/Libs/pixel-vision-os-modal-v2.lua
+/System/Libs/pixel-vision-os-sprite-picker-v3.lua|/Libs/pixel-vision-os-sprite-picker-v3.lua
+/System/Libs/pixel-vision-os-tilemap-picker-v1.lua|/Libs/pixel-vision-os-tilemap-picker-v1.lua
+/System/Libs/pixel-vision-os-title-bar-v2.lua|/Libs/pixel-vision-os-title-bar-v2.lua
+/System/Libs/pixel-vision-os-undo-v2.lua|/Libs/pixel-vision-os-undo-v2.lua
+/System/Libs/pixel-vision-os-v2.lua|/Libs/pixel-vision-os-v2.lua
+/System/Libs/pixel-vision-ui-button-v2.lua|/Libs/pixel-vision-ui-button-v2.lua
+/System/Libs/pixel-vision-ui-collision-manager-v2.lua|/Libs/pixel-vision-ui-collision-manager-v2.lua
+/System/Libs/pixel-vision-ui-input-area-v3.lua|/Libs/pixel-vision-ui-input-area-v3.lua
+/System/Libs/pixel-vision-ui-input-field-v3.lua|/Libs/pixel-vision-ui-input-field-v3.lua
+/System/Libs/pixel-vision-ui-knob-v2.lua|/Libs/pixel-vision-ui-knob-v2.lua
+/System/Libs/pixel-vision-ui-mouse-cursor-v2.lua|/Libs/pixel-vision-ui-mouse-cursor-v2.lua
+/System/Libs/pixel-vision-ui-number-stepper-v2.lua|/Libs/pixel-vision-ui-number-stepper-v2.lua
+/System/Libs/pixel-vision-ui-picker-v2.lua|/Libs/pixel-vision-ui-picker-v2.lua
+/System/Libs/pixel-vision-ui-slider-v2.lua|/Libs/pixel-vision-ui-slider-v2.lua
+/System/Libs/pixel-vision-ui-string-stepper-v2.lua|/Libs/pixel-vision-ui-string-stepper-v2.lua
+/System/Libs/pixel-vision-ui-text-editor-v1.lua|/Libs/pixel-vision-ui-text-editor-v1.lua
+/System/Libs/pixel-vision-ui-text-v2.lua|/Libs/pixel-vision-ui-text-v2.lua
+/System/Libs/pixel-vision-ui-toggle-group-v2.lua|/Libs/pixel-vision-ui-toggle-group-v2.lua
+/System/Libs/pixel-vision-ui-utils-v2.lua|/Libs/pixel-vision-ui-utils-v2.lua
+/System/Libs/pixel-vision-ui-v2.lua|/Libs/pixel-vision-ui-v2.lua

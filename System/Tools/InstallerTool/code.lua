@@ -114,9 +114,16 @@ function ConfigureToolUI()
 
   end
 
-  local folderName = variables["dir"] or "Workspace"
+  installerRoot = variables["dir"] or "Workspace"
 
-  nameInputData = editorUI:CreateInputField({x = 48, y = 40, w = 152}, folderName, "Enter in a file name to this string input field.", "file")
+  -- Update file paths
+  -- for i = 1, #filePaths do
+  --   filePaths[i][3] = "/" .. installerRoot .. filePaths[i][1]
+  --   print("file", filePaths[i][3], "to", filePaths[i][1])
+  --   -- filePaths[i][3] = filePaths[i][1]
+  -- end
+
+  nameInputData = editorUI:CreateInputField({x = 48, y = 40, w = 152}, installerRoot, "Enter in a file name to this string input field.", "file")
 
   local startY = 168
 
@@ -175,9 +182,7 @@ function ConfigureToolUI()
     for i = 1, #filePaths do
       if(filePaths[i][2] == true) then
 
-        local tmpPath = filePaths[i][3] ~= nil and filePaths[i][3] or filePaths[i][1]
-
-        table.insert(filesToCopy, {src = tmpPath, dest = filePaths[i][1]})
+        table.insert(filesToCopy, {src = filePaths[i][1], dest = filePaths[i][3]})
       end
     end
 
@@ -249,14 +254,14 @@ function LoadInstallScript(rawData)
 
     if(type == "/") then
 
-      -- Make sure the file exists
-      -- if(PathExists(s)) then
+      local split = string.split(s, "|")
 
-      -- Add the path to the list
-      table.insert(filePaths, {s, true})
+      if(PathExists(NewWorkspacePath(rootDirectory .. string.sub(split[1], 2)))) then
+        -- print("Path", split[1], "to", split[2])
 
-      -- end
-
+        -- Add the path to the list
+        table.insert(filePaths, {split[1], true, split[2] == nil and split[1] or split[2]})
+      end
     elseif(type == "$") then
 
       -- Need to check if this is a bios property or a variable
@@ -353,7 +358,6 @@ function OnInstall(rootPath)
       Delete(destPath)
     end
   end
-  -- print("Install")
 
   installing = true
 
@@ -394,7 +398,9 @@ function OnInstallNextStep()
 
   if(paths ~= nil) then
 
-    local dest = NewWorkspacePath(installRoot .. paths.dest)
+    local tmpRoot = NewWorkspacePath(installRoot)
+
+    local dest = NewWorkspacePath(string.starts(paths.dest, "../") and tmpRoot.ParentPath.Path .. paths.dest:sub(4) or installRoot .. paths.dest)
 
     -- Combine the root directory and path but remove the first slash from the path
     local path = NewWorkspacePath(rootDirectory .. string.sub(paths.src, 2))
@@ -413,7 +419,7 @@ function OnInstallNextStep()
       CreateDirectory(parentPath)
 
     end
-    print("Copying", path, dest)
+    -- print("Copying", path, dest)
     if(PathExists(path)) then
 
 

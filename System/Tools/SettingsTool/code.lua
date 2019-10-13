@@ -233,14 +233,21 @@ function Init()
   {
     -- About ID 1
     {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
-    {divider = true},
-    {name = "Reformat", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."}, -- Reset all the values
+    -- {divider = true},
+    -- {name = "Reformat", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."}, -- Reset all the values
     {divider = true},
     {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the controller mapping."}, -- Reset all the values
     {name = "Reset", action = OnReset, key = Keys.R, toolTip = "Revert controller mapping to its default value."}, -- Reset all the values
     {divider = true},
     {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
   }
+
+  if(PathExists(NewWorkspacePath("/PixelVisionOS/System/OSInstaller/"))) then
+
+    table.insert(menuOptions, 2, {divider = true})
+    table.insert(menuOptions, 3, {name = "Reformat", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."})
+
+  end
 
   pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
