@@ -1,1 +1,14 @@
-{"GameChip":{"savedData":{"scroll": "1,1","selectedSprite": "0","cursor": "21,8","rootDirectory": "/Workspace/HelloWorld/","sessionID": "201910121530499034","targetFile": "/Disks/PixelVisionOS/System/Tools/TilemapTool/data.json"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "scroll": "1,1",
+            "selectedSprite": "0",
+            "cursor": "4,8",
+            "rootDirectory": "/Workspace/HelloWorld/",
+            "sessionID": "201910160935469856",
+            "targetFile": "/Workspace/System/Libs/code.lua"
+        }
+    }
+}

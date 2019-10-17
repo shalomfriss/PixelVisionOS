@@ -516,6 +516,11 @@ function Draw()
   -- single call.
   RedrawDisplay()
 
+  -- This is used by the OS installer to shutdown directly from the install if no OS is installed
+  if(shuttingDown == true) then
+    return
+  end
+
   -- The UI should be the last thing to draw after your own custom draw calls
   pixelVisionOS:Draw()
 

@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "spriteSize": "1",
-            "SpriteSize": "undefined",
+            "editing": "undefined",
+            "sessionID": "201910141639314575",
+            "rootDirectory": "/Disks/Super Key World - Cartridge/",
             "selectedSprite": "0",
-            "rootDirectory": "/Workspace/NewProject/",
-            "sessionID": "201910110601559734",
-            "editing": "undefined"
+            "SpriteSize": "undefined",
+            "spriteSize": "1"
         }
     }
 }

@@ -3,10 +3,10 @@
     "GameChip":
     {
         "savedData":{
-            "selection": "2",
+            "lastPath": "/Disks/EmptyDisk/MyTestGame/",
+            "sessionID": "201910170553225501",
             "scrollPos": "0",
-            "sessionID": "201910121228266565",
-            "lastPath": "/Workspace/"
+            "selection": "2"
         }
     }
 }

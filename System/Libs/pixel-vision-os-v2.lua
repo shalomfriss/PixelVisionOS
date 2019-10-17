@@ -202,13 +202,19 @@ function PixelVisionOS:FindEditors()
 
 end
 
-function PixelVisionOS:ValidateGameInDir(workspacePath, requiredFiles)
+function PixelVisionOS:ValidateGameInDir(workspacePath, extraFiles)
 
   if (PathExists(workspacePath) == false) then
     return false
   end
 
-  requiredFiles = requiredFiles or {"data.json", "info.json"}
+  local requiredFiles = {"data.json", "info.json", "code.lua"}
+
+  if(extraFiles ~= nil) then
+    for i = 1, #extraFiles do
+      table.insert(requiredFiles, extraFiles[i])
+    end
+  end
 
   local flag = 0
 
