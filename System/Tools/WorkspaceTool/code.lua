@@ -20,13 +20,13 @@ LoadScript("pixel-vision-os-progress-modal-v1")
 
 
 local toolName = "Workspace Explorer"
-
+local filesToCopy = nil
 local pixelVisionOS = nil
 local editorUI = nil
 
 local lastStartID = nil
 local windowInvalidated = false
-local PlayVersion, DrawVersion, TuneVersion, MakeVersion = "Pixel Vision 8 Play", "Pixel Vision 8 Draw", "Pixel Vision 8 Tune", "Pixel Vision 8 Make"
+local PlayVersion, DrawVersion, TuneVersion = "Pixel Vision 8 Play", "Pixel Vision 8 Draw", "Pixel Vision 8 Tune"
 local runnerName = SystemName()
 
 local totalPerWindow = 12
@@ -34,7 +34,7 @@ local currentDirectory = nil
 local shuttingDown = false
 local files = nil
 local windowIconButtons = nil
-local trashPath = "/Tmp/Trash/"
+local trashPath = NewWorkspacePath("/Tmp/Trash/")
 local workspacePath = "/Workspace/"
 local refreshTime = 0
 local refreshDelay = 5
@@ -91,7 +91,11 @@ local windowScrollHistory = {}
 
 local newFileModal = nil
 
-local fileTemplatePath = NewWorkspacePath(rootPath .. gameName .. "/ProjectTemplate/")
+local fileTemplatePath = nil
+
+local tmpProjectPath = ReadBiosData("ProjectTemplate")
+
+fileTemplatePath = tmpProjectPath == nil and NewWorkspacePath(rootPath .. gameName .. "/ProjectTemplate/") or NewWorkspacePath(tmpProjectPath)
 
 -- This this is an empty game, we will the following text. We combined two sets of fonts into
 -- the default.font.png. Use uppercase for larger characters and lowercase for a smaller one.
@@ -195,10 +199,9 @@ function Init()
     {name = "Shutdown", action = OnShutdown, toolTip = "Shutdown PV8."} -- Quit the current game
   }
 
-  -- local menuOffset = -2
   local addAt = 6
 
-  if(runnerName ~= PlayVersion) then
+  if(PathExists(fileTemplatePath) == true) then
 
     table.insert(menuOptions, addAt, {name = "New Project", key = Keys.P, action = OnNewGame, enabled = false, toolTip = "Create a new file."})
 
@@ -210,64 +213,64 @@ function Init()
 
   newFileOptions = {}
 
+  -- TODO this should be done better
+
   -- Add text options to the menu
   if(runnerName ~= PlayVersion and runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
 
     table.insert(menuOptions, addAt, {name = "New Code", action = function() OnNewFile("code", "lua") end, enabled = false, toolTip = "Run the current game."})
-    -- menuOffset = menuOffset + 1
-    -- NewCodeShortcut = addAt
     table.insert(newFileOptions, {name = "New Code"})
     addAt = addAt + 1
 
     table.insert(menuOptions, addAt, {name = "New JSON", action = function() OnNewFile("untitled", "json") end, enabled = false, toolTip = "Run the current game."})
-    -- menuOffset = menuOffset + 1
-    -- NewJSONShortcut = addAt
     table.insert(newFileOptions, {name = "New JSON"})
     addAt = addAt + 1
 
   end
 
   -- Add draw options
-  if(runnerName ~= PlayVersion and runnerName ~= TuneVersion) then
 
+  if(PathExists(fileTemplatePath.AppendFile("colors.png"))) then
     table.insert(menuOptions, addAt, {name = "New Colors", action = function() OnNewFile("colors", "png", "colors", false) end, enabled = false, toolTip = "Run the current game.", file = "colors.png"})
-    -- menuOffset = menuOffset + 1
-    -- NewColorsShortcut = addAt
     table.insert(newFileOptions, {name = "New Colors", file = "colors.png"})
     addAt = addAt + 1
+  end
+
+  if(PathExists(fileTemplatePath.AppendFile("sprites.png"))) then
 
     table.insert(menuOptions, addAt, {name = "New Sprites", action = function() OnNewFile("sprites", "png", "sprites", false) end, enabled = false, toolTip = "Run the current game.", file = "sprites.png"})
-    -- menuOffset = menuOffset + 1
-    -- NewSpritesShortcut = addAt
     table.insert(newFileOptions, {name = "New Sprites", file = "sprites.png"})
     addAt = addAt + 1
+  end
+
+  if(PathExists(fileTemplatePath.AppendFile("font.png"))) then
 
     table.insert(menuOptions, addAt, {name = "New Font", action = function() OnNewFile("untitled", "font.png", "font") end, enabled = false, toolTip = "Run the current game."})
-    -- menuOffset = menuOffset + 1
-    -- NewFontShortcut = addAt
     table.insert(newFileOptions, {name = "New Font"})
     addAt = addAt + 1
 
+  end
+
+  if(PathExists(fileTemplatePath.AppendFile("tilemap.json"))) then
+
     table.insert(menuOptions, addAt, {name = "New Tilemap", action = function() OnNewFile("tilemap", "json", "tilemap", false) end, enabled = false, toolTip = "Run the current game.", file = "tilemap.json"})
-    -- menuOffset = menuOffset + 1
-    -- NewTilemapShortcut = addAt
     table.insert(newFileOptions, {name = "New Tilemap", file = "tilemap.json"})
     addAt = addAt + 1
 
   end
 
   -- Add music options
-  if(runnerName ~= PlayVersion and runnerName ~= DrawVersion) then
+
+  if(PathExists(fileTemplatePath.AppendFile("sounds.json"))) then
 
     table.insert(menuOptions, addAt, {name = "New Sounds", action = function() OnNewFile("sounds", "json", "sounds", false) end, enabled = false, toolTip = "Run the current game.", file = "sounds.json"})
-    -- menuOffset = menuOffset + 1
-    -- NewSoundsShortcut = addAt
     table.insert(newFileOptions, {name = "New Sounds", file = "sounds.json"})
     addAt = addAt + 1
+  end
+
+  if(PathExists(fileTemplatePath.AppendFile("music.json"))) then
 
     table.insert(menuOptions, addAt, {name = "New Music", action = function() OnNewFile("music", "json", "music", false) end, enabled = false, toolTip = "Run the current game.", file = "music.json"})
-    -- menuOffset = menuOffset + 1
-    -- NewMusicShortcut = addAt
     table.insert(newFileOptions, {name = "New Music", file = "music.json"})
     addAt = addAt + 1
 
@@ -288,6 +291,8 @@ function Init()
     OpenWindow(newPath, tonumber(ReadSaveData("scrollPos", "0")), tonumber(ReadSaveData("selection", "0")))
 
   end
+
+  -- print("Test", PathExists(NewWorkspacePath("/Disks/PixelVisionOS/")))
 
 end
 
@@ -349,7 +354,7 @@ function OnNewFile(fileName, ext, type, editable)
       elseif(PathExists(tmpPath)) then
 
         CopyTo(tmpPath, filePath)
-        -- print("Copy from template", tmpPath.Path)
+        -- -- print("Copy from template", tmpPath.Path)
 
         -- Create an empty text file
       elseif( ext == "txt") then
@@ -364,7 +369,7 @@ function OnNewFile(fileName, ext, type, editable)
         CopyTo(tmpPath, filePath)
 
       else
-        print("File not supported")
+        -- print("File not supported")
         -- TODO need to display an error message that the file couldn't be created
         return
       end
@@ -447,20 +452,9 @@ function OnEmptyTrash()
       if(pixelVisionOS.messageModal.selectionValue == true) then
 
         -- Get all the files in the trash
-        local files = GetEntities(NewWorkspacePath(trashPath))
+        filesToCopy = GetEntitiesRecursive(trashPath)
 
-        -- Loop through all the files in the root of the trash and delete them
-        for i = 1, #files do
-          Delete(files[i])
-        end
-
-        -- Need to rebuild the desktop to change the trash icon
-        RebuildDesktopIcons()
-
-        -- If we are in the trash, redraw the window at the root of the trash
-        if(TrashOpen()) then
-          OpenWindow(trashPath)
-        end
+        StartFileOperation(trashPath, "delete")
 
       end
 
@@ -480,8 +474,6 @@ function OnRun()
   LoadGame(currentDirectory.Path)
 
 end
-
-local filesToCopy = nil
 
 function OnCopy()
 
@@ -510,7 +502,7 @@ function OnCopy()
       -- Make sure the selected directory is included
       table.insert(filesToCopy, 1, NewWorkspacePath(file.path))
 
-      print("Copy File", file.name, file.path, #filesToCopy, dump(filesToCopy))
+      -- print("Copy File", file.name, file.path, #filesToCopy, dump(filesToCopy))
 
       -- Enable the paste shortcut
       pixelVisionOS:EnableMenuItemByName(PasteShortcut, true)
@@ -564,21 +556,12 @@ function OnPaste(dest)
 end
 
 function StartFileOperation(destPath, action)
-
   fileActionActiveTotal = #filesToCopy
   fileActionDest = destPath
   -- Clear the path filter (used to change base path if there is a duplicate)
   fileActionPathFilter = nil
 
-  -- Modify the destPath with the first item for testing
-  destPath = destPath.AppendPath(filesToCopy[1].Path:sub( #fileActionSrc.Path + 1))
 
-  if(action == "delete") then
-    fileActionPathFilter = UniqueFilePath(destPath)
-  end
-
-  -- Check to see if we need to display the progress bar or just perform a single action
-  print("Multiple file action", action)
 
   fileAction = action
   fileActionActiveTime = 0
@@ -587,14 +570,43 @@ function StartFileOperation(destPath, action)
   fileActionBasePath = destPath
   fileCleanup = {}
 
+  if(action == "delete") then
+    invalidateTrashIcon = true
+    fileActionActive = true
+    return
+  end
+
+  -- Modify the destPath with the first item for testing
+  destPath = destPath.AppendPath(filesToCopy[1].Path:sub( #fileActionSrc.Path + 1))
+  fileActionBasePath = destPath
+
+
+  if(action == "throw out") then
+    fileActionPathFilter = UniqueFilePath(destPath)
+    invalidateTrashIcon = true
+  end
+
+  -- Check to see if we need to display the progress bar or just perform a single action
+  -- print("Multiple file action", action)
+
+
+
   -- Test the first file to see if it is duplicated
-  if(PathExists(destPath) and fileActionPathFilter == nil) then
+  if(destPath.IsChildOf(filesToCopy[1])) then
+
+    -- print("ERROR: Child Of", srcPath, destPath, action)
+    -- Shut down file actions
+
+    pixelVisionOS:ShowMessageModal(
+      "Workspace Path Conflict",
+      "Can't perform a file action on a path that is the child of the destination path.",
+      128 + 16, false, function() CancelFileActions() end
+    )
+    return
+
+  elseif(PathExists(destPath) and fileActionPathFilter == nil) then
 
     local duplicate = destPath.Path == filesToCopy[1].Path
-
-    print("Duplicate file path", filesToCopy[1].Path, destPath.Path, duplicate)
-
-    fileActionPathFilter = UniqueFilePath(destPath)
 
     -- Ask if the file first item should be duplicated
     pixelVisionOS:ShowMessageModal(
@@ -609,10 +621,11 @@ function StartFileOperation(destPath, action)
 
           if(duplicate == true) then
 
-            print("Create file path filter", fileActionPathFilter, destPath)
+            fileActionPathFilter = UniqueFilePath(destPath)
 
           else
-            print("Delete", destPath)
+            -- print("Delete", destPath)
+            SafeDelete(destPath)
           end
           -- Start the file action process
           fileActionActive = true
@@ -652,112 +665,46 @@ function StartFileOperation(destPath, action)
 
 end
 
-
-function OnSingleFileAction(srcPath, destPath, action)
-
-  if(destPath.IsChildOf(srcPath)) then
-
-    print("ERROR: Child Of", srcPath, destPath, action)
-    -- Shut down file actions
-    CancelFileActions()
-    pixelVisionOS:ShowMessageModal(
-      "Workspace Path Conflict",
-      "Can't perform a file action on a path that is the child of the destination path.",
-      128 + 16
-    )
-    return
-
-  elseif(PathExists(destPath)) then
-
-    local message = "Looks like '"..srcPath.EntityName .. "' already exists in '".. destPath.Path .. "'."
-
-    local sameFile = destPath.Path == srcPath.Path
-
-    print("Path Test", srcPath, destPath, sameFile, srcPath.isFile)
-
-    message = message .. (sameFile and " Do you want to make a new copy?" or " Do you want to replace that file?")
-
-
-    --
-    local lastInstallValue = fileActionActive
-
-    fileActionActive = false
-
-    pixelVisionOS:ShowMessageModal(
-      "Workspace Path Conflict",
-      message,
-      200,
-      true,
-      function()
-
-        -- Only perform the copy if the user selects OK from the modal
-        if(pixelVisionOS.messageModal.selectionValue) then
-
-          if(sameFile) then
-            print("Get unique file name and " .. action)
-            -- TriggerSingleFileAction(srcPath, destPath, "copy")
-          else
-
-            print("Delete file old file and "..action.." new one")
-
-          end
-          -- TODO need an action to replace a file with new version
-          -- Delete(tmpDest)
-          --
-          -- -- Trigger the file copy
-          -- TriggerSingleFileAction(srcPath, tmpDest, action)
-
-        end
-
-        if(lastInstallValue == true) then
-          fileActionActive = lastInstallValue
-        end
-
-      end
-    )
-
-    return
-    --
-  else
-    TriggerSingleFileAction(srcPath, destPath, action)
-  end
-
-end
-
 function CancelFileActions()
 
   if(fileActionActive == true) then
     OnFileActionComplete()
+
+    -- editorUI.mouseCursor:SetCursor(1, false)
   end
 
 end
 
 function TriggerSingleFileAction(srcPath, destPath, action)
 
-
   -- Copy the file to the new location, if a file with the same name exists it will be overwritten
   if(action == "copy") then
 
     -- Only copy files over since we create the directory in the previous step
     if(destPath.isFile) then
-      print("CopyTo", srcPath, destPath)
-      -- CopyTo(srcPath, destPath)
+      -- print("CopyTo", srcPath, destPath)
+      CopyTo(srcPath, destPath)
     end
 
-  elseif(action == "move" or action == "delete") then
+  elseif(action == "move" or action == "throw out") then
 
     -- Need to keep track of directories that listed since we want to clean them up when they are empty at the end
     if(srcPath.IsDirectory) then
-      print("Save file path", srcPath)
-      -- table.insert(fileCleanup, srcPath)
+      -- print("Save file path", srcPath)
+      table.insert(fileCleanup, srcPath)
     else
-      -- MoveTo(srcPath, destPath)
-      print("MoveTo", srcPath, destPath)
+      MoveTo(srcPath, destPath)
+      -- print("MoveTo", srcPath, destPath)
     end
 
-
-    -- elseif(action == "delete") then
-    --   print("Delete", srcPath, destPath)
+  elseif(action == "delete") then
+    if(srcPath.IsDirectory) then
+      -- print("Save file path", srcPath)
+      table.insert(fileCleanup, srcPath)
+    else
+      Delete(srcPath)
+      -- print("MoveTo", srcPath, destPath)
+    end
   else
     -- nothing happened so exit before we refresh the window
     return
@@ -781,26 +728,25 @@ function OnEjectDisk(diskName)
     diskName = desktopIcons[id].name
   end
 
-  diskPath = "/" .. diskName .. "/"
-
   pixelVisionOS:ShowMessageModal("Eject Disk", "Do you want to eject the '".. diskName.."'disk?", 160, true,
     function()
 
       -- Only perform the copy if the user selects OK from the modal
       if(pixelVisionOS.messageModal.selectionValue) then
 
-        if(currentDirectory ~= "none") then
+        if(currentDirectory ~= nil) then
 
-          if(NewWorkspacePath(currentDirectory).GetDirectorySegments()[2] == diskName) then
+          -- Close the window of the disk you are trying to eject
+          if(currentDirectory.GetDirectorySegments()[1] == "disk" and currentDirectory.GetDirectorySegments()[2] == diskName) then
             CloseWindow()
           end
 
         end
 
-        EjectDisk(diskPath)
+        EjectDisk(NewWorkspacePath("/Disks/" .. diskName .. "/"))
 
         ResetGame()
-        -- RebuildDesktopIcons()
+
       end
 
     end
@@ -841,6 +787,8 @@ function OnShutdown()
 end
 
 function RebuildDesktopIcons()
+
+  -- print("RebuildDesktopIcons")
 
   -- TODO clear desktop with background color
   DrawRect(216, 16, 39, 216, BackgroundColor(), DrawMode.TilemapCache)
@@ -883,19 +831,29 @@ function RebuildDesktopIcons()
 
   local disks = DiskPaths()
 
-  for k, v in pairs(disks) do
-    -- print(k, v)
+  for i = 1, #disks do
+
+    local name = disks[i].EntityName
+    local path = disks[i].Path
 
     table.insert(desktopIcons, {
-      name = k,
+      name = name,
       sprite = "diskempty",
-      tooltip = "Double click to open the '".. k .. "' disk.",
-      tooltipDrag = "You are dragging the '".. k .. "' disk.",
-      path = v,
+      tooltip = "Double click to open the '".. name .. "' disk.",
+      tooltipDrag = "You are dragging the '".. name .. "' disk.",
+      path = path,
       type = "disk"
     })
-
   end
+
+  --
+  --
+  -- for k, v in pairs(disks) do
+  --   -- print(k, v)
+  --
+  --
+  --
+  -- end
 
   -- Draw desktop icons
   local startY = 16
@@ -929,29 +887,14 @@ function RebuildDesktopIcons()
 
     button.onDropTarget = FileDropAction
 
-    -- function(src, dest)
-    --
-    --   -- if src and dest paths are the same, exit
-    --   if(src.iconPath == dest.iconPath) then
-    --     return
-    --   end
-    --
-    --   local srcPath = NewWorkspacePath(src.iconPath)
-    --   local destPath = NewWorkspacePath(dest.iconPath)
-    --
-    --   FileDropAction(srcPath, destPath)
-    --
-    -- end
-
     startY = startY + 32 + 8
 
   end
 
   -- See if the trash exists
-  local trashWorkspacePath = NewWorkspacePath(trashPath)
 
-  if(PathExists(trashWorkspacePath) == false) then
-    CreateDirectory(trashWorkspacePath)
+  if(PathExists(trashPath) == false) then
+    CreateDirectory(trashPath)
   end
 
   local trashFiles = GetDirectoryContents(trashPath)
@@ -960,8 +903,8 @@ function RebuildDesktopIcons()
     name = "Trash",
     sprite = #trashFiles > 0 and "filetrashfull" or "filetrashempty",
     tooltip = "The trash folder",
-    path = trashPath,
-    type = "trash"
+    path = trashPath.Path,
+    type = "throw out"
   })
 
   pixelVisionOS:EnableMenuItemByName(EmptyTrashShortcut, #trashFiles > 0)
@@ -980,20 +923,20 @@ function RebuildDesktopIcons()
   trashButton.onOverDropTarget = function(src, dest)
 
     -- TODO need to add custom logic to open folders or drives here
-    -- print("Over Trash", dest.name)
+    print("Over Trash", dest.name, dump(dest))
 
   end
 
   trashButton.onDropTarget = function(src, dest)
 
-    -- print("OnDropTarget", "Trash Icon", src.name, dest.name)
+    -- -- print("OnDropTarget", "Trash Icon", src.name, dest.name)
     if(src.iconType == "disk") then
 
       OnEjectDisk(src.iconName)
 
     else
       OnDeleteFile(src.iconPath)
-      -- print("Move To", src.iconPath, dest.iconPath)
+      -- -- print("Move To", src.iconPath, dest.iconPath)
     end
 
   end
@@ -1006,8 +949,6 @@ function RebuildDesktopIcons()
 end
 
 function FileDropAction(src, dest)
-
-  print("Drop", src, dest)
 
   -- if src and dest paths are the same, exit
   if(src == dest) then
@@ -1038,7 +979,10 @@ function FileDropAction(src, dest)
   local srcSeg = srcPath.GetDirectorySegments()
   local destSeg = destPath.GetDirectorySegments()
 
-  if(srcSeg[1] == "Disks" and destSeg[1] == "Disks") then
+  if(srcSeg[1] == "Tmp" and srcSeg[2] == "Trash") then
+    -- print("Trash")
+    action = "move"
+  elseif(srcSeg[1] == "Disks" and destSeg[1] == "Disks") then
     if(srcSeg[2] ~= destSeg[2]) then
       action = "copy"
     end
@@ -1046,9 +990,9 @@ function FileDropAction(src, dest)
     action = "copy"
   end
 
-  print(action, dump(srcSeg), dump(destSeg))
+  -- print(action, dump(srcSeg), dump(destSeg))
 
-  print("Drop Action", action, srcPath, destPath)
+  -- print("Drop Action", action, srcPath, destPath, srcSeg[1], srcSeg[2])
 
   -- Perform the file action
   StartFileOperation(destPath, action)
@@ -1212,11 +1156,11 @@ function OnDeleteFile(path)
   table.insert(filesToCopy, 1, srcPath)
 
 
-  local destPath = NewWorkspacePath(trashPath)
+  local destPath = trashPath
 
-  local action = "delete"
+  local action = "throw out"
 
-  print("Delete Action", action, srcPath, destPath)
+  -- print("Delete Action", action, srcPath, destPath)
 
   -- Perform the file action
 
@@ -1231,7 +1175,7 @@ end
 function DeleteFile(path)
 
   -- Create the base trash path for the file
-  local newPath = NewWorkspacePath(trashPath)
+  local newPath = trashPath
 
   -- See if this is a directory or a file and add the entity name
   if(path.IsDirectory) then
@@ -1270,29 +1214,41 @@ function OpenWindow(path, scrollTo, selection)
   -- Draw the window chrome
   DrawSprites(windowchrome.spriteIDs, 8, 16, windowchrome.width, false, false, DrawMode.TilemapCache)
 
-  -- Create the slider for the window
-  vSliderData = editorUI:CreateSlider({x = 192, y = 26, w = 16, h = 195}, "vsliderhandle", "This is a vertical slider")
+  if(vSliderData == nil) then
+    -- Create the slider for the window
+    vSliderData = editorUI:CreateSlider({x = 192, y = 26, w = 16, h = 195}, "vsliderhandle", "This is a vertical slider")
+    vSliderData.onAction = OnValueChange
+  end
+
+  -- Reset the slider position
   vSliderData.value = scrollTo
-  vSliderData.onAction = OnValueChange
 
   -- Create the close button
-  closeButton = editorUI:CreateButton({x = 192, y = 16}, "closewindow", "Close the window.")
-  closeButton.hitRect = {x = closeButton.rect.x + 2, y = closeButton.rect.y + 2, w = 10, h = 10}
-  closeButton.onAction = CloseWindow
+  if(closeButton == nil) then
+    closeButton = editorUI:CreateButton({x = 192, y = 16}, "closewindow", "Close the window.")
+    closeButton.hitRect = {x = closeButton.rect.x + 2, y = closeButton.rect.y + 2, w = 10, h = 10}
+    closeButton.onAction = CloseWindow
+  end
 
   -- Need to clear the previous button drop targets
   if(windowIconButtons ~= nil) then
     for i = 1, #windowIconButtons.buttons do
       editorUI.collisionManager:RemoveDragTarget(windowIconButtons.buttons[i])
+      -- editorUI:ToggleGroupRemoveButton(windowIconButtons, i)
     end
+    -- editorUI:ClearIconGroup(windowIconButtons)
+
+    editorUI:ClearFocus()
+  else
+    -- Create a icon button group for all of the files
+    windowIconButtons = editorUI:CreateIconGroup()
+    windowIconButtons.onTrigger = OnWindowIconClick
+
+    -- Make sure we disable any selection on the desktop when clicking inside of the window icon group
+    windowIconButtons.onAction = OnWindowIconSelect
   end
 
-  -- Create a icon button group for all of the files
-  windowIconButtons = editorUI:CreateIconGroup()
-  windowIconButtons.onTrigger = OnWindowIconClick
-
-  -- Make sure we disable any selection on the desktop when clicking inside of the window icon group
-  windowIconButtons.onAction = OnWindowIconSelect
+  -- DrawRect()
 
   -- Reset the last start id
   lastStartID = -1
@@ -1300,7 +1256,7 @@ function OpenWindow(path, scrollTo, selection)
   -- Parse files
 
   -- Get the list of files from the Lua Service
-  files = GetDirectoryContents(path)
+  files = GetDirectoryContents(currentDirectory)
 
   -- Save a count of the files before we add the special files to the list
   fileCount = #files
@@ -1310,7 +1266,7 @@ function OpenWindow(path, scrollTo, selection)
   if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
 
     -- Check to see if this is a game directory
-    if(pixelVisionOS:ValidateGameInDir(NewWorkspacePath(path), {"code.lua"}) and TrashOpen() == false) then
+    if(pixelVisionOS:ValidateGameInDir(currentDirectory, {"code.lua", "data.json", "info.json"}) and TrashOpen() == false) then
 
       table.insert(
         files,
@@ -1319,7 +1275,7 @@ function OpenWindow(path, scrollTo, selection)
           name = "Run",
           type = "run",
           ext = "run",
-          path = path,
+          path = currentDirectory.Path,
           isDirectory = false,
           selected = false
         }
@@ -1329,7 +1285,7 @@ function OpenWindow(path, scrollTo, selection)
 
   end
 
-  local parentDirectory = NewWorkspacePath(path).ParentPath.Path
+  local parentDirectory = currentDirectory.ParentPath.Path
 
   -- Check to see if this is a root directory
   if(parentDirectory ~= "/Disks/" and parentDirectory ~= "/Tmp/" and parentDirectory ~= "/") then
@@ -1362,7 +1318,7 @@ function OpenWindow(path, scrollTo, selection)
     UpdateContextMenu(WindowFocus)
   end
 
-  ChangeWindowTitle(path, "toolbaricontool")
+  ChangeWindowTitle(currentDirectory.Path, "toolbaricontool")
 
 end
 
@@ -1644,7 +1600,6 @@ end
 
 function OnWindowIconSelect(id)
 
-
   if(playingWav) then
     StopWav()
     playingWav = false
@@ -1695,7 +1650,7 @@ end
 
 function TrashOpen()
 
-  return currentDirectory.Path == trashPath
+  return currentDirectory.Path == trashPath.Path
 
 end
 
@@ -1754,7 +1709,7 @@ function OnWindowIconClick(id)
 
   -- Enable delete option
 
-  -- print("Window Icon Click", tmpItem.name)
+  -- -- print("Window Icon Click", tmpItem.name)
   local type = tmpItem.type
 
   -- If the type is a folder, open it
@@ -1891,7 +1846,7 @@ function DrawWindow(files, startID, total)
   if(startID < 0) then
     startID = 0
   end
-  -- print("DrawWindow", startID)
+  -- -- print("DrawWindow", startID)
 
   if(lastStartID == startID) then
     return
@@ -1918,13 +1873,16 @@ function DrawWindow(files, startID, total)
 
   -- local tmpPath = NewWorkspacePath(item.path)
   local pathParts = currentDirectory.GetDirectorySegments()
-  local systemRoot = pathParts[1] == "Workspace" or pathParts[1] == "Disks"
+  local systemRoot = ((pathParts[1] == "Workspace" and #pathParts == 1) or (pathParts[1] == "Disks" and #pathParts == 2))
 
+  -- print("parts", #pathParts, dump(pathParts), systemRoot)
 
   for i = 1, total do
 
+
     -- Calculate the real index
     local fileID = i + startID
+
 
     local index = i - 1
 
@@ -1933,6 +1891,11 @@ function DrawWindow(files, startID, total)
 
     local newX = index % maxColumns * (width + padding) + startX
     local newY = row * (height + padding / 2) + startY
+
+    -- Update the row for the next loop
+    if (column == (maxColumns - 1)) then
+      row = row + 1
+    end
 
     if(fileID <= #files) then
 
@@ -1945,7 +1908,11 @@ function DrawWindow(files, startID, total)
 
       if(spriteName == fileTypeMap["folder"] and systemRoot == true) then
 
+        -- TODO need another check for libs and tools
+
         if(item.name == "System" or item.name == "Libs" or item.name == "Tools") then
+
+          -- TODO should we check to make sure the folder isn't empty?
 
           local correctParent = currentDirectory.EntityName == "System"
 
@@ -1990,13 +1957,17 @@ function DrawWindow(files, startID, total)
           button.dragDelay = -1
         end
 
+        -- button.onPress = function()
+        --   -- print("Starting Drag")
+        -- end
+
         button.onOverDropTarget = function(source, dest)
 
 
           -- TODO when a file is dragged over a folder or drive, the source file path needs to be saved and when the file is released, it needs to figure out if it is in the window or over another icon and perform the correct action
 
           newPathFlag = true
-          print("over folder", dest.name)
+          -- print(source.iconPath, "over folder", dest.name)
           -- OpenWindow(dest.iconPath)
         end
 
@@ -2004,22 +1975,20 @@ function DrawWindow(files, startID, total)
         button.onDropTarget = FileDropAction
 
 
-      elseif(item.type == "run" or item.type == "unknown") then
+      elseif(item.type == "run" or item.type == "unknown" or item.type == "installer") then
 
         editorUI.collisionManager:DisableDragging(button)
         button.onDropTarget = nil
 
       end
 
-      if (column == (maxColumns - 1)) then
-        row = row + 1
-      end
-
     else
 
-      DrawRect(newX, newY, 48, 48 - 8, bgColor, DrawMode.TilemapCache)
+      editorUI:NewDraw("DrawRect", {newX, newY, 48, 40, bgColor, DrawMode.TilemapCache})
 
     end
+
+
 
   end
 
@@ -2035,7 +2004,7 @@ function UpdateFileType(item, isGameFile)
 
   -- TODO support legacy files
   if(key == "png" and isGameFile == true) then
-    -- print("Is PNG")
+    -- -- print("Is PNG")
     if(item.name == "sprites" and editorMapping["sprites"] ~= nil) then
       key = "sprites"
     elseif(item.name == "tilemap" and editorMapping["tilemap"] ~= nil) then
@@ -2088,7 +2057,7 @@ end
 function GetIconSpriteName(item)
 
   local iconName = fileTypeMap[item.type]
-  -- print("name", name, iconName)
+  -- -- print("name", name, iconName)
   return iconName == nil and "fileunknown" or fileTypeMap[item.type]
 
 end
@@ -2116,7 +2085,7 @@ function Update(timeDelta)
       if(refreshTime > refreshDelay) then
 
         -- TODO This should use a workspace path
-        tmpFiles = GetDirectoryContents(currentDirectory.Path)
+        tmpFiles = GetDirectoryContents(currentDirectory)
 
         if(#tmpFiles > fileCount) then
           RefreshWindow()
@@ -2221,8 +2190,8 @@ function Shutdown()
   WriteSaveData("sessionID", SessionID())
 
   -- Make sure we don't save paths in the tmp directory
-  WriteSaveData("lastPath", currentDirectory.path)
-
+  WriteSaveData("lastPath", currentDirectory ~= nil and currentDirectory.Path or "none")
+  --
   -- Save the current session ID
   WriteSaveData("scrollPos", (vSliderData ~= nil and vSliderData.value or 0))
 
@@ -2242,7 +2211,6 @@ function OnExportGame()
     local metaData = {
       directory = currentDirectory.Path,
     }
-
     -- Load the build tool and pass the current directory
     LoadGame(buildTool, metaData)
 
@@ -2286,7 +2254,7 @@ function OnFileActionNextStep()
 
   -- Test to see if the counter is equil to the total
   if(fileActionCounter > fileActionActiveTotal) then
-    print("Counter done")
+
     fileActionDelay = 4
     return
   end
@@ -2301,35 +2269,33 @@ function OnFileActionNextStep()
 
     -- Open the modal
     pixelVisionOS:OpenModal(progressModal)
-    --
+
   end
 
   progressModal:UpdateMessage(fileActionCounter, fileActionActiveTotal, fileAction)
 
-  local destPath = NewWorkspacePath(fileActionDest.Path .. srcPath.Path:sub( #fileActionSrc.Path + 1))
+  local destPath = fileAction == "delete" and fileActionDest or NewWorkspacePath(fileActionDest.Path .. srcPath.Path:sub( #fileActionSrc.Path + 1))
 
   if(fileActionPathFilter ~= nil) then
 
-    print("FILTER", destPath, fileActionPathFilter, fileActionBasePath)
-
     destPath = NewWorkspacePath(fileActionPathFilter.Path .. destPath.Path:sub( #fileActionBasePath.Path + 1))
-    -- destPath =
-    print("New Dest Path", destPath, fileActionPathFilter, fileActionSrc, fileActionDest)
+
   end
 
   -- Find the path to the directory being copied
   local dirPath = destPath.IsFile and destPath.ParentPath or destPath
-  print("TriggerSingleFileAction", srcPath, destPath, action, dirPath)
 
   -- Make sure the directory exists
   if(PathExists(dirPath) == false) then
+
     CreateDirectory(dirPath)
   end
 
   if(srcPath.IsFile) then
-    print("Next step")
-    OnSingleFileAction(srcPath, destPath, fileAction)
-  else
+
+    TriggerSingleFileAction(srcPath, destPath, fileAction)
+  elseif(fileAction ~= "copy") then
+
     table.insert(fileCleanup, srcPath)
   end
 
@@ -2344,14 +2310,8 @@ function OnFileActionComplete()
     if(PathExists(path)) then
       Delete(path)
     end
-    -- -- Make sure the directory is empty
-    -- if(#GetEntities(path) == 0) then
-    --   print("Cleaning up", path)
-    --
-    -- else
-    --   print("ERROR: Can't clean up", path)
-    -- end
   end
+
 
   -- Turn off the file action loop
   fileActionActive = false
@@ -2366,5 +2326,16 @@ function OnFileActionComplete()
   filesToCopy = nil
 
   RefreshWindow()
+
+  if(invalidateTrashIcon == true) then
+    RebuildDesktopIcons()
+    invalidateTrashIcon = false
+  end
+
+end
+
+function SafeDelete(srcPath)
+
+  MoveTo(srcPath, trashPath)
 
 end

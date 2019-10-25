@@ -208,7 +208,7 @@ function PixelVisionOS:ValidateGameInDir(workspacePath, extraFiles)
     return false
   end
 
-  local requiredFiles = {"data.json", "info.json", "code.lua"}
+  local requiredFiles = {"data.json", "info.json"}
 
   if(extraFiles ~= nil) then
     for i = 1, #extraFiles do

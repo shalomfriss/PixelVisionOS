@@ -8,6 +8,16 @@ cursorhanddown={width=2,spriteIDs={113,114,133,134}}
 cursorhand={width=2,spriteIDs={67,68,90,91}}
 cursorpointer={width=2,spriteIDs={65,66,88,89}}
 cursortext={width=2,spriteIDs={69,70,92,93}}
+cursorwait1={width=2,spriteIDs={119,120,139,140}}
+cursorwait10={width=2,spriteIDs={187,188,199,200}}
+cursorwait2={width=2,spriteIDs={153,154,168,140}}
+cursorwait3={width=2,spriteIDs={73,74,169,170}}
+cursorwait4={width=2,spriteIDs={155,156,171,172}}
+cursorwait5={width=2,spriteIDs={155,156,171,172}}
+cursorwait6={width=2,spriteIDs={157,158,173,174}}
+cursorwait7={width=2,spriteIDs={181,182,193,194}}
+cursorwait8={width=2,spriteIDs={183,184,195,196}}
+cursorwait9={width=2,spriteIDs={185,186,197,198}}
 custombuttonleft={width=1,spriteIDs={149,164}}
 custombuttonmiddle={width=1,spriteIDs={223,231}}
 custombuttonright={width=1,spriteIDs={152,167}}

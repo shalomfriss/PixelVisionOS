@@ -3,9 +3,9 @@
     "GameChip":
     {
         "savedData":{
-            "sessionID": "201910110601559734",
-            "rootDirectory": "/Workspace/NewProject/",
-            "currentID": "0"
+            "currentID": "0",
+            "rootDirectory": "/Workspace/Demos/MusicDemo/",
+            "sessionID": "201910242022580038"
         }
     }
 }

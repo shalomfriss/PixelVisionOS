@@ -12,13 +12,13 @@ local validFiles =
   ".gif"
 }
 
-function GetDirectoryContents(path)
+function GetDirectoryContents(workspacePath)
 
   -- Create empty entities table
   local entities = {}
 
   -- Get a list of entity
-  local srcEntities = GetEntities(NewWorkspacePath(path))
+  local srcEntities = GetEntities(workspacePath)
 
   -- Make sure the src entity value is not empty
   if(srcEntities ~= nil) then

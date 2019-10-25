@@ -90,6 +90,8 @@ function ProgressModal:Open()
 
   self.canvas:DrawPixels(self.rect.x, self.rect.y, DrawMode.TilemapCache)
 
+  self.editorUI.mouseCursor:SetCursor(5, true)
+
 end
 
 function ProgressModal:UpdateMessage(currentItem, total, action)
@@ -135,10 +137,22 @@ function ProgressModal:UpdateMessage(currentItem, total, action)
 
   self.canvas:DrawPixels(self.rect.x, self.rect.y, DrawMode.TilemapCache)
 
+  -- print("focus", self.cancelBtnData.inFocus)
+
+  if(self.cancelBtnData.inFocus) then
+    self.editorUI.mouseCursor:SetCursor(2, false)
+  elseif(self.cursorID ~= 5) then
+    self.editorUI.mouseCursor:SetCursor(5, true)
+  end
+
 end
 
 function ProgressModal:Update(timeDelta)
 
   self.editorUI:UpdateButton(self.cancelBtnData)
 
+end
+
+function ProgressModal:Close()
+  self.editorUI.mouseCursor:SetCursor(1, false)
 end

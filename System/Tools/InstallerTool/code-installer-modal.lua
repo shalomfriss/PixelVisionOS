@@ -80,6 +80,8 @@ function InstallerModal:Open()
 
   self.canvas:DrawPixels(self.rect.x, self.rect.y, DrawMode.TilemapCache)
 
+  self.editorUI.mouseCursor:SetCursor(5, true)
+
 end
 
 function InstallerModal:UpdateMessage(currentItem, total)
@@ -128,10 +130,7 @@ function InstallerModal:UpdateMessage(currentItem, total)
 end
 
 function InstallerModal:Close()
-  --   -- print("Modal Close")
-  --   -- if(self.onParentClose ~= nil) then
-  --   --   self.onParentClose()
-  --   -- end
+  self.editorUI.mouseCursor:SetCursor(1, false)
 end
 --
 function InstallerModal:Update(timeDelta)

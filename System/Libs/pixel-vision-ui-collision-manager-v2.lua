@@ -205,6 +205,7 @@ function CollisionManager:RemoveDragTarget(target)
   -- TODO this needs to be tested
   for i = 1, #self.dragTargets do
     if(self.dragTargets[i].name == target.name) then
+      -- print("Remove", i, self.dragTargets[i].name)
       table.remove(self.dragTargets, i)
       return
     end
