@@ -392,11 +392,10 @@ function Update(timeDelta)
   pixelVisionOS:Update(timeDelta)
 
   if(inputAreaData.inFocus == true and pixelVisionOS:IsModalActive()) then
-    editorUI:ClearFocus(data)
+    editorUI:ClearFocus(inputAreaData)
   end
-
   -- Only update the tool's UI when the modal isn't active
-  if(pixelVisionOS:IsModalActive() == false and targetFile ~= nil) then
+  if(pixelVisionOS:IsModalActive() == false and targetFile ~= nil and pixelVisionOS.titleBar.menu.showMenu == false) then
 
     editorUI:UpdateInputArea(inputAreaData)
 

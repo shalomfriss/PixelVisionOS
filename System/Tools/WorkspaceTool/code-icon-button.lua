@@ -83,7 +83,9 @@ function EditorUI:CreateIconButtonStates(data, spriteName, text)
     local spriteState = state == "dragging" and "up" or state
 
     if(state == "over") then
-      spriteState = "openup"
+      -- print("OVER")
+      state = "over"
+      spriteState = "selectedup"
     end
     -- Clear the canvas to the default background color
     canvas:Clear(-1)
@@ -106,9 +108,9 @@ function EditorUI:CreateIconButtonStates(data, spriteName, text)
     end
 
     local spriteData = _G[spriteName .. spriteState]
-
+    -- print("state", state, spriteState, spriteName, states[i])
     if(spriteData ~= nil) then
-      -- print("spriteName", spriteName, spriteData ~= nil)
+      -- print("spriteName", spriteName, spriteState, spriteData ~= nil)
 
       local tmpX = math.floor((size.x - spriteData.width * 8) * .5)
 
@@ -174,6 +176,7 @@ function EditorUI:CreateIconButtonStates(data, spriteName, text)
 
       end
 
+      -- print("save", states[i])
       data.cachedPixelData[states[i]] = canvas
 
     end
@@ -204,13 +207,7 @@ function EditorUI:UpdateIconButton(data, hitRect)
 
   end
 
-  -- Make sure we don't detect a collision if the mouse is down but not over this button
-  if(self.collisionManager.mouseDown and data.inFocus == false) then
-    -- See if the button needs to be redrawn.
-    -- self:RedrawButton(data)
-    data.onRedraw(data)
-    return
-  end
+
 
   -- If the hit rect hasn't been overridden, then use the buttons own hit rect
   if(hitRect == nil) then
@@ -219,8 +216,23 @@ function EditorUI:UpdateIconButton(data, hitRect)
 
   local overrideFocus = (data.inFocus == true and self.collisionManager.mouseDown)
 
+  local collision = self.collisionManager:MouseInRect(hitRect)
+
+  -- Make sure we don't detect a collision if the mouse is down but not over this button
+  if(self.collisionManager.mouseDown and data.inFocus == false) then
+
+    if(data.highlight == true and collision == false) then
+      print("Reset", data.name)
+      self:HighlightIconButton(data, false)
+    end
+
+    -- See if the button needs to be redrawn.
+    data.onRedraw(data)
+    return
+  end
+
   -- Ready to test finer collision if needed
-  if(self.collisionManager:MouseInRect(hitRect) == true or overrideFocus) then
+  if(collision or overrideFocus) then
 
 
     if(data.doubleClick == true) then
@@ -240,39 +252,38 @@ function EditorUI:UpdateIconButton(data, hitRect)
     -- If we are in the collision area, set the focus
     self:SetFocus(data)
 
+    self:Invalidate(data)
+
     -- calculate the correct button over state
-    local state = self.collisionManager.mouseDown and "down" or "over"
-
-
-
-    if(data.selected == true) then
-      state = "selected" .. state
-      -- elseif(state == "over") then
-      --   state = "selectedup"
-      --   print(data.name, state)
-    end
-
-    local spriteData = data.cachedSpriteData ~= nil and data.cachedSpriteData[state] or nil
+    -- local state = self.collisionManager.mouseDown and "down" or "over"
+    --
+    -- if(data.selected == true) then
+    --   state = "selected" .. state
+    -- end
+    --
+    --
+    --
+    -- local spriteData = data.cachedSpriteData ~= nil and data.cachedSpriteData[state] or nil
 
     -- print(data.name, state, spriteData == nil, dump(data.cachedSpriteData))
 
-    if(spriteData ~= nil and data.spriteDrawArgs ~= nil) then
-
-      -- Sprite Data
-      data.spriteDrawArgs[1] = spriteData.spriteIDs
-
-      -- X pos
-      data.spriteDrawArgs[2] = data.rect.x
-
-      -- Y pos
-      data.spriteDrawArgs[3] = data.rect.y
-
-      -- Color Offset
-      data.spriteDrawArgs[8] = spriteData.colorOffset or 0
-
-      -- self:NewDraw("DrawSprites", data.spriteDrawArgs)
-
-    end
+    -- if(spriteData ~= nil and data.spriteDrawArgs ~= nil) then
+    --
+    --   -- Sprite Data
+    --   data.spriteDrawArgs[1] = spriteData.spriteIDs
+    --
+    --   -- X pos
+    --   data.spriteDrawArgs[2] = data.rect.x
+    --
+    --   -- Y pos
+    --   data.spriteDrawArgs[3] = data.rect.y
+    --
+    --   -- Color Offset
+    --   data.spriteDrawArgs[8] = spriteData.colorOffset or 0
+    --
+    --   -- self:NewDraw("DrawSprites", data.spriteDrawArgs)
+    --
+    -- end
 
     -- TODO need to make sure we only register a click when over the right button. If the mouse was down and rolls over then releases, that shouldn't trigger a click
 
@@ -296,10 +307,18 @@ function EditorUI:UpdateIconButton(data, hitRect)
 
   else
 
+    if(data.highlight) then
+      self:HighlightIconButton(data, false)
+      data.highlight = false
+      print("Reset highlight")
+    end
+
     if(data.inFocus == true) then
       data.firstPress = true
       -- If we are not in the button's rect, clear the focus
       self:ClearFocus(data)
+
+      self:Invalidate(data)
 
     end
 
@@ -334,6 +353,15 @@ function EditorUI:RedrawIconButton(data)
     if(data.selected == true) then
       state = "selected" .. state
     end
+
+    if(data.highlight) then
+      state = "over"
+    end
+    -- if(state == "over") then
+    --   state = "down"
+    -- end
+
+    -- print("State", state)
 
     -- Test to see if the button is disabled. If there is a disabled sprite data, we'll change the state to disabled. By default, always use the up state.
     if(data.enabled == false and data.cachedPixelData["disabled"] ~= nil and data.selected ~= true) then --_G[spriteName .. "disabled"] ~= nil) then
@@ -483,8 +511,14 @@ function EditorUI:IconGroupAddButton(data, buttonData, id)
     self:SelectIconButton(data, id)
     -- end
 
+    -- TODO restore icon if dragging is complete
+    -- if(buttonData.dragging == true) then
+    print("Redraw", buttonData.name, "enabled")
+
     -- Clear
     buttonData.dragging = false
+
+    -- end
 
     -- End the drag
     if(data.onEndDrag ~= nil) then
@@ -500,15 +534,21 @@ function EditorUI:IconGroupAddButton(data, buttonData, id)
 
 
   buttonData.onPress = function(value)
-    -- print("On Press")
 
+    -- TODO there should be a delay
     if(buttonData.onStartDrag ~= nil) then
+
+
+      if(buttonData.selected == false) then
+        self:SelectIconButton(data, id)
+      end
+      -- TODO need to disable the icon when dragging
+      print("Redraw", buttonData.name, "disabled")
 
       data.draggingSrc = buttonData.iconPath
       data.draggingPixelData = buttonData.cachedPixelData["dragging"]
       data.dragTarget = {path = buttonData.iconPath, pxielData = buttonData.cachedPixelData["dragging"]}
 
-      -- print("on Drag", dump(data.dragTarget))
       buttonData.onStartDrag(buttonData)
     end
 
@@ -592,11 +632,11 @@ function EditorUI:UpdateIconGroup(data)
 
               if(data.dragOverTime ~= -1 and data.dragOverTime >= .2) then
 
-                data.dragOverTime = -1
+                -- data.dragOverTime = -1
                 -- TODO need to figure out a way to trigger this item since it's over it
 
                 -- print(source.name, "Drop On", dest.name)
-                dest.onOverDropTarget(data, dest)
+                dest.onOverDropTarget(btn, dest)
                 --
               end
 
@@ -615,6 +655,7 @@ function EditorUI:UpdateIconGroup(data)
 
           local clipSize = {x = 0, y = 0, w = 48, h = 40}
 
+          -- TODO need to save this so it's not being called every time
           -- Calculate mask
           local displaySize = Display()
 
@@ -763,6 +804,12 @@ function EditorUI:ClearIconGroup(data)
 
 end
 
-function EditorUI:HighlightIconButton(data)
+function EditorUI:HighlightIconButton(data, value)
+
+  if(data.highlight ~= value) then
+    data.highlight = value
+    self:Invalidate(data)
+  end
+  -- data.onRedraw(data)
 
 end

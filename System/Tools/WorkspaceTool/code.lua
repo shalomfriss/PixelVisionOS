@@ -35,10 +35,10 @@ local shuttingDown = false
 local files = nil
 local windowIconButtons = nil
 local trashPath = NewWorkspacePath("/Tmp/Trash/")
-local workspacePath = "/Workspace/"
 local refreshTime = 0
 local refreshDelay = 5
 local fileCount = 0
+local overTarget = nil
 
 local fileTypeMap = 
 {
@@ -878,12 +878,7 @@ function RebuildDesktopIcons()
 
     button.toolTipDragging = item.tooltipDrag
 
-    button.onOverDropTarget = function(src, dest)
-
-      -- TODO need to add custom logic to open folders or drives here
-      -- print("Over Disk", dest.name)
-
-    end
+    button.onOverDropTarget = OnOverDropTarget
 
     button.onDropTarget = FileDropAction
 
@@ -920,12 +915,7 @@ function RebuildDesktopIcons()
   -- Lock the trash from Dragging
   trashButton.dragDelay = -1
 
-  trashButton.onOverDropTarget = function(src, dest)
-
-    -- TODO need to add custom logic to open folders or drives here
-    print("Over Trash", dest.name, dump(dest))
-
-  end
+  trashButton.onOverDropTarget = OnOverDropTarget
 
   trashButton.onDropTarget = function(src, dest)
 
@@ -1266,7 +1256,7 @@ function OpenWindow(path, scrollTo, selection)
   if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
 
     -- Check to see if this is a game directory
-    if(pixelVisionOS:ValidateGameInDir(currentDirectory, {"code.lua", "data.json", "info.json"}) and TrashOpen() == false) then
+    if(pixelVisionOS:ValidateGameInDir(currentDirectory, {"code.lua"}) and TrashOpen() == false) then
 
       table.insert(
         files,
@@ -1961,15 +1951,7 @@ function DrawWindow(files, startID, total)
         --   -- print("Starting Drag")
         -- end
 
-        button.onOverDropTarget = function(source, dest)
-
-
-          -- TODO when a file is dragged over a folder or drive, the source file path needs to be saved and when the file is released, it needs to figure out if it is in the window or over another icon and perform the correct action
-
-          newPathFlag = true
-          -- print(source.iconPath, "over folder", dest.name)
-          -- OpenWindow(dest.iconPath)
-        end
+        button.onOverDropTarget = OnOverDropTarget
 
         -- Add on drop target code to each folder type
         button.onDropTarget = FileDropAction
@@ -1992,6 +1974,19 @@ function DrawWindow(files, startID, total)
 
   end
 
+
+end
+
+function OnOverDropTarget(src, dest)
+
+  if(src.iconPath ~= dest.iconPath) then
+
+    editorUI:HighlightIconButton(dest, true)
+
+
+    -- overTarget = dest
+
+  end
 
 end
 
@@ -2336,6 +2331,6 @@ end
 
 function SafeDelete(srcPath)
 
-  MoveTo(srcPath, trashPath)
+  Delete(srcPath)--, trashPath)
 
 end

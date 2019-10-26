@@ -35,7 +35,7 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
   data.cursorPos = {x = 0, y = 0, color = 0}
   data.inputDelay = .15
   data.flavorBack = 0
-  data.tiles.heme = {
+  data.theme = {
     bg = 0, --Background Color
     cursor = 4 --Cursor Color
   }
@@ -75,13 +75,14 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
   data.drawMode = DrawMode.TilemapCache
   data.colorOffset = 0
   data.spacing = 0
+  data.charSize = NewPoint(8, 8)
 
   data.bgMaskDrawArguments = {
     data.rect.x,
     data.rect.y,
     data.rect.w,
     data.rect.h,
-    data.tiles.heme.bg,
+    data.theme.bg,
     DrawMode.TilemapCache
   }
 
@@ -90,7 +91,7 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
     data.rect.y,
     data.rect.w,
     data.rect.h,
-    data.tiles.heme.bg,
+    data.theme.bg,
     DrawMode.TilemapCache
   }
 
@@ -400,8 +401,8 @@ end
 
 function EditorUI:TextEditorDrawCharactersAtCursor(data, text, x, y)
 
-  x = x or (data.cursorPos.x * 8)
-  y = y or (data.cursorPos.y * 8)
+  x = x or (data.cursorPos.x * data.charSize.X)
+  y = y or (data.cursorPos.y * data.charSize.Y)
 
   -- Move the cursor to the end of the text block for the next draw call
   data.cursorPos.x = data.cursorPos.x + #text
@@ -592,12 +593,12 @@ function EditorUI:TextEditorDrawLine(data)
 
   local y = (data.cy - data.vy + 1) * (data.fh)
 
-  data.lineMaskDrawArguments[2] = data.rect.y + y - 8
+  data.lineMaskDrawArguments[2] = data.rect.y + y - data.charSize.Y
   data.lineMaskDrawArguments[4] = data.fh
 
   self:NewDraw("DrawRect", data.lineMaskDrawArguments)
 
-  self:TextEditorMoveCursor(data, - (data.vx - 2) - 1, y / 8, data.tiles.heme.bg)
+  self:TextEditorMoveCursor(data, - (data.vx - 2) - 1, y / data.charSize.Y, data.theme.bg)
   if not colateral then
     self:TextEditorDrawColoredTextAtCursor(data, cline)
   else
@@ -1137,6 +1138,7 @@ function EditorUI:TextEditorUpdate(data, dt)
     if(data.enabled == true and data.editable == true) then
 
       if(data.inFocus == false) then
+
         -- Set focus
         self:SetFocus(data, 3)
       end
@@ -1447,10 +1449,10 @@ function EditorUI:ResizeTexdtEditor(data, width, height, x, y)
   data.rect.y = y
   data.rect.w = width
   data.rect.h = height
-  data.tiles.c = math.floor(data.rect.x / self.spriteSize.x)
-  data.tiles.r = math.floor(data.rect.y / self.spriteSize.y)
-  data.tiles.w = math.ceil(data.rect.w / self.spriteSize.x)
-  data.tiles.h = math.ceil(data.rect.h / self.spriteSize.y)
+  data.tiles.c = math.floor(data.rect.x / data.charSize.x)
+  data.tiles.r = math.floor(data.rect.y / data.charSize.y)
+  data.tiles.w = math.ceil(data.rect.w / data.charSize.x)
+  data.tiles.h = math.ceil(data.rect.h / data.charSize.y)
   data.viewPort = NewRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h)
   data.bgMaskDrawArguments[1] = data.rect.x
   data.bgMaskDrawArguments[2] = data.rect.y
