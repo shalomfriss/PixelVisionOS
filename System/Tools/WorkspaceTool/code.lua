@@ -73,15 +73,15 @@ local fileTypeMap =
 local extToTypeMap = 
 {
   colors = ".png",
-  system = "json",
+  system = ".json",
   font = ".font.png",
-  music = "json",
-  sounds = "json",
+  music = ".json",
+  sounds = ".json",
   sprites = ".png",
-  tilemap = "json",
-  installer = "txt",
-  info = "json",
-  wav = "wav"
+  tilemap = ".json",
+  installer = ".txt",
+  info = ".json",
+  wav = ".wav"
 }
 
 local rootPath = ReadMetaData("RootPath", "/")
@@ -176,7 +176,7 @@ function Init()
     {divider = true},
 
     -- Edit ID 7
-    {name = "Edit", key = Keys.E, action = OnEdit, enabled = false, toolTip = "Edit the selected file."},
+    -- {name = "Edit", key = Keys.E, action = OnEdit, enabled = false, toolTip = "Edit the selected file."},
     -- Edit ID 8
     {name = "Rename", action = OnTriggerRename, enabled = false, toolTip = "Rename the currently selected file."},
     -- Copy ID 9
@@ -282,6 +282,8 @@ function Init()
   pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
   RebuildDesktopIcons()
+
+  desktopHitRect = NewRect(0, 12, 256, 229)
 
   local newPath = ReadSaveData("lastPath", "none")
 
@@ -403,6 +405,11 @@ function OnTriggerRename(callback)
 end
 
 function OnRenameFile(text)
+
+  -- Extra check to make sure the name is not empty
+  if(text == "") then
+    return
+  end
 
   local file = CurrentlySelectedFile()
 
@@ -1183,6 +1190,8 @@ function DeleteFile(path)
 end
 
 function OpenWindow(path, scrollTo, selection)
+
+
 
   if(scrollTo == nil and windowScrollHistory[path] ~= nil) then
     scrollTo = windowScrollHistory[path]
@@ -2136,6 +2145,17 @@ function Update(timeDelta)
     editorUI:UpdateButton(closeButton)
 
     editorUI:UpdateSlider(vSliderData)
+
+    if(editorUI.collisionManager.mouseDown and desktopHitRect:Contains(editorUI.collisionManager.mousePos.x, editorUI.collisionManager.mousePos.y) and editorUI.cursorID == 1) then
+
+      if(windowIconButtons ~= nil and windowIconButtons.currentSelection > 0) then
+        editorUI:ClearIconGroupSelections(windowIconButtons)
+      elseif(desktopIconButtons.currentSelection > 0) then
+        editorUI:ClearGroupSelections(desktopIconButtons)
+      end
+
+    end
+
   end
 
   if(fileActionActive == true) then

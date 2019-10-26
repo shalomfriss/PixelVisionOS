@@ -222,7 +222,6 @@ function EditorUI:UpdateIconButton(data, hitRect)
   if(self.collisionManager.mouseDown and data.inFocus == false) then
 
     if(data.highlight == true and collision == false) then
-      print("Reset", data.name)
       self:HighlightIconButton(data, false)
     end
 
@@ -542,8 +541,6 @@ function EditorUI:IconGroupAddButton(data, buttonData, id)
       if(buttonData.selected == false) then
         self:SelectIconButton(data, id)
       end
-      -- TODO need to disable the icon when dragging
-      print("Redraw", buttonData.name, "disabled")
 
       data.draggingSrc = buttonData.iconPath
       data.draggingPixelData = buttonData.cachedPixelData["dragging"]
@@ -793,9 +790,7 @@ function EditorUI:ToggleIconGroupSelections(data)
 end
 
 function EditorUI:ClearIconGroupSelections(data)
-
   self:ClearGroupSelections(data)
-
 end
 
 function EditorUI:ClearIconGroup(data)

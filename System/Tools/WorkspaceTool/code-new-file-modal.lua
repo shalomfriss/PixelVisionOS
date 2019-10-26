@@ -60,6 +60,10 @@ function NewFileModal:Open()
 
   -- if(self.firstRun == nil) then
 
+
+  self.keyDelay = .2
+  self.keyTime = 0
+
   self.canvas:Clear()
   -- Save a snapshot of the TilemapCache
 
@@ -129,30 +133,16 @@ function NewFileModal:Open()
   table.insert(self.buttons, backBtnData)
   table.insert(self.buttons, cancelBtnData)
 
-  --   self.firstRun = false;
-  --
-  -- end
-
   local spriteData = renameinputfield
 
   self.canvas:DrawSprites(spriteData.spriteIDs, 8, 16 + 8, spriteData.width)
 
   self.inputField = self.editorUI:CreateInputField({x = self.rect.x + 16, y = self.rect.y + 32, w = 192}, "Untitled", "Enter a new filename.", "file")
 
-  -- TODO this has been disabled since the field draws after the modal
-  -- self.inputField.onAction = function()
-  --   self.selectionValue = true
-  --   self.onParentClose()
-  -- end
+  local startX = 16
+  local startY = 16
 
-  local startX = 16--
-  local startY = 16--self.rect.y + 8
-
-  -- Draw message text
-  -- local wrap = WordWrap(self.message, (self.rect.w / 4) - 4)
-  -- local lines = SplitLines(wrap)
   local total = #self.lines
-
 
   -- We want to render the text from the bottom of the screen so we offset it and loop backwards.
   for i = 1, total do
@@ -183,6 +173,7 @@ function NewFileModal:Close()
   -- Do nothing
 end
 
+
 function NewFileModal:Update(timeDelta)
 
   for i = 1, #self.buttons do
@@ -190,6 +181,23 @@ function NewFileModal:Update(timeDelta)
   end
 
   self.editorUI:UpdateInputField(self.inputField)
+
+  if(self.inputField.editing == false) then
+    -- print("Key Input")
+    self.keyTime = self.keyTime + timeDelta
+
+    if((self.keyTime > self.keyDelay)) then
+      if(Key(Keys.Enter, InputState.Released)) then
+        self.selectionValue = true
+        self.onParentClose()
+      elseif(Key(Keys.Escape, InputState.Released)) then
+        self.selectionValue = false
+        self.onParentClose()
+      end
+    end
+  else
+    self.keyTime = 0
+  end
 
 end
 

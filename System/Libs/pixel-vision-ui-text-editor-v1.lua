@@ -30,7 +30,7 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
   data.lastCX = 0
 
   data.editable = true
-
+  data.endOfLineOffset = 1
   data.viewPort = NewRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h)
   data.cursorPos = {x = 0, y = 0, color = 0}
   data.inputDelay = .15
@@ -455,9 +455,9 @@ function EditorUI:TextEditorCheckPosition(data)
   end
 
   --X position checking--
-  if data.buffer[data.cy]:len() < data.cx - 1 then data.cx = data.buffer[data.cy]:len() + 1 end --Passed the end of the line !
+  if data.buffer[data.cy]:len() < data.cx - 1 then data.cx = data.buffer[data.cy]:len() + data.endOfLineOffset end --Passed the end of the line !
 
-  data.cx = Clamp(data.cx, 1, data.maxLineWidth + 1)
+  data.cx = Clamp(data.cx, 1, data.buffer[data.cy]:len() + data.endOfLineOffset)
 
   if data.cx > data.tiles.w + (data.vx - 1) then --Passed the screen to the right
     data.vx = data.cx - (data.tiles.w - 1); flag = true
@@ -483,9 +483,10 @@ end
 --Draw the cursor blink
 function EditorUI:TextEditorDrawBlink(data)
 
-  if data.sxs then return end
+  -- Don't blink if there is a selection or the cursor is off the screen
+  if data.sxs or data.cx > (data.vx + (data.tiles.w - 1)) then return end
 
-  if data.cy - data.vy < 0 or data.cy - data.vy > data.tiles.h - 1 then return end
+  if data.cy - data.vy < 0 or data.cy - data.vy > data.tiles.h then return end
   if data.bflag then
 
     local bx = (data.cx - data.vx) * (data.fw)
@@ -495,7 +496,8 @@ function EditorUI:TextEditorDrawBlink(data)
 
     local char = data.buffer[data.cy]:sub(charIndex, charIndex)
 
-    if(char == "") then
+    -- Need to replace empty characters with a space
+    if(char == "" or char == "\r") then
       char = " "
     end
 
@@ -1020,7 +1022,7 @@ end
 
 -- Last used key, this should be set to the last keymap used from the data.keymap table
 
-function EditorUI:TextEditorMousepressed(data, cx, cy)--, istouch)
+function EditorUI:TextEditorMousePressed(data, cx, cy)--, istouch)
 
   -- local cx, cy = self:TextEditorWhereInGrid(x, y, data.charGrid)
   if (not data.mflag and data.inFocus) then
@@ -1037,7 +1039,9 @@ function EditorUI:TextEditorMousepressed(data, cx, cy)--, istouch)
 
     self:TextEditorCheckPosition(data)
 
+
   end
+
 end
 
 function EditorUI:TextEditorMouseMoved(data, cx, cy)--, dx, dy, it)
@@ -1056,17 +1060,25 @@ function EditorUI:TextEditorMouseMoved(data, cx, cy)--, dx, dy, it)
 
   if(data.cx ~= cx2 or data.cy ~= cy2) then
 
-    --print(data.name, "Mouse move", cx, cy)
+    -- Save the cursor position
+    data.cx = cx2
+    data.cy = cy2
 
+    -- Make sure cursor is in range
+    self:TextEditorCheckPosition(data)
+
+    -- Disable blink flag
     data.bflag = false --Disable blinking
+
+    -- Start selection
     if not data.sxs then --Start the selection
-      data.sxs, data.sys = cx2, cy2
+      data.sxs, data.sys = data.cx, data.cy
       data.sxe, data.sye = data.cx, data.cy
       -- Note: the ordered selection is given by EditorUI:TextEditorGetOrderedSelect(data)
       -- This is used to avoid extra overhead.
     else
 
-      data.sxe, data.sye = cx2, cy2
+      data.sxe, data.sye = data.cx, data.cy
 
       if cx > data.tiles.w - 2 then
         data.sflag.x = 1
@@ -1089,12 +1101,12 @@ function EditorUI:TextEditorMouseMoved(data, cx, cy)--, dx, dy, it)
 
     end
 
-    -- Save the cursor position
-    data.cx = cx2
-    data.cy = cy2
+
 
 
   end
+
+  self:TextEditorCheckPosition(data)
 
 end
 -- end
@@ -1143,13 +1155,15 @@ function EditorUI:TextEditorUpdate(data, dt)
         self:SetFocus(data, 3)
       end
 
-      self:TextEditorMouseMoved(data, cx, cy)
+
 
       if(self.collisionManager.mouseReleased == true and data.editing == false) then
 
         self:EditTextEditor(data, true)
 
       end
+
+      self:TextEditorMouseMoved(data, cx, cy)
 
     else
 
@@ -1170,7 +1184,7 @@ function EditorUI:TextEditorUpdate(data, dt)
   if(data.inFocus == true)then
 
     if(self.collisionManager.mouseDown == true) then
-      self:TextEditorMousepressed(data, cx, cy, 0)
+      self:TextEditorMousePressed(data, cx, cy, 0)
       -- end
     elseif(self.collisionManager.mouseReleased == true) then
       self:TextEditorMouseReleased(data)

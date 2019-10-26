@@ -29,7 +29,7 @@ function EditorUI:CreateInputField(rect, text, toolTip, pattern, font, colorOffs
 
   data.multiline = data.tiles.h > 1
   data.maxLines = data.tiles.h
-
+  data.endOfLineOffset = 1
   data.nextField = nil
   data.previousField = nil
   data.clearValue = ""
@@ -46,9 +46,6 @@ function EditorUI:CreateInputField(rect, text, toolTip, pattern, font, colorOffs
     keys = '%a',
     note = '[A-G#]'
   }
-
-  -- Make sure the component has a default text value
-  -- data.text = self:TextEditorExport(data)
 
   -- Remap return
   data.keymap["return"] = function(targetData)
@@ -71,7 +68,6 @@ function EditorUI:CreateInputField(rect, text, toolTip, pattern, font, colorOffs
   data.keymap["down"] = data.keymap["end"]
 
   data.captureInput = function(targetData)
-
 
     local inputString = InputString()
     local outputString = ""
@@ -122,10 +118,12 @@ end
 
 function EditorUI:OnEditTextInputField(data, value)
 
-  data.previousValue = data.buffer[1]
+
 
   -- Test to see if we are entering edit mode
   if(value == true) then
+
+    data.previousValue = data.buffer[1]
 
     -- Clear the buffer if the input field is only 1 character
     if(data.tiles.w == 1) then
@@ -136,18 +134,19 @@ function EditorUI:OnEditTextInputField(data, value)
 
   elseif(value == false and data.editing == true) then
 
+    -- If empty, restore the previous value
+    if(data.buffer[1] == "") then
+      data.buffer[1] = data.previousValue
+    end
+
     self:TextEditorGotoLineStart(data)
     -- If we were just editing, force the buffer back through the valdation
     self:ChangeInputField(data, data.buffer[1], false)
   end
 
-  -- self:EditTextEditor(data, value, false)
-
 end
 
 function EditorUI:UpdateInputField(data)
-
-
 
   self:UpdateInputArea(data)
 
@@ -198,7 +197,6 @@ function EditorUI:ChangeInputField(data, text, trigger)
           if(value < data.min) then value = data.min end
         end
 
-        -- print("Correct", data.name, data.min, data.max, value)
         -- make sure that the value us below the maximum allowed value
         if(data.max ~= nil) then
           if(value > data.max) then value = data.max end
@@ -210,7 +208,7 @@ function EditorUI:ChangeInputField(data, text, trigger)
     end
 
   end
-  --
+
   if(trigger ~= false)then
     trigger = data.text ~= text
   end

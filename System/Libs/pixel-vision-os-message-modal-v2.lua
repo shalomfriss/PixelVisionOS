@@ -148,4 +148,12 @@ function MessageModal:Update(timeDelta)
     self.editorUI:UpdateButton(self.buttons[i])
   end
 
+  if(Key(Keys.Enter, InputState.Released)) then
+    self.selectionValue = true
+    self.onParentClose()
+  elseif(Key(Keys.Escape, InputState.Released) and self.showCancel) then
+    self.selectionValue = false
+    self.onParentClose()
+  end
+
 end

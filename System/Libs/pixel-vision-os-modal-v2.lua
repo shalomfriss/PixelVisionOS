@@ -18,6 +18,9 @@ function PixelVisionOS:OpenModal(modal, callBack)
 
   SaveTilemapCache()
 
+  self.closeDelay = .2
+  self.closeTime = -1
+
   -- Clear the previous mouse focus
   self.editorUI:ClearFocus()
 
