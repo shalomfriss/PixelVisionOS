@@ -14,10 +14,9 @@
 LoadScript("sb-sprites")
 LoadScript("pixel-vision-os-v2")
 LoadScript("code-icon-button")
-LoadScript("code-new-file-modal")
 LoadScript("code-workspace-utils")
 LoadScript("pixel-vision-os-progress-modal-v1")
-
+LoadScript("pixel-vision-os-file-modal-v1")
 
 local toolName = "Workspace Explorer"
 local filesToCopy = nil
@@ -243,7 +242,7 @@ function Init()
     addAt = addAt + 1
   end
 
-  if(PathExists(fileTemplatePath.AppendFile("font.png"))) then
+  if(PathExists(fileTemplatePath.AppendFile("large.font.png"))) then
 
     table.insert(menuOptions, addAt, {name = "New Font", action = function() OnNewFile("untitled", "font.png", "font") end, enabled = false, toolTip = "Run the current game."})
     table.insert(newFileOptions, {name = "New Font"})

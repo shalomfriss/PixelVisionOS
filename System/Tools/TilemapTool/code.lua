@@ -293,14 +293,12 @@ function Init()
 
   else
 
-    DrawRect(8, 24, 128, 48, 0, DrawMode.TilemapCache)
-    DrawRect(152, 76, 3, 9, BackgroundColor(), DrawMode.TilemapCache)
+    DrawRect(8, 24, 128, 32, 0, DrawMode.TilemapCache)
+    DrawRect(152, 60, 3, 9, BackgroundColor(), DrawMode.TilemapCache)
 
-    DrawRect(8, 112, 224, 96, 0, DrawMode.TilemapCache)
+    DrawRect(184, 24, 64, 16, 0, DrawMode.TilemapCache)
 
-    DrawRect(176, 24, 64, 64, 0, DrawMode.TilemapCache)
-
-    DrawRect(240, 92, 3, 9, BackgroundColor(), DrawMode.TilemapCache)
+    DrawRect(248, 44, 3, 9, BackgroundColor(), DrawMode.TilemapCache)
 
     pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
@@ -311,8 +309,6 @@ function Init()
     )
 
   end
-
-
 
 end
 

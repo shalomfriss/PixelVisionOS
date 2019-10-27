@@ -45,11 +45,6 @@ function NewFileModal:SetText(title, inputText, message, editable)
   local wrap = WordWrap(message, (self.rect.w / 4) - 4)
   self.lines = SplitLines(wrap)
 
-
-  -- self.editorUI:ChangeInputField(self.inputField, self.defaultText)
-  -- Update the input field
-
-
 end
 
 function NewFileModal:GetText()
@@ -58,7 +53,8 @@ end
 
 function NewFileModal:Open()
 
-  -- if(self.firstRun == nil) then
+  self.keyDelay = .2
+  self.keyTime = 0
 
   self.canvas:Clear()
   -- Save a snapshot of the TilemapCache
@@ -77,29 +73,15 @@ function NewFileModal:Open()
 
   self.canvas:DrawText(self.title:upper(), tmpX, 0, "small", 15, - 4)
 
-  -- TODO need to draw highlight stroke
-
   self.canvas:SetStroke({15}, 1, 1)
   self.canvas:DrawLine(2, 8, self.canvas.width - 4, 8)
   self.canvas:DrawLine(2, 8, 2, self.canvas.height - 4)
 
-
-
-
   self.buttons = {}
-
-  -- TODO Create button states?
-  --
-  -- local buttonSize = {x = 32, y = 16}
-  --
-  -- local bX = math.floor((((self.rect.w - buttonSize.x) * .5) + self.rect.x) / 8) * 8
-  -- local bY = math.floor(((self.rect.y + self.rect.h) - buttonSize.y - 8) / 8) * 8
 
   local backBtnData = self.editorUI:CreateButton({x = self.rect.x + 184, y = self.rect.y + 48}, "modalokbutton", "Accept the changes.")
 
   backBtnData.onAction = function()
-
-    self.editorUI:EditTextEditor(self.inputField, false)
 
     -- Set value to true when ok is pressed
     self.selectionValue = true
@@ -113,10 +95,6 @@ function NewFileModal:Open()
 
   cancelBtnData.onAction = function()
 
-    -- Restore the default text value
-    self.editorUI:ChangeInputField(self.inputField, self.defaultText)
-
-
     -- Set value to true when cancel is pressed
     self.selectionValue = false
 
@@ -129,29 +107,16 @@ function NewFileModal:Open()
   table.insert(self.buttons, backBtnData)
   table.insert(self.buttons, cancelBtnData)
 
-  --   self.firstRun = false;
-  --
-  -- end
-
   local spriteData = renameinputfield
 
   self.canvas:DrawSprites(spriteData.spriteIDs, 8, 16 + 8, spriteData.width)
 
   self.inputField = self.editorUI:CreateInputField({x = self.rect.x + 16, y = self.rect.y + 32, w = 192}, "Untitled", "Enter a new filename.", "file")
 
-  self.inputField.onAction = function()
-    self.selectionValue = true
-    self.onParentClose()
-  end
+  local startX = 16
+  local startY = 16
 
-  local startX = 16--
-  local startY = 16--self.rect.y + 8
-
-  -- Draw message text
-  -- local wrap = WordWrap(self.message, (self.rect.w / 4) - 4)
-  -- local lines = SplitLines(wrap)
   local total = #self.lines
-
 
   -- We want to render the text from the bottom of the screen so we offset it and loop backwards.
   for i = 1, total do
@@ -178,25 +143,6 @@ function NewFileModal:ShutdownTextField()
   self.editorUI:ResetValidation(self.inputField)
 end
 
-function NewFileModal:Close()
-
-  self:ShutdownTextField()
-
-  -- local filePath = self.currentDirectory .. self.inputField.text .. "." .. self.ext
-  --
-  -- -- print("Create new file", self.ext, self.inputField.text, self.currentDirectory .. self.inputField.text .. "." .. self.ext)
-  --
-  -- NewFile(filePath)
-  -- Need to make sure the input field doesn't redraw so
-
-
-  -- self.inputField.invalid = false
-  -- print("Modal Close")
-  -- if(self.onParentClose ~= nil) then
-  --   self.onParentClose()
-  -- end
-end
-
 function NewFileModal:Update(timeDelta)
 
   for i = 1, #self.buttons do
@@ -205,8 +151,21 @@ function NewFileModal:Update(timeDelta)
 
   self.editorUI:UpdateInputField(self.inputField)
 
-end
+  if(self.inputField.editing == false) then
+    -- print("Key Input")
+    self.keyTime = self.keyTime + timeDelta
 
-function NewFileModal:Draw()
+    if((self.keyTime > self.keyDelay)) then
+      if(Key(Keys.Enter, InputState.Released)) then
+        self.selectionValue = true
+        self.onParentClose()
+      elseif(Key(Keys.Escape, InputState.Released)) then
+        self.selectionValue = false
+        self.onParentClose()
+      end
+    end
+  else
+    self.keyTime = 0
+  end
 
 end

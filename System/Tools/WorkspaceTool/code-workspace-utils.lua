@@ -76,9 +76,6 @@ function GetDirectoryContents(workspacePath)
 
       end
 
-      -- TODO insert table into entity list
-
-
     end
 
   end

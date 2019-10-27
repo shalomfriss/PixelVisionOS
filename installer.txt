@@ -31,10 +31,12 @@ $dir=System
 /System/Libs/pixel-vision-os-color-picker-v2.lua|/Libs/pixel-vision-os-color-picker-v2.lua
 /System/Libs/pixel-vision-os-color-picker-v3.lua|/Libs/pixel-vision-os-color-picker-v3.lua
 /System/Libs/pixel-vision-os-color-utils-v2.lua|/Libs/pixel-vision-os-color-utils-v2.lua
+/System/Libs/pixel-vision-os-file-modal-v1.lua|/Libs/pixel-vision-os-file-modal-v1.lua
 /System/Libs/pixel-vision-os-item-picker-v1.lua|/Libs/pixel-vision-os-item-picker-v1.lua
 /System/Libs/pixel-vision-os-message-bar-v2.lua|/Libs/pixel-vision-os-message-bar-v2.lua
 /System/Libs/pixel-vision-os-message-modal-v2.lua|/Libs/pixel-vision-os-message-modal-v2.lua
 /System/Libs/pixel-vision-os-modal-v2.lua|/Libs/pixel-vision-os-modal-v2.lua
+/System/Libs/pixel-vision-os-progress-modal-v1.lua|/Libs/pixel-vision-os-progress-modal-v1.lua
 /System/Libs/pixel-vision-os-sprite-picker-v3.lua|/Libs/pixel-vision-os-sprite-picker-v3.lua
 /System/Libs/pixel-vision-os-tilemap-picker-v1.lua|/Libs/pixel-vision-os-tilemap-picker-v1.lua
 /System/Libs/pixel-vision-os-title-bar-v2.lua|/Libs/pixel-vision-os-title-bar-v2.lua

@@ -158,6 +158,10 @@ function PixelVisionOS:CreateTitleBarMenu(items, toolTip)
   self.editorUI:Enable(iconButton, true)
   iconButton.toolTip = toolTip
 
+  -- TODO Button draws should always happen on the first frame? (This breaks in tilemap tool since it loads in wait mode)
+  -- Force this to draw just incase the tool loads up in wait mode
+  self.editorUI:UpdateButton(iconButton)
+
   local data = {
     options = items,
     menuSelection = -1,
@@ -331,10 +335,14 @@ function PixelVisionOS:UpdateTitleBar(data, timeDelta)
     self.editorUI:Enable(data.muteBtnData, true)
   end
 
-  -- Update buttons
-  self.editorUI:UpdateButton(data.iconButton)
-  self.editorUI:UpdateButton(data.muteBtnData)
+  -- Only update these buttons if the mouse is not in wait mode
+  if(self.editorUI.mouseCursor.cursorID ~= 5) then
 
+    -- Update buttons
+    self.editorUI:UpdateButton(data.iconButton)
+    self.editorUI:UpdateButton(data.muteBtnData)
+
+  end
 
   self:DrawTitleBar(data)
 
