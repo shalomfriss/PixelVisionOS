@@ -16,7 +16,6 @@ LoadScript("pixel-vision-os-v2")
 
 local toolName = "System Settings"
 
-
 -- List of all the valid keys
 local keyCodeMap = {
   {name = None, keyCode = 0, char = ""},
