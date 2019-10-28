@@ -154,6 +154,9 @@ local scaleInputData = nil
 local playSound = false
 local selectedInputID = 1
 
+local DrawVersion, TuneVersion = "Pixel Vision 8 Draw", "Pixel Vision 8 Tune"
+local runnerName = SystemName()
+
 local buttonTypes = {
   "Up",
   "Down",
@@ -257,29 +260,16 @@ function Init()
   volumeKnobData = editorUI:CreateKnob({x = 16, y = 192, w = 24, h = 24}, "knob", "Change the volume.")
   volumeKnobData.onAction = OnVolumeChange
   volumeKnobData.value = Volume() / 100
-  -- print( Volume())
-  -- OnVolumeChange()
+
   editorUI:Enable(volumeKnobData, not Mute())
 
   brightnessKnobData = editorUI:CreateKnob({x = 40, y = 192, w = 24, h = 24}, "knob", "Change the brightness.")
   brightnessKnobData.onAction = OnBrightnessChange
   brightnessKnobData.value = (Brightness() - .5)
-  -- brightnessKnobData.value = Volume() / 100
-  -- editorUI:Enable(brightnessKnobData, not Mute())
 
   sharpnessKnobData = editorUI:CreateKnob({x = 64, y = 192, w = 24, h = 24}, "knob", "Change the sharpness.")
   sharpnessKnobData.onAction = OnSharpnessChange
   sharpnessKnobData.value = (((Sharpness() * - 1) / 6))
-
-  -- brightnessKnobData.value = Volume() / 100
-  -- editorUI:Enable(brightnessKnobData, not Mute())
-
-
-  -- Toggle Button
-  -- muteBtnData = editorUI:CreateToggleButton({x = 40, y = 192}, "mute", "This is a toggle button.")
-  -- muteBtnData.hitRect = {x = 40 + 2, y = 192 + 4, w = 28, h = 15}
-  -- muteBtnData.onAction = OnMute
-  -- muteBtnData.selected = Mute()
 
   scaleInputData = editorUI:CreateInputField({x = 112, y = 200, w = 8}, Scale(), "This changes the scale of the window when not in fullscreen.", "number")
   scaleInputData.min = 1
@@ -328,6 +318,8 @@ function Init()
     editorUI:CreateInputField({x = 224, y = 200, w = 8}, "", "Restart"),
   }
 
+
+
   usedShortcutKeys = {}
 
   for i = 1, #shortcutFields do
@@ -364,67 +356,71 @@ function Init()
 
   end
 
-  inputFields = {
-    editorUI:CreateInputField({x = 56, y = 80, w = 8}, "", "Up"),
-    editorUI:CreateInputField({x = 56, y = 96, w = 8}, "", "Down"),
-    editorUI:CreateInputField({x = 56, y = 112, w = 8}, "", "Left"),
-    editorUI:CreateInputField({x = 56, y = 128, w = 8}, "", "Right"),
-    editorUI:CreateInputField({x = 120, y = 120, w = 8}, "", "Select"),
-    editorUI:CreateInputField({x = 144, y = 120, w = 8}, "", "Start"),
-    editorUI:CreateInputField({x = 184, y = 120, w = 8}, "", "A"),
-    editorUI:CreateInputField({x = 208, y = 120, w = 8}, "", "B")
-  }
+  if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
+    inputFields = {
+      editorUI:CreateInputField({x = 56, y = 80, w = 8}, "", "Up"),
+      editorUI:CreateInputField({x = 56, y = 96, w = 8}, "", "Down"),
+      editorUI:CreateInputField({x = 56, y = 112, w = 8}, "", "Left"),
+      editorUI:CreateInputField({x = 56, y = 128, w = 8}, "", "Right"),
+      editorUI:CreateInputField({x = 120, y = 120, w = 8}, "", "Select"),
+      editorUI:CreateInputField({x = 144, y = 120, w = 8}, "", "Start"),
+      editorUI:CreateInputField({x = 184, y = 120, w = 8}, "", "A"),
+      editorUI:CreateInputField({x = 208, y = 120, w = 8}, "", "B")
+    }
 
-  -- We need to manually store values for all of the keys
-  usedControllerKeys = {}
+    -- We need to manually store values for all of the keys
+    usedControllerKeys = {}
 
-  -- Player 1 Keys
-  for i = 1, #player1Keys do
+    -- Player 1 Keys
+    for i = 1, #player1Keys do
 
-    local key = player1Keys[i]
+      local key = player1Keys[i]
 
-    usedControllerKeys[key] = ConvertKeyCodeToChar(tonumber(ReadMetaData(key)))
-
-  end
-
-  -- Player 2 Keys
-  for i = 1, #player2Keys do
-
-    local key = player2Keys[i]
-
-    usedControllerKeys[key] = ConvertKeyCodeToChar(tonumber(ReadMetaData(key)))
-
-  end
-
-  -- TODO need to create a map for player 1 & 2 controller
-
-  usedControllerButtons = {}
-
-  for i = 1, #inputFields do
-    local field = inputFields[i]
-    field.type = field.toolTip
-
-    field.toolTip = "Remap the " .. field.type .. " key."
-    field.captureInput = function()
-
-      -- TODO need to see what mode we are in and pass the correct used keys
-      local usedKeys = usedControllerKeys
-
-      return ValidateInput(field, usedKeys, field.text)
-
-    end
-    field.onAction = function(value)
-
-      DrawInputSprite(field.type)
-
-      InvalidateData()
+      usedControllerKeys[key] = ConvertKeyCodeToChar(tonumber(ReadMetaData(key)))
 
     end
 
+    -- Player 2 Keys
+    for i = 1, #player2Keys do
+
+      local key = player2Keys[i]
+
+      usedControllerKeys[key] = ConvertKeyCodeToChar(tonumber(ReadMetaData(key)))
+
+    end
+
+    -- TODO need to create a map for player 1 & 2 controller
+
+    usedControllerButtons = {}
+
+    for i = 1, #inputFields do
+      local field = inputFields[i]
+      field.type = field.toolTip
+
+      field.toolTip = "Remap the " .. field.type .. " key."
+      field.captureInput = function()
+
+        -- TODO need to see what mode we are in and pass the correct used keys
+        local usedKeys = usedControllerKeys
+
+        return ValidateInput(field, usedKeys, field.text)
+
+      end
+      field.onAction = function(value)
+
+        DrawInputSprite(field.type)
+
+        InvalidateData()
+
+      end
+
+    end
+
+    editorUI:SelectToggleButton(playerButtonGroupData, 1)
+
+  else
+    DrawRect(4, 16, 248, 156, BackgroundColor(), DrawMode.TilemapCache)
   end
-
-  editorUI:SelectToggleButton(playerButtonGroupData, 1)
-
 end
 
 function RemapKey(keyName, keyCode)
@@ -749,8 +745,7 @@ function Update(timeDelta)
 
     -- Update toggle groups
     editorUI:UpdateToggleGroup(checkboxGroupData)
-    editorUI:UpdateToggleGroup(playerButtonGroupData)
-    editorUI:UpdateToggleGroup(inputButtonGroupData)
+
 
     editorUI:UpdateInputField(scaleInputData)
 
@@ -758,8 +753,55 @@ function Update(timeDelta)
       editorUI:UpdateInputField(shortcutFields[i])
     end
 
-    for i = 1, #inputFields do
-      editorUI:UpdateInputField(inputFields[i])
+    if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
+
+      editorUI:UpdateToggleGroup(playerButtonGroupData)
+      editorUI:UpdateToggleGroup(inputButtonGroupData)
+
+      for i = 1, #inputFields do
+        editorUI:UpdateInputField(inputFields[i])
+      end
+
+      -- Loop through all of the inputs and see if a controller button should be pressed
+
+      -- See if we are in keyboard mode
+      if(selectedInputID == 1) then
+
+        -- Loop through each of the input fields
+        for i = 1, #inputFields do
+
+          -- Get the field and its value
+          local field = inputFields[i]
+          local value = field.text
+
+          -- Test if the input field's map value is down
+          if(Key(ConvertKeyToKeyCode(value), InputState.Down)) then
+
+            -- Update the sprite
+            DrawInputSprite(field.type)
+
+          end
+
+        end
+
+        -- If we are not in keyboard mode, it will switch to the controller mode
+      else
+
+        -- Loop through each of the buttons
+        for i = 1, totalButtons do
+
+          -- Go through each button and see if it is down for the selected player
+          if(Button(i - 1, InputState.Down, selectedPlayerID - 1)) then
+
+            -- Draw the correct sprite
+            DrawInputSprite(buttonTypes[i])
+
+          end
+
+        end
+
+      end
+
     end
 
     if(editorUI.collisionManager.mouseDown == false and playSound == true) then
@@ -768,45 +810,8 @@ function Update(timeDelta)
 
     end
 
-    -- Loop through all of the inputs and see if a controller button should be pressed
 
-    -- See if we are in keyboard mode
-    if(selectedInputID == 1) then
 
-      -- Loop through each of the input fields
-      for i = 1, #inputFields do
-
-        -- Get the field and its value
-        local field = inputFields[i]
-        local value = field.text
-
-        -- Test if the input field's map value is down
-        if(Key(ConvertKeyToKeyCode(value), InputState.Down)) then
-
-          -- Update the sprite
-          DrawInputSprite(field.type)
-
-        end
-
-      end
-
-      -- If we are not in keyboard mode, it will switch to the controller mode
-    else
-
-      -- Loop through each of the buttons
-      for i = 1, totalButtons do
-
-        -- Go through each button and see if it is down for the selected player
-        if(Button(i - 1, InputState.Down, selectedPlayerID - 1)) then
-
-          -- Draw the correct sprite
-          DrawInputSprite(buttonTypes[i])
-
-        end
-
-      end
-
-    end
 
     blinkTime = blinkTime + timeDelta
 

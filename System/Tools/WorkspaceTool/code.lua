@@ -25,7 +25,7 @@ local editorUI = nil
 
 local lastStartID = nil
 local windowInvalidated = false
-local PlayVersion, DrawVersion, TuneVersion = "Pixel Vision 8 Play", "Pixel Vision 8 Draw", "Pixel Vision 8 Tune"
+local DrawVersion, TuneVersion = "Pixel Vision 8 Draw", "Pixel Vision 8 Tune"
 local runnerName = SystemName()
 
 local totalPerWindow = 12
@@ -113,7 +113,9 @@ local WindowFocus, DesktopIconFocus, WindowIconFocus, NoFocus = 1, 2, 3, 4
 
 local desktopIcons = {}
 
-NewFolderShortcut, EditShortcut, RenameShortcut, CopyShortcut, PasteShortcut, DeleteShortcut, RunShortcut, BuildShortcut, EmptyTrashShortcut, EjectDiskShortcut = "New Folder", "Edit", "Rename", "Copy", "Paste", "Delete", "Run", "Build", "Empty Trash", "Eject Disk"
+NewFolderShortcut, EditShortcut, RenameShortcut, CopyShortcut, PasteShortcut, DeleteShortcut, EmptyTrashShortcut, EjectDiskShortcut = "New Folder", "Edit", "Rename", "Copy", "Paste", "Delete", "Empty Trash", "Eject Disk"
+
+
 
 -- Get all of the available editors
 local editorMapping = {}
@@ -185,11 +187,7 @@ function Init()
     -- Delete ID 11
     {name = "Delete", key = Keys.D, action = OnDeleteFile, enabled = false, toolTip = "Delete the current file."},
     {divider = true},
-    -- Empty Trash ID 13
-    {name = "Run", key = Keys.R, action = OnRun, enabled = false, toolTip = "Run the current game."},
-    -- Empty Trash ID 14
-    {name = "Build", action = OnExportGame, enabled = false, toolTip = "Create a PV8 file from the current game."},
-    {divider = true},
+
     -- Empty Trash ID 16
     {name = "Empty Trash", action = OnEmptyTrash, enabled = false, toolTip = "Delete everything in the trash."},
     -- Eject ID 17
@@ -213,6 +211,17 @@ function Init()
   newFileOptions = {}
 
   -- TODO this should be done better
+
+  if(runnerName == DrawVersion or runnerName == TuneVersion) then
+
+    table.insert(menuOptions, addAt, {name = "New Data", action = function() OnNewFile("data", "json", "data", false) end, enabled = false, toolTip = "Run the current game."})
+    table.insert(newFileOptions, {name = "New Data", file = "data.json"})
+    addAt = addAt + 1
+
+    -- table.insert(menuOptions, addAt, {name = "New Info", action = function() OnNewFile("info", "json", "info", false) end, enabled = false, toolTip = "Run the current game."})
+    -- table.insert(newFileOptions, {name = "New Info", file = "info.json"})
+    -- addAt = addAt + 1
+  end
 
   -- Add text options to the menu
   if(runnerName ~= PlayVersion and runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
@@ -274,6 +283,25 @@ function Init()
     addAt = addAt + 1
 
   end
+
+  if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
+
+    -- TODO need to add to the offset
+    addAt = addAt + 6
+    -- Empty Trash ID 13
+    table.insert(menuOptions, addAt, {name = "Run", key = Keys.R, action = OnRun, enabled = false, toolTip = "Run the current game."})
+    addAt = addAt + 1
+
+    table.insert(menuOptions, addAt, {name = "Build", action = OnExportGame, enabled = false, toolTip = "Create a PV8 file from the current game."})
+    addAt = addAt + 1
+
+    table.insert(menuOptions, addAt, {divider = true})
+    addAt = addAt + 1
+
+    RunShortcut, BuildShortcut = "Run", "Build"
+
+  end
+
 
   pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
@@ -1324,7 +1352,7 @@ function UpdateContextMenu(inFocus)
 
   if(inFocus == WindowFocus) then
 
-    local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory) and not TrashOpen()
+    local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory, {"data.json", "info.json", "code.lua"}) and not TrashOpen()
 
     if(runnerName == DrawVersion or runnerName == TuneVersion) then
       canRun = false
@@ -1359,12 +1387,17 @@ function UpdateContextMenu(inFocus)
     -- File options
     pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
 
-    pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
+    if(RunShortcut ~= nil) then
+      pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
+    end
+
     pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
-    -- pixelVisionOS:EnableMenuItemByName(RunShortcut, not TrashOpen())
     pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
     pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
-    pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun)
+
+    if(BuildShortcut ~= nil) then
+      pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun)
+    end
 
     pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, CanEject())
 
@@ -1390,12 +1423,17 @@ function UpdateContextMenu(inFocus)
     -- pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
     pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
 
-    pixelVisionOS:EnableMenuItemByName(RunShortcut, false)
+    if(RunShortcut ~= nil) then
+      pixelVisionOS:EnableMenuItemByName(RunShortcut, false)
+    end
+
     pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
     pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
     pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
     pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
-    pixelVisionOS:EnableMenuItemByName(BuildShortcut, false)
+    if(BuildShortcut ~= nil) then
+      pixelVisionOS:EnableMenuItemByName(BuildShortcut, false)
+    end
     -- Disk options
     pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, CanEject())
 
@@ -1412,9 +1450,9 @@ function UpdateContextMenu(inFocus)
     if(runnerName == DrawVersion or runnerName == TuneVersion) then
       canRun = false
     end
-
-    pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun)
-
+    if(BuildShortcut ~= nil) then
+      pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun)
+    end
 
     -- New File options
     if(runnerName ~= PlayVersion) then
@@ -1448,9 +1486,10 @@ function UpdateContextMenu(inFocus)
     -- TODO Can't rename up directory?
     pixelVisionOS:EnableMenuItemByName(RenameShortcut, not TrashOpen() and not specialFile)
 
-    pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
+    if(RunShortcut ~= nil) then
+      pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
+    end
 
-    -- pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
     pixelVisionOS:EnableMenuItemByName(CopyShortcut, not TrashOpen() and not specialFile)
 
     -- TODO need to makes sure the file can be deleted
@@ -1477,13 +1516,18 @@ function UpdateContextMenu(inFocus)
     -- pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
     pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
 
-    pixelVisionOS:EnableMenuItemByName(RunShortcut, false)
+    if(RunShortcut ~= nil) then
+      pixelVisionOS:EnableMenuItemByName(RunShortcut, false)
+    end
+
     pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
     pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
     pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
     pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
-    pixelVisionOS:EnableMenuItemByName(BuildShortcut, false)
 
+    if(BuildShortcut ~= nil) then
+      pixelVisionOS:EnableMenuItemByName(BuildShortcut, false)
+    end
     -- Disk options
     pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, false)
 
@@ -1866,8 +1910,14 @@ function DrawWindow(files, startID, total)
   local height = 40
   local bgColor = 11
 
+  local requiredFiles = {"data.json"}
+
+  if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
+    table.insert(requiredFiles, "info.json")
+  end
+
   -- TODO make sure the trash path check is valid
-  local isGameDir = pixelVisionOS:ValidateGameInDir(currentDirectory) and TrashOpen() == false
+  local isGameDir = pixelVisionOS:ValidateGameInDir(currentDirectory, requiredFiles) and TrashOpen() == false
 
   -- local tmpPath = NewWorkspacePath(item.path)
   local pathParts = currentDirectory.GetDirectorySegments()
