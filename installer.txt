@@ -42,6 +42,7 @@ $dir=System
 /System/Libs/pixel-vision-os-title-bar-v2.lua|/Libs/pixel-vision-os-title-bar-v2.lua
 /System/Libs/pixel-vision-os-undo-v2.lua|/Libs/pixel-vision-os-undo-v2.lua
 /System/Libs/pixel-vision-os-v2.lua|/Libs/pixel-vision-os-v2.lua
+/System/Libs/pixel-vision-os-version.lua|/Libs/pixel-vision-os-version.lua
 /System/Libs/pixel-vision-ui-button-v2.lua|/Libs/pixel-vision-ui-button-v2.lua
 /System/Libs/pixel-vision-ui-collision-manager-v2.lua|/Libs/pixel-vision-ui-collision-manager-v2.lua
 /System/Libs/pixel-vision-ui-input-area-v3.lua|/Libs/pixel-vision-ui-input-area-v3.lua

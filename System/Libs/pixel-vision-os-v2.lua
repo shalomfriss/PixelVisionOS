@@ -27,6 +27,7 @@ LoadScript("pixel-vision-os-modal-v2")
 LoadScript("pixel-vision-os-message-modal-v2")
 LoadScript("pixel-vision-os-color-utils-v2")
 LoadScript("pixel-vision-os-undo-v2")
+LoadScript("pixel-vision-os-version")
 
 function PixelVisionOS:Init()
   -- Create a new object for the instance and register it
@@ -41,7 +42,7 @@ function PixelVisionOS:Init()
   -- Create message bar instance
   _pixelVisionOS.messageBar = _pixelVisionOS:CreateMessageBar(7, 230, 60)
 
-  _pixelVisionOS.version = "v2.6"
+  _pixelVisionOS.version = _G["PixelVisionOSVersion"] or "v2.6"
 
   return _pixelVisionOS
 

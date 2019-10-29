@@ -1,12 +1,13 @@
 {
-    
-    "GameChip":
-    {
-        "savedData":{
-            "lastPath": "none",
-            "sessionID": "201910281627011263",
-            "scrollPos": "0",
-            "selection": "0"
+        
+        "GameChip":
+        {
+            "savedData":{
+                "selection": "9",
+                "scrollPos": "0",
+                "sessionID": "201910290858043588",
+                "lastPath": "/Workspace/SpriteTest/",
+                "showUpgrade": "false"
+            }
         }
     }
-}

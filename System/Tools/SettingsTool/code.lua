@@ -247,7 +247,7 @@ function Init()
   if(PathExists(NewWorkspacePath("/PixelVisionOS/System/OSInstaller/"))) then
 
     table.insert(menuOptions, 2, {divider = true})
-    table.insert(menuOptions, 3, {name = "Reformat", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."})
+    table.insert(menuOptions, 3, {name = "Install OS", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."})
 
   end
 
@@ -320,14 +320,20 @@ function Init()
 
 
   usedShortcutKeys = {}
-
   for i = 1, #shortcutFields do
     local field = shortcutFields[i]
     field.pattern = "number"
     field.type = field.toolTip
-    local keyValue = ConvertKeyCodeToChar(tonumber(ReadBiosData(field.type .. "Key")))
 
-    editorUI:ChangeInputField(field, keyValue)
+    -- Read the shortcut keys from the bios
+    local keyValue = tonumber(ReadBiosData(field.type .. "Key", tostring(49 + i)))
+
+    -- Test if the value is nill and set a default value
+    if(keyValue == nil) then
+      keyValue = 49 + i -- first value will be 50 which converts to key 2
+    end
+
+    editorUI:ChangeInputField(field, ConvertKeyCodeToChar(keyValue))
 
     -- Save used keys
     usedShortcutKeys[field.type] = keyValue

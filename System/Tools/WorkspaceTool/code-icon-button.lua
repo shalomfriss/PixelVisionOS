@@ -309,7 +309,6 @@ function EditorUI:UpdateIconButton(data, hitRect)
     if(data.highlight) then
       self:HighlightIconButton(data, false)
       data.highlight = false
-      print("Reset highlight")
     end
 
     if(data.inFocus == true) then
@@ -512,7 +511,7 @@ function EditorUI:IconGroupAddButton(data, buttonData, id)
 
     -- TODO restore icon if dragging is complete
     -- if(buttonData.dragging == true) then
-    print("Redraw", buttonData.name, "enabled")
+    -- print("Redraw", buttonData.name, "enabled")
 
     -- Clear
     buttonData.dragging = false

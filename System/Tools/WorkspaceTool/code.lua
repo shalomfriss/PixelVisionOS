@@ -149,12 +149,12 @@ function Init()
   local aboutText = "The ".. toolName.. " offers you access to the underlying file system. "
 
   if(TmpPath() ~= nil) then
-    aboutText = aboutText .. "\n\nTemporary files are stores on your computer at: \n\n" .. TmpPath()
+    aboutText = aboutText .. "\n\nTemporary files are stores on your computer at: \n\n" .. TmpPath().."/"
   end
 
   if(DocumentPath() ~= nil) then
 
-    aboutText = aboutText .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath()
+    aboutText = aboutText .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath().."/"
 
   end
 
@@ -310,14 +310,55 @@ function Init()
 
   RebuildDesktopIcons()
 
+
+
   desktopHitRect = NewRect(0, 12, 256, 229)
 
   local newPath = ReadSaveData("lastPath", "none")
+  local showUpgrade = "true"
 
-  if(SessionID() == ReadSaveData("sessionID", "") and newPath ~= "none" and PathExists(NewWorkspacePath(newPath))) then
+  if(SessionID() == ReadSaveData("sessionID", "")) then
 
+    showUpgrade = ReadSaveData("showUpgrade", showUpgrade)
     -- TODO need to convert this to a path from the start and pass into Open window
-    OpenWindow(newPath, tonumber(ReadSaveData("scrollPos", "0")), tonumber(ReadSaveData("selection", "0")))
+    if(newPath ~= "none" and PathExists(NewWorkspacePath(newPath))) then
+      OpenWindow(newPath, tonumber(ReadSaveData("scrollPos", "0")), tonumber(ReadSaveData("selection", "0")))
+    end
+
+  end
+
+  local installerPath = NewWorkspacePath("/PixelVisionOS/System/OSInstaller/")
+
+  -- Check for the installer
+  if(PathExists(installerPath) and showUpgrade == "true") then
+
+    local versionFilePath = installerPath.AppendFile("pixel-vision-os-version.lua")
+
+    -- Make sure there is a version file
+    if(PathExists(versionFilePath)) then
+
+      local text = ReadTextFile(versionFilePath.Path)
+
+      local ver = text:sub(#text - 5, #text - 2)
+
+      if(ver ~= pixelVisionOS.version) then
+
+        pixelVisionOS:ShowMessageModal("Upgrade to " .. ver, "It looks like you are running an older version of Pixel Vision 8. If you hit cancel you will not see this again until you restart Pixel Vision 8. You can upgrade at any time by selecting \"Install OS\" from the settings tool menu.\n\nDo you want to upgrade to the latest version? ", 168, true,
+          function()
+            if(pixelVisionOS.messageModal.selectionValue == true) then
+
+              LoadGame(installerPath.Path)
+
+            else
+              WriteSaveData("showUpgrade", "false")
+            end
+
+          end
+        )
+
+      end
+
+    end
 
   end
 
@@ -614,22 +655,12 @@ function StartFileOperation(destPath, action)
   destPath = destPath.AppendPath(filesToCopy[1].Path:sub( #fileActionSrc.Path + 1))
   fileActionBasePath = destPath
 
-
   if(action == "throw out") then
     fileActionPathFilter = UniqueFilePath(destPath)
     invalidateTrashIcon = true
   end
 
-  -- Check to see if we need to display the progress bar or just perform a single action
-  -- print("Multiple file action", action)
-
-
-
-  -- Test the first file to see if it is duplicated
-  if(destPath.IsChildOf(filesToCopy[1])) then
-
-    -- print("ERROR: Child Of", srcPath, destPath, action)
-    -- Shut down file actions
+  if(filesToCopy[1].IsChildOf(destPath)) then
 
     pixelVisionOS:ShowMessageModal(
       "Workspace Path Conflict",
@@ -1352,7 +1383,7 @@ function UpdateContextMenu(inFocus)
 
   if(inFocus == WindowFocus) then
 
-    local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory, {"data.json", "info.json", "code.lua"}) and not TrashOpen()
+    local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory, {"code.lua"}) and not TrashOpen()
 
     if(runnerName == DrawVersion or runnerName == TuneVersion) then
       canRun = false
@@ -1396,7 +1427,7 @@ function UpdateContextMenu(inFocus)
     pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
 
     if(BuildShortcut ~= nil) then
-      pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun)
+      pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun and string.starts(currentDirectory.Path, "/Disks/") == false)
     end
 
     pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, CanEject())
@@ -1445,13 +1476,13 @@ function UpdateContextMenu(inFocus)
     local specialFile = currentSelection.name == ".." or currentSelection.name == "Run"
 
     -- Check to see if currentDirectory is a game
-    local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory) and not TrashOpen()
+    local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory, {"code.lua"}) and not TrashOpen()
 
     if(runnerName == DrawVersion or runnerName == TuneVersion) then
       canRun = false
     end
     if(BuildShortcut ~= nil) then
-      pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun)
+      pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun and string.starts(currentDirectory.Path, "/Disks/") == false)
     end
 
     -- New File options
@@ -2282,12 +2313,20 @@ function OnExportGame()
 
     local srcPath = currentDirectory
     local destPath = srcPath.AppendDirectory("Builds")
+    local infoFile = srcPath.AppendFile("info.json")
 
     -- TODO need to read game name from info file
+    if(PathExists(srcPath.AppendDirectory("info.json")) == false) then
+      SaveText(infoFile, "{\"name\":\""..srcPath.EntityName.."\"}")
+    end
 
-    local metaData = ReadJson(srcPath.AppendFile("info.json"))
+    local metaData = ReadJson(infoFile)
 
-    local gameName = metaData["name"] ~= nil and metaData["name"] or srcPath.EntityName
+    local gameName = (metaData ~= nil and metaData["name"] ~= nil) and metaData["name"] or srcPath.EntityName
+
+
+
+    -- TODO need a way of validating the size
 
     -- Manually create a game disk from the current folder's files
     local gameFiles = GetEntities(srcPath)
