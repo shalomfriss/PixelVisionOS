@@ -1,14 +1,14 @@
 {
-        
-        "GameChip":
-        {
-            "savedData":{
-                "scroll": "1,37",
-                "selectedSprite": "0",
-                "cursor": "19,53",
-                "rootDirectory": "/Workspace/HelloWorld/",
-                "sessionID": "201910290858043588",
-                "targetFile": "/Workspace/SpriteTest/data.json"
-            }
+    
+    "GameChip":
+    {
+        "savedData":{
+            "scroll": "1,1",
+            "selectedSprite": "0",
+            "cursor": "22,8",
+            "rootDirectory": "/Workspace/HelloWorld/",
+            "sessionID": "201911010646373654",
+            "targetFile": "/Workspace/EmptyGameFolder/data.json"
         }
     }
+}

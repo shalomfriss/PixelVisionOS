@@ -1,14 +1,1 @@
-{
-    
-    "GameChip":
-    {
-        "savedData":{
-            "editing": "undefined",
-            "sessionID": "201910290527471599",
-            "rootDirectory": "/Workspace/SpriteTest/",
-            "selectedSprite": "0",
-            "SpriteSize": "undefined",
-            "spriteSize": "1"
-        }
-    }
-}
+{"GameChip":{"savedData":{"editing": "undefined","sessionID": "201911010550043773","rootDirectory": "/Workspace/DrawSpritesDemo/","selectedSprite": "0","SpriteSize": "undefined","spriteSize": "1"}}}

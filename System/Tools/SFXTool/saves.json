@@ -1,11 +1,1 @@
-{
-    
-    "GameChip":
-    {
-        "savedData":{
-            "currentID": "0",
-            "rootDirectory": "/Workspace/Demos/MusicDemo/",
-            "sessionID": "201910242022580038"
-        }
-    }
-}
+{"GameChip":{"savedData":{"sessionID": "201911010550043773","rootDirectory": "/Workspace/DrawSpritesDemo/","currentID": "0"}}}

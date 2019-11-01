@@ -157,8 +157,10 @@ function PixelVisionOS:RebuildColorPickerCache(data)
   -- Recaluclate the number of pages
   self:RebuildPickerPages(data)
 
+  -- TODO needed to do a hack here to keep the canvas from crashing if totalPages is 0
+
   -- Resize the canvas based on the total pages
-  data.canvas.Resize(data.canvas.width, (data.totalPages * 64) * 16)
+  data.canvas.Resize(data.canvas.width, data.totalPages == 0 and 1 or (data.totalPages * 64) * 16)
 
   -- Clear the canvas
   data.canvas.Clear()

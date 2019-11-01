@@ -192,9 +192,12 @@ function Init()
       {name = "Export Song", action = function() OnExportSong(currentSongID, true) end, enabled = canEdit, toolTip = "Export the current song."},
       {name = "Export All Songs", action = OnExportAllSongs, enabled = false, toolTip = "Export the current song."},
       {divider = true},
-      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
+
+    if(PathExists(NewWorkspacePath(rootDirectory).AppendFile("code.lua"))) then
+      table.insert(menuOptions, #menuOptions, {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."})
+    end
 
     pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
@@ -466,74 +469,86 @@ function Init()
         rect = {x = 16, y = 184},
         spriteName = "leftwhitekey",
         note = whiteKeyMap[1],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.Z
       },
       {
         rect = {x = 32, y = 184},
         spriteName = "centerwhitekey",
         note = whiteKeyMap[2],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.X
       },
       {
         rect = {x = 48, y = 184},
         spriteName = "rightwhitekey",
         note = whiteKeyMap[3],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.C
       },
       {
         rect = {x = 24, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[1],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.S
       },
       {
         rect = {x = 40, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[2],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.D
       },
 
       {
         rect = {x = 64, y = 184},
         spriteName = "leftwhitekey",
         note = whiteKeyMap[4],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.V
       },
       {
         rect = {x = 80, y = 184},
         spriteName = "centerwhitekey",
         note = whiteKeyMap[5],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.B
       },
       {
         rect = {x = 96, y = 184},
         spriteName = "centerwhitekey",
         note = whiteKeyMap[6],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.N
       },
       {
         rect = {x = 112, y = 184},
         spriteName = "rightwhitekey",
         note = whiteKeyMap[7],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.M
       },
       {
         rect = {x = 72, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[3],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.G
       },
       {
         rect = {x = 88, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[4],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.H
       },
       {
         rect = {x = 104, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[5],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.J
       },
 
       -- next octave
@@ -542,80 +557,93 @@ function Init()
         rect = {x = 16 + 112, y = 184},
         spriteName = "leftwhitekey",
         note = whiteKeyMap[8],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.Q
       },
       {
         rect = {x = 32 + 112, y = 184},
         spriteName = "centerwhitekey",
         note = whiteKeyMap[9],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.W
       },
       {
         rect = {x = 48 + 112, y = 184},
         spriteName = "rightwhitekey",
         note = whiteKeyMap[10],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.E
       },
       {
         rect = {x = 24 + 112, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[6],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.Alpha2
       },
       {
         rect = {x = 40 + 112, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[7],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.Alpha3
       },
 
       {
         rect = {x = 64 + 112, y = 184},
         spriteName = "leftwhitekey",
         note = whiteKeyMap[11],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.R
       },
       {
         rect = {x = 80 + 112, y = 184},
         spriteName = "centerwhitekey",
         note = whiteKeyMap[12],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.T
       },
       {
         rect = {x = 96 + 112, y = 184},
         spriteName = "centerwhitekey",
         note = whiteKeyMap[13],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.Y
       },
       {
         rect = {x = 112 + 112, y = 184},
         spriteName = "rightwhitekey",
         note = whiteKeyMap[14],
-        hitRect = whiteKeyHitRect
+        hitRect = whiteKeyHitRect,
+        key = Keys.U
       },
       {
         rect = {x = 72 + 112, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[8],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.Alpha5
       },
       {
         rect = {x = 88 + 112, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[9],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.Alpha6
       },
       {
         rect = {x = 104 + 112, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[10],
-        hitRect = blackKeyHitRect
+        hitRect = blackKeyHitRect,
+        key = Keys.Alpha7
       },
       {
         rect = {x = 240, y = 184},
         spriteName = "lastwhitekey",
         note = whiteKeyMap[15],
-        hitRect = whiteKeyHitRect -- TODO this needs to be mapped correctly?
+        hitRect = whiteKeyHitRect,
+        key = Keys.I -- TODO this needs to be mapped correctly?
       },
     }
 
@@ -626,6 +654,7 @@ function Init()
       local data = keyPositions[i]
       -- Create keyboard
       keyButtonData = editorUI:CreateButton(data.rect, data.spriteName, "Midi note '".. data.note .."'.")
+      keyButtonData.inputKey = data.key
 
       table.insert(disableWhenPlaying, keyButtonData)
 
@@ -1120,13 +1149,13 @@ function Update(timeDelta)
       local newPos = NewPoint(0, 0)
 
       -- Offset the new position by the direction button
-      if(Button(Buttons.Up, InputState.Released)) then
+      if(Key(Keys.Up, InputState.Released)) then
         newPos.y = -1
-      elseif(Button(Buttons.Right, InputState.Released)) then
+      elseif(Key(Keys.Right, InputState.Released)) then
         newPos.x = 1
-      elseif(Button(Buttons.Down, InputState.Released)) then
+      elseif(Key(Keys.Down, InputState.Released)) then
         newPos.y = 1
-      elseif(Button(Buttons.Left, InputState.Released)) then
+      elseif(Key(Keys.Left, InputState.Released)) then
         newPos.x = -1
       end
 
@@ -1137,6 +1166,8 @@ function Update(timeDelta)
         SelectTrack(currentTrack + newPos.y)
 
       end
+
+
 
     end
 
@@ -1179,9 +1210,34 @@ function Update(timeDelta)
 
     editorUI:UpdateToggleGroup(playToggleGroupData)
 
+    local controlDown = (Key(Keys.LeftControl) == true or Key(Keys.RightControl) == true)
+
     local total = #keys
     for i = 1, total do
-      editorUI:UpdateButton(keys[i])
+      local key = keys[i]
+
+      editorUI:UpdateButton(key)
+
+      if(key.inputKey ~= nil and controlDown == false ) then
+        if(Key(key.inputKey, InputState.Released)) then
+          editorUI:Invalidate(key)
+          key.onAction()
+        elseif(Key(key.inputKey)) then
+          editorUI:RedrawButton(key, "over")
+
+        end
+      end
+    end
+
+    -- Increment octave
+    if( controlDown == false) then
+      if(Key(Keys.OpenBrackets, InputState.Released) and octave > 1) then
+        PreviousOctave()
+      elseif(Key(Keys.CloseBrackets, InputState.Released) and octave < 8) then
+        NextOctave()
+      elseif(Key(Keys.Delete, InputState.Released) or Key(Keys.Backspace, InputState.Released)) then
+        EraseNote()
+      end
     end
 
   end

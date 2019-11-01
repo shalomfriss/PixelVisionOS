@@ -236,9 +236,12 @@ function Init()
       {name = "Paste", action = OnPasteSound, key = Keys.V, enabled = false, toolTip = "Paste the last copied sound."}, -- Reset all the values
       {name = "Mutate", action = OnMutate, key = Keys.M, toolTip = "Mutate the sound to produce random variations."}, -- Reset all the values
       {divider = true},
-      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
+
+    if(PathExists(NewWorkspacePath(rootDirectory).AppendFile("code.lua"))) then
+      table.insert(menuOptions, #menuOptions, {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."})
+    end
 
     pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 

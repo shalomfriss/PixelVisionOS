@@ -134,9 +134,12 @@ function Init()
       {name = "Copy", action = OnCopy, enabled = false, key = Keys.C, toolTip = "Copy the currently selected sound."}, -- Reset all the values
       {name = "Paste", action = OnPaste, enabled = false, key = Keys.V, toolTip = "Paste the last copied sound."}, -- Reset all the values
       {divider = true},
-      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
+
+    if(PathExists(NewWorkspacePath(rootDirectory).AppendFile("code.lua"))) then
+      table.insert(menuOptions, #menuOptions, {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."})
+    end
 
     pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
@@ -216,6 +219,8 @@ function Init()
       UpdateBGIconPosition(bgColor)
 
     end
+
+
 
     -- Force the BG color to draw for the first time
     systemColorPickerData.onPageAction(1)

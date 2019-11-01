@@ -2192,13 +2192,13 @@ function Update(timeDelta)
       local rows = 1
 
       -- Offset the new position by the direction button
-      if(Button(Buttons.Up, InputState.Released)) then
+      if(Key(Keys.Up, InputState.Released)) then
         newPos.y = -1
-      elseif(Button(Buttons.Right, InputState.Released)) then
+      elseif(Key(Keys.Right, InputState.Released)) then
         newPos.x = 1
-      elseif(Button(Buttons.Down, InputState.Released)) then
+      elseif(Key(Keys.Down, InputState.Released)) then
         newPos.y = 1
-      elseif(Button(Buttons.Left, InputState.Released)) then
+      elseif(Key(Keys.Left, InputState.Released)) then
         newPos.x = -1
       end
 

@@ -85,10 +85,9 @@ function Init()
       table.insert(menuOptions, {divider = true})
       table.insert(menuOptions, {name = "Toggle Lines", action = ToggleLineNumbers, key = Keys.L, toolTip = "Toggle the line numbers for the editor."})
 
-      -- TODO need to test if you are in a game directory?
-
-      table.insert(menuOptions, {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."})
-
+      if(PathExists(NewWorkspacePath(rootDirectory).AppendFile("code.lua"))) then
+        table.insert(menuOptions, {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."})
+      end
     end
 
     -- Add the last part of the menu options

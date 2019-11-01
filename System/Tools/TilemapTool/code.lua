@@ -129,9 +129,12 @@ function Init()
       {name = "Flip H", action = OnFlipH, enabled = false, key = Keys.Z, toolTip = "Flip the current tile horizontally."}, -- Reset all the values
       {name = "Flip V", action = OnFlipV, enabled = false, key = Keys.X, toolTip = "Flip the current tile vertically."}, -- Reset all the values
       {divider = true},
-      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
+
+    if(PathExists(NewWorkspacePath(rootDirectory).AppendFile("code.lua"))) then
+      table.insert(menuOptions, #menuOptions, {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."})
+    end
 
     pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
@@ -871,14 +874,14 @@ function Update(timeDelta)
         local currentSelection = spritePickerData.picker.enabled == true and spritePickerData.currentSelection or flagPicker.selected
 
         -- Offset the new position by the direction button
-        if(Button(Buttons.Up, InputState.Released)) then
-          newPos.y = -1 * scale
-        elseif(Button(Buttons.Right, InputState.Released)) then
-          newPos.x = 1 * scale
-        elseif(Button(Buttons.Down, InputState.Released)) then
-          newPos.y = 1 * scale
-        elseif(Button(Buttons.Left, InputState.Released)) then
-          newPos.x = -1 * scale
+        if(Key(Keys.Up, InputState.Released)) then
+          newPos.y = -1
+        elseif(Key(Keys.Right, InputState.Released)) then
+          newPos.x = 1
+        elseif(Key(Keys.Down, InputState.Released)) then
+          newPos.y = 1
+        elseif(Key(Keys.Left, InputState.Released)) then
+          newPos.x = -1
         end
 
         -- Test to see if the new position has changed

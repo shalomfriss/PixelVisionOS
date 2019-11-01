@@ -128,9 +128,12 @@ function Init()
       {name = "Optimize", action = OnOptimize, toolTip = "Remove duplicate sprites."},
       {name = "Sprite Builder", action = OnSpriteBuilder, toolTip = "Generate a sprite table from a project's SpriteBuilder dir."}, -- Reset all the values
       {divider = true},
-      {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }
+
+    if(PathExists(NewWorkspacePath(rootDirectory).AppendFile("code.lua"))) then
+      table.insert(menuOptions, #menuOptions, {name = "Run Game", action = OnRunGame, key = Keys.R, toolTip = "Run the code for this game."})
+    end
 
     pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
 
@@ -1167,14 +1170,14 @@ function Update(timeDelta)
         local scale = spritePickerData.scale
 
         -- Offset the new position by the direction button
-        if(Button(Buttons.Up, InputState.Released)) then
-          newPos.y = -1 * scale
-        elseif(Button(Buttons.Right, InputState.Released)) then
-          newPos.x = 1 * scale
-        elseif(Button(Buttons.Down, InputState.Released)) then
-          newPos.y = 1 * scale
-        elseif(Button(Buttons.Left, InputState.Released)) then
-          newPos.x = -1 * scale
+        if(Key(Keys.Up, InputState.Released)) then
+          newPos.y = -1
+        elseif(Key(Keys.Right, InputState.Released)) then
+          newPos.x = 1
+        elseif(Key(Keys.Down, InputState.Released)) then
+          newPos.y = 1
+        elseif(Key(Keys.Left, InputState.Released)) then
+          newPos.x = -1
         end
 
 

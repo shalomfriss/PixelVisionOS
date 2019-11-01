@@ -214,26 +214,32 @@ function EditorUI:UpdateButton(data, hitRect)
 
 end
 
-function EditorUI:RedrawButton(data)
+function EditorUI:RedrawButton(data, stateOverride)
 
   if(data == nil) then
     return
   end
 
   -- If the button changes state we need to redraw it to the tilemap
-  if(data.invalid == true) then
+  if(data.invalid == true or stateOverride ~= nil) then
 
     -- The default state is up
     local state = "up"
 
-    -- If the button is selected, we will use the selected up state
-    if(data.selected == true) then
-      state = "selected" .. state
-    end
+    if(stateOverride ~= nil) then
+      state = stateOverride
+    else
 
-    -- Test to see if the button is disabled. If there is a disabled sprite data, we'll change the state to disabled. By default, always use the up state.
-    if(data.enabled == false and data.cachedSpriteData["disabled"] ~= nil and data.selected ~= true) then --_G[spriteName .. "disabled"] ~= nil) then
-      state = "disabled"
+      -- If the button is selected, we will use the selected up state
+      if(data.selected == true) then
+        state = "selected" .. state
+      end
+
+      -- Test to see if the button is disabled. If there is a disabled sprite data, we'll change the state to disabled. By default, always use the up state.
+      if(data.enabled == false and data.cachedSpriteData["disabled"] ~= nil and data.selected ~= true) then --_G[spriteName .. "disabled"] ~= nil) then
+        state = "disabled"
+
+      end
 
     end
 
