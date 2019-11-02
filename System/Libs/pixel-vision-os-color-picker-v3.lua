@@ -19,7 +19,7 @@
 function PixelVisionOS:CreateColorPicker(rect, tileSize, total, totalPerPage, maxPages, colorOffset, spriteName, toolTip, modifyPages, enableDragging, dragBetweenPages)
 
   local columns = rect.w / tileSize.x
-  local rows = math.max(rect.h / tileSize.y, total / columns)
+  local rows = rect.h / tileSize.y
 
   -- Create the generic UI data for the component
   local data = self:CreateItemPicker(rect, tileSize, columns, rows, 0, spriteName, toolTip, enableDragging, "ColorPicker")
@@ -94,9 +94,9 @@ function PixelVisionOS:CreateColorPicker(rect, tileSize, total, totalPerPage, ma
   end
 
   -- Shift the pagination down if there is a horizontal scroll bar
-  if(data.vSlider ~= nil) then
-    data.pagePosition.x = data.pagePosition.x + 16
-  end
+  -- if(data.vSlider ~= nil) then
+  --   data.pagePosition.x = data.pagePosition.x + 16
+  -- end
 
   data.pages = editorUI:CreateToggleGroup()
 
@@ -492,4 +492,11 @@ function PixelVisionOS:RemoveColorPicker(data)
   self:RebuildPickerPages(data, 0)
 
   DrawRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h, 0, DrawMode.TilemapCache)
+end
+
+function PixelVisionOS:EnableColorPicker(data, pickerEnabled, pagesEnabled)
+
+  self.editorUI:Enable(data.picker, pickerEnabled)
+  self.editorUI:Enable(data.pages, pagesEnabled)
+
 end

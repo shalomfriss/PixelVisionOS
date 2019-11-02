@@ -143,10 +143,7 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
 
   end
 
-
-  -- TODO need to test the viewport to see if this should be visible
-
-  if(_G["vsliderhandle"] ~= nil and data.realHeight > data.viewport.height ) then
+  if(_G["vsliderhandle"] ~= nil and data.viewport.height < data.realHeight) then
 
     data.vSlider = editorUI:CreateSlider(
       { x = rect.x + rect.w + 1, y = rect.y, w = 16, h = rect.h},

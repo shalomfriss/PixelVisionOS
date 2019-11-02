@@ -17,6 +17,11 @@
 
 function EditorUI:CreateInputField(rect, text, toolTip, pattern, font, colorOffset)
 
+  -- Set the edit flag if it's not yet set
+  if(self.editingInputField == nil) then
+    self.editingInputField = false
+  end
+
   -- If no hight is provided, simply make the height one row high
   if(rect.h == nil) then
     rect.h = self.spriteSize.y
@@ -143,6 +148,9 @@ function EditorUI:OnEditTextInputField(data, value)
     -- If we were just editing, force the buffer back through the valdation
     self:ChangeInputField(data, data.buffer[1], false)
   end
+
+  -- Track if an input field is being editing at the UI level
+  self.editingInputField = value
 
 end
 

@@ -135,15 +135,17 @@ function EditorUI:UpdateSongInputField(data, dt)
         -- self:EditTextEditor(data, true)
         if(data.doubleClickActive and data.doubleClickTime < doubleClickDelay) then
 
+          -- TODO should this be edited on double click?
+
           -- Make sure we are not already editing the input field
-          if(data.editing == false) then
-
-            self:InputAreaMoveCursorToMousePos(data)
-
-            -- Enter edit mode
-            self:EditTextEditor(data, true)
-
-          end
+          -- if(data.editing == false) then
+          --
+          --   -- self:InputAreaMoveCursorToMousePos(data)
+          --
+          --   -- Enter edit mode
+          --   self:EditTextEditor(data, true)
+          --
+          -- end
 
         else
           self:SelectSongInputField(data, true)
@@ -173,12 +175,12 @@ function EditorUI:UpdateSongInputField(data, dt)
 
   if(data.inFocus == true)then
 
-    if(self.collisionManager.mouseDown == true) then
-      self:TextEditorMousepressed(data, cx, cy, 0)
-      -- end
-    elseif(self.collisionManager.mouseReleased == true) then
-      self:TextEditorMouseReleased(data)
-    end
+    -- if(self.collisionManager.mouseDown == true) then
+    --   self:TextEditorMousepressed(data, cx, cy, 0)
+    --   -- end
+    -- elseif(self.collisionManager.mouseReleased == true) then
+    --   self:TextEditorMouseReleased(data)
+    -- end
 
   elseif(data.editing == true and self.collisionManager.mouseDown == true) then
     print(data.name, "Stop editing")

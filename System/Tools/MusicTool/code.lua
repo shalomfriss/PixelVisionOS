@@ -674,6 +674,10 @@ function Init()
     -- Build the default generator settings
     gameEditor:ConfigureGenerator()
 
+    local startPatternID = 0
+    local startSongID = 0
+    local startTrackID = 0
+    local startBeatID = 0
 
     -- Load in previous config data from save
     if(SessionID() == ReadSaveData("sessionID", "") and rootDirectory == ReadSaveData("rootDirectory", "")) then
@@ -689,6 +693,31 @@ function Init()
       gameEditor.pcgMaxTempo = tonumber(ReadSaveData("configSpeedMax", gameEditor.pcgMaxTempo))
 
       gameEditor.scale = tonumber(ReadSaveData("configScale", gameEditor.scale))
+
+      -- print("Restore pattern", ReadSaveData("currentPatternID", currentPatternID))
+
+      -- print("Restore", (ReadSaveData("currentTrack", "-")))
+
+      local previousState = string.split(ReadSaveData("state", "0,0,0,0"), ",")
+      -- print("state", dump(previousState))
+
+      -- WriteSaveData("state", tostring(currentSongID) .. "," .. tostring(currentTrack) .. "," .. tostring(currentBeat) .. "," .. tostring(currentBeat) .. "," .. tostring(currentPatternID))
+      startSongID = tonumber(previousState[1])
+      startTrackID = tonumber(previousState[2])
+      startBeatID = tonumber(previousState[3])
+      startPatternID = tonumber(previousState[4])
+
+      -- startPatternID = tonumber(ReadSaveData("currentPatternID", startPatternID))
+      -- startSongID = tonumber(ReadSaveData("currentSongID", startSongID))
+      -- startTrackID = tonumber(ReadSaveData("currentTrack", startTrackID))
+
+
+      -- WriteSaveData("currentTrack", currentTrack)
+      -- WriteSaveData("currentBeat", currentBeat)
+
+      -- startBeatID = tonumber(ReadSaveData("currentBeat", startBeatID))
+
+
 
       local total = totalTracks
 
@@ -711,13 +740,21 @@ function Init()
 
     end
 
-    -- --   UpdateConfigData()
+    -- TODO Need to set the song to 0 or it will fail to load correctly
     OnSongIDChange(0)
+
+    -- Change the number stepper to the start song ID
+    editorUI:ChangeNumberStepperValue(songIDStepper, startSongID)
+
+    -- --   UpdateConfigData()
+    -- OnSongIDChange(startSongID)
     -- --
     -- -- -- Load the first song
-    LoadLoop(0)
+    -- LoadLoop(startPatternID)
     -- --
-    SelectTrack(0)
+    -- print("startTrackID", startTrackID, startBeatID)
+    SelectTrack(startTrackID)
+    SelectBeat(startBeatID)
     --
     -- -- ChangeMode(EditorMode)
     --
@@ -799,10 +836,10 @@ function OnSongIDChange(value)
 
   editorUI:ChangeSlider(songSliderData, 0)
 
-  -- Force the song edito to render since slider may be ignored if set to 0 position in previuos song
+  -- Force the song editor to render since slider may be ignored if set to 0 position in previuos song
   OnSongScroll(0)
 
-  -- TODO select the first song
+  -- TODO select the first pattern
   editorUI:SelectSongInputField(songInputFields[1], true)
 
 end
@@ -846,7 +883,7 @@ function OnSongScroll(value)
 
     songEndButtons.buttons[i].toolTip = "Click to end the song at pattern index '".. tostring(index - 1) .. "'."
 
-    songInputFields[i].toolTip = "Click to edit the song's pattern at index '".. index .. "'."
+    songInputFields[i].toolTip = "Click to select the song's pattern at index '".. index .. "'."
 
     if(i == 1) then
 
@@ -1148,17 +1185,18 @@ function Update(timeDelta)
       -- Create a new piont to see if we need to change the sprite position
       local newPos = NewPoint(0, 0)
 
-      -- Offset the new position by the direction button
-      if(Key(Keys.Up, InputState.Released)) then
-        newPos.y = -1
-      elseif(Key(Keys.Right, InputState.Released)) then
-        newPos.x = 1
-      elseif(Key(Keys.Down, InputState.Released)) then
-        newPos.y = 1
-      elseif(Key(Keys.Left, InputState.Released)) then
-        newPos.x = -1
+      if(editorUI.editingInputField == false) then
+        -- Offset the new position by the direction button
+        if(Key(Keys.Up, InputState.Released)) then
+          newPos.y = -1
+        elseif(Key(Keys.Right, InputState.Released)) then
+          newPos.x = 1
+        elseif(Key(Keys.Down, InputState.Released)) then
+          newPos.y = 1
+        elseif(Key(Keys.Left, InputState.Released)) then
+          newPos.x = -1
+        end
       end
-
       -- Test to see if the new position has changed
       if(newPos.x ~= 0 or newPos.y ~= 0) then
 
@@ -1218,7 +1256,7 @@ function Update(timeDelta)
 
       editorUI:UpdateButton(key)
 
-      if(key.inputKey ~= nil and controlDown == false ) then
+      if(key.inputKey ~= nil and controlDown == false and editorUI.editingInputField == false) then
         if(Key(key.inputKey, InputState.Released)) then
           editorUI:Invalidate(key)
           key.onAction()
@@ -1230,7 +1268,7 @@ function Update(timeDelta)
     end
 
     -- Increment octave
-    if( controlDown == false) then
+    if( controlDown == false and editorUI.editingInputField == false) then
       if(Key(Keys.OpenBrackets, InputState.Released) and octave > 1) then
         PreviousOctave()
       elseif(Key(Keys.CloseBrackets, InputState.Released) and octave < 8) then
@@ -1668,7 +1706,9 @@ function Shutdown()
   -- Save the current session ID
   WriteSaveData("sessionID", SessionID())
   WriteSaveData("rootDirectory", rootDirectory)
-  WriteSaveData("currentPatternID", currentPatternID)
+
+  WriteSaveData("state", tostring(currentSongID) .. "," .. tostring(currentTrack) .. "," .. tostring(currentBeat) .. "," .. tostring(currentPatternID))
+
   WriteSaveData("configDensity", tostring(gameEditor.pcgDensity))
   WriteSaveData("configFunk", tostring(gameEditor.pcgFunk))
   WriteSaveData("configLayering", tostring(gameEditor.pcgLayering))

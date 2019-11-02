@@ -11,7 +11,7 @@
 -- API Bridge
 LoadScript("sb-sprites")
 LoadScript("pixel-vision-os-v2")
-LoadScript("pixel-vision-os-color-picker-v2")
+LoadScript("pixel-vision-os-color-picker-v3")
 LoadScript("pixel-vision-os-item-picker-v1")
 LoadScript("pixel-vision-os-sprite-picker-v3")
 LoadScript("pixel-vision-os-canvas-v2")
@@ -226,7 +226,7 @@ function Init()
       totalPerPage,
       maxPages,
       colorOffset,
-      "itempicker",
+      "spritepicker",
       "Select a color."
     )
 
@@ -540,6 +540,8 @@ function ChangeMode(value)
 
     pixelVisionOS:RebuildPickerPages(paletteColorPickerData)
     pixelVisionOS:SelectColorPage(paletteColorPickerData, 1)
+    pixelVisionOS:InvalidateItemPickerDisplay(paletteColorPickerData)
+
 
   end
 
@@ -608,7 +610,7 @@ function SelectLayer(value)
 
   -- Clear the color and sprite pickers
   pixelVisionOS:ClearItemPickerSelection(spritePickerData)
-  pixelVisionOS:ClearColorPickerSelection(colorPickerData)
+  pixelVisionOS:ClearItemPickerSelection(paletteColorPickerData)
 
   -- Check to see if we are in tilemap mode
   if(layerMode == 0) then
