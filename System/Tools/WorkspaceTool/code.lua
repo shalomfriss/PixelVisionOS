@@ -149,12 +149,12 @@ function Init()
   local aboutText = "The ".. toolName.. " offers you access to the underlying file system. "
 
   if(TmpPath() ~= nil) then
-    aboutText = aboutText .. "\n\nTemporary files are stores on your computer at: \n\n" .. TmpPath().."/"
+    aboutText = aboutText .. "\n\nTemporary files are stores on your computer at: \n\n" .. TmpPath()
   end
 
   if(DocumentPath() ~= nil) then
 
-    aboutText = aboutText .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath().."/"
+    aboutText = aboutText .. "\n\nYou can access the 'Workspace' drive on your computer at: \n\n" .. DocumentPath()
 
   end
 
@@ -376,15 +376,15 @@ function DrawWallpaper()
   -- Set up logo values
   local logoSpriteData = runningFromDisk == false and _G["logo"] or nil
   local colorOffset = 0
-  local backgroundColor = 5
+  local backgroundColor = tonumber(ReadBiosData("DefaultBackgroundColor", "5"))
 
   if(runnerName == DrawVersion) then
     logoSpriteData = _G["logodraw"]
     colorOffset = 5
-    backgroundColor = 1
+    -- backgroundColor = 1
   elseif(runnerName == TuneVersion) then
     logoSpriteData = _G["logotune"]
-    backgroundColor = 8
+    -- backgroundColor = 8
   end
 
   -- Update background

@@ -183,7 +183,7 @@ local blinkTime = 0
 local blinkDelay = .1
 local blinkActive = false
 
-local SaveShortcut = 5
+local SaveShortcut = 6
 
 function InvalidateData()
 
@@ -235,8 +235,8 @@ function Init()
   {
     -- About ID 1
     {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
-    -- {divider = true},
-    -- {name = "Reformat", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."}, -- Reset all the values
+    {divider = true},
+    {name = "Sound Effects", action = ToggleSoundEffects, toolTip = "Toggle system sound."}, -- Reset all the values
     {divider = true},
     {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the controller mapping."}, -- Reset all the values
     {name = "Reset", action = OnReset, key = Keys.R, toolTip = "Revert controller mapping to its default value."}, -- Reset all the values
@@ -246,8 +246,7 @@ function Init()
 
   if(PathExists(NewWorkspacePath("/PixelVisionOS/System/OSInstaller/"))) then
 
-    table.insert(menuOptions, 2, {divider = true})
-    table.insert(menuOptions, 3, {name = "Install OS", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."})
+    table.insert(menuOptions, 4, {name = "Install OS", action = function() LoadGame("/PixelVisionOS/System/OSInstaller/") end, toolTip = "Open OS Installer tool to reformat the Workspace."})
 
   end
 
@@ -923,5 +922,16 @@ function OnToggleCRT(value)
 
   editorUI:Enable(brightnessKnobData, value)
   editorUI:Enable(sharpnessKnobData, value)
+
+end
+
+function ToggleSoundEffects()
+
+  local playSounds = ReadBiosData("PlaySystemSounds", "True") == "True"
+
+  WriteBiosData("PlaySystemSounds", playSounds and "False" or "True")
+
+  pixelVisionOS:DisplayMessage("Turning " .. (playSounds and "off" or "on") .. " system sound effects.", 5)
+
 
 end

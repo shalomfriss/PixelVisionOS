@@ -456,8 +456,6 @@ function Init()
 
     pickerData.onAction = OnPickerSelection
 
-
-
     whiteKeyHitRect = {x = 0, y = 24, w = 16, h = 24}
 
     blackKeyHitRect = {x = 2, y = 0, w = 12, h = 24}
@@ -678,7 +676,7 @@ function Init()
     local startSongID = 0
     local startTrackID = 0
     local startBeatID = 0
-
+    local startScrollPos = 0
     -- Load in previous config data from save
     if(SessionID() == ReadSaveData("sessionID", "") and rootDirectory == ReadSaveData("rootDirectory", "")) then
       -- startSprite = tonumber(ReadSaveData("selectedSprite", "0"))
@@ -694,29 +692,13 @@ function Init()
 
       gameEditor.scale = tonumber(ReadSaveData("configScale", gameEditor.scale))
 
-      -- print("Restore pattern", ReadSaveData("currentPatternID", currentPatternID))
-
-      -- print("Restore", (ReadSaveData("currentTrack", "-")))
-
       local previousState = string.split(ReadSaveData("state", "0,0,0,0"), ",")
-      -- print("state", dump(previousState))
 
-      -- WriteSaveData("state", tostring(currentSongID) .. "," .. tostring(currentTrack) .. "," .. tostring(currentBeat) .. "," .. tostring(currentBeat) .. "," .. tostring(currentPatternID))
       startSongID = tonumber(previousState[1])
       startTrackID = tonumber(previousState[2])
       startBeatID = tonumber(previousState[3])
       startPatternID = tonumber(previousState[4])
-
-      -- startPatternID = tonumber(ReadSaveData("currentPatternID", startPatternID))
-      -- startSongID = tonumber(ReadSaveData("currentSongID", startSongID))
-      -- startTrackID = tonumber(ReadSaveData("currentTrack", startTrackID))
-
-
-      -- WriteSaveData("currentTrack", currentTrack)
-      -- WriteSaveData("currentBeat", currentBeat)
-
-      -- startBeatID = tonumber(ReadSaveData("currentBeat", startBeatID))
-
+      startScrollPos = tonumber(previousState[5] or "0")
 
 
       local total = totalTracks
@@ -755,6 +737,10 @@ function Init()
     -- print("startTrackID", startTrackID, startBeatID)
     SelectTrack(startTrackID)
     SelectBeat(startBeatID)
+
+    OnSelectSongField(startPatternID)
+
+    editorUI:ChangeSlider(songSliderData, startScrollPos)
     --
     -- -- ChangeMode(EditorMode)
     --
@@ -777,8 +763,6 @@ function Init()
 
     DrawRect(24, 152, 48, 20, 11, DrawMode.TilemapCache)
     DrawRect(88, 152, 160, 20, 11, DrawMode.TilemapCache)
-
-
 
     pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
@@ -1707,7 +1691,7 @@ function Shutdown()
   WriteSaveData("sessionID", SessionID())
   WriteSaveData("rootDirectory", rootDirectory)
 
-  WriteSaveData("state", tostring(currentSongID) .. "," .. tostring(currentTrack) .. "," .. tostring(currentBeat) .. "," .. tostring(currentPatternID))
+  WriteSaveData("state", tostring(currentSongID) .. "," .. tostring(currentTrack) .. "," .. tostring(currentBeat) .. "," .. tostring(currentSelectedSong - 1) .. "," .. tostring(songSliderData.value))
 
   WriteSaveData("configDensity", tostring(gameEditor.pcgDensity))
   WriteSaveData("configFunk", tostring(gameEditor.pcgFunk))

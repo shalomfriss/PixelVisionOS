@@ -97,13 +97,6 @@ local waveButtonData = {
   {name = "Template5", spriteName = "wavebutton5", x = 216, y = 200, waveID = 5, toolTip = "Load wav sample file."},
 }
 
--- local controlButtonData = {
---   {name = "Play", spriteName = "playbutton", x = 8, y = 16, toolTip = "Play the current sound.", action = function() OnPlaySound() end},
---   -- {name = "Stop", spriteName = "stopbutton", x = 24, y = 16, toolTip = "Stop the currently playing sound.", action = function() OnStopSound() end},
---   -- {name = "Mutate", spriteName = "mutatebutton", x = 40, y = 16, toolTip = "Undo the last SFX value change.", action = function() OnMutate() end},
---   -- {name = "Undo", spriteName = "undobutton", x = 64, y = 16, toolTip = "Undo the last SFX value change.", action = function() OnUndo() end},
---   -- {name = "Redo", spriteName = "redobutton", x = 80, y = 16, toolTip = "Redo the last SFX value change.", action = function() OnRedo() end},
--- }
 
 local validWaves = {
   "!\"", -- any
@@ -137,8 +130,6 @@ function InvalidateData()
   end
 
   pixelVisionOS:ChangeTitle(toolTitle .."*", "toolbariconfile")
-  -- pixelVisionOS:EnableActionButton(1, true)
-  -- pixelVisionOS:EnableActionButtonTwoStep(2, true)
 
   pixelVisionOS:EnableMenuItem(SaveShortcut, true)
 
@@ -157,9 +148,7 @@ function ResetDataValidation()
   invalid = false
 
   pixelVisionOS:EnableMenuItem(SaveShortcut, false)
-  -- pixelVisionOS:EnableActionButton(1, false)
-  -- pixelVisionOS:EnableActionButtonTwoStep(2, false)
-  -- editorUI:EnableActionButton(3, false)
+
 end
 
 function Init()
@@ -187,28 +176,8 @@ function Init()
     success = gameEditor.Load(rootDirectory, {SaveFlags.System, SaveFlags.Sounds})
 
   end
-  --
-  -- -- TODO For testing, we need a path
-  -- -- rootDirectory = "/Workspace/Games/SFXTool/"
-  --
-  -- if(rootDirectory == nil) then
-  --
-  --   -- Set the tool name with an error message
-  --   pixelVisionOS:ChangeTitle(toolName .. " - Error Loading", "toolbariconfile")
-  --
-  --   -- Display an error that not root path was found
-  --   pixelVisionOS:DisplayMessage("Error loading: Could not find a sound file to load.", 0)
-  --
-  --   -- Exit out of the initlization
-  --   return
-  --
-  -- end
-
-  -- success = gameEditor.Load(rootDirectory, {SaveFlags.System, SaveFlags.Sounds})
 
   if(success == true) then
-
-    -- TODO need to display an error here if we can't load above
 
     local pathSplit = string.split(rootDirectory, "/")
 
@@ -1096,7 +1065,7 @@ function OnCopySound()
 
   pixelVisionOS:DisplayMessage("Sound '".. id .. "' has been copied.", 5)
 
-  pixelVisionOS:EnableMenuItem(CopyShortcut, true)
+  pixelVisionOS:EnableMenuItem(PasteShortcut, true)
 end
 
 function OnPasteSound()

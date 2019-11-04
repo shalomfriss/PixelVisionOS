@@ -193,6 +193,10 @@ function Init()
     -- table.insert(enabledUI, spritePickerData.picker)
     table.insert(enabledUI, spritePickerData.vSlider)
 
+    for i = 1, #spritePickerData.pages.buttons do
+      table.insert(enabledUI, spritePickerData.pages.buttons[i])
+    end
+
     -- spritePickerData.scrollScale = 4
     spritePickerData.onPress = OnSelectSprite
 
@@ -918,6 +922,12 @@ function Update(timeDelta)
 
           pixelVisionOS:DisplayMessage("Rendering Layer " .. tostring(percent).. "% complete.", 2)
 
+
+          if(tilePickerData.vSlider.inFocus or tilePickerData.hSlider.inFocus) then
+            editorUI.mouseCursor:SetCursor(2, false)
+          elseif(editorUI.mouseCursor.cursorID ~= 5) then
+            editorUI.mouseCursor:SetCursor(5, true)
+          end
 
         elseif(uiLock == true or editorUI.mouseCursor.cursorID == 5) then
           pixelVisionOS:EnableMenuItem(QuitShortcut, true)

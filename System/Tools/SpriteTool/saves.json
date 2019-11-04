@@ -1,1 +1,14 @@
-{"GameChip":{"savedData":{"spriteSize": "1","SpriteSize": "undefined","selectedSprite": "1","rootDirectory": "/Workspace/LowRezFami/","sessionID": "201911010956242813","editing": "undefined"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "spriteSize": "1",
+            "SpriteSize": "undefined",
+            "selectedSprite": "255",
+            "rootDirectory": "/Workspace/ArtPacks/DragonSweeper/",
+            "sessionID": "201911020906545930",
+            "editing": "undefined"
+        }
+    }
+}
