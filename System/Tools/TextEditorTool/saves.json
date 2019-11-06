@@ -1,14 +1,1 @@
-{
-
-"GameChip":
-{
-    "savedData":{
-        "scroll": "1,163",
-        "selectedSprite": "0",
-        "cursor": "18,173",
-        "rootDirectory": "/Workspace/HelloWorld/",
-        "sessionID": "201911031433156573",
-        "targetFile": "/Disks/LoadTool/code.lua"
-    }
-}
-}
+{"GameChip":{"savedData":{"scroll": "1,1","selectedSprite": "0","cursor": "1,1","rootDirectory": "/Workspace/HelloWorld/","sessionID": "201911060656509752","targetFile": "/Workspace/FullProjectTest/info.json"}}}

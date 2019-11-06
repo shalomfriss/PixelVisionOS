@@ -132,6 +132,7 @@ end
 
 function PixelVisionOS:SelectSpritePickerIndex(data, value)
 
+
   -- Recalculate the position
   local pos = CalculatePosition(value, data.columns)
 

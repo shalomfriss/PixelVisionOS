@@ -152,10 +152,29 @@ end
 
 function OnRunGame()
 
+
   local parentPath = targetFilePath.ParentPath
 
-  -- TODO should check that this is a game directory or that this file is at least a code.lua file
-  LoadGame(parentPath.Path)
+  if(invalid == true) then
+
+    pixelVisionOS:ShowMessageModal("Unsaved Changes", "You have unsaved changes. Do you want to save your work before running the game?", 160, true,
+      function()
+        if(pixelVisionOS.messageModal.selectionValue == true) then
+          -- Save changes
+          OnSave()
+
+        end
+
+        -- TODO should check that this is a game directory or that this file is at least a code.lua file
+        LoadGame(parentPath.Path)
+      end
+    )
+
+  else
+    -- Quit the tool
+    LoadGame(parentPath.Path)
+  end
+
 
 end
 

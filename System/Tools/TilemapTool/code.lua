@@ -192,10 +192,13 @@ function Init()
 
     -- table.insert(enabledUI, spritePickerData.picker)
     table.insert(enabledUI, spritePickerData.vSlider)
+    table.insert(enabledUI, spritePickerData.picker)
 
-    for i = 1, #spritePickerData.pages.buttons do
-      table.insert(enabledUI, spritePickerData.pages.buttons[i])
-    end
+    -- TODO had to disable these buttons because it breaks the arrow keys on the sprite picker
+
+    -- for i = 1, #spritePickerData.pages.buttons do
+    --   table.insert(enabledUI, spritePickerData.pages.buttons[i])
+    -- end
 
     -- spritePickerData.scrollScale = 4
     spritePickerData.onPress = OnSelectSprite
