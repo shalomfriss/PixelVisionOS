@@ -107,7 +107,7 @@ function Init()
     -- Find the json editor
     colorEditorPath = editorMapping["colors"]
 
-    local menuOptions = 
+    local menuOptions =
     {
       -- About ID 1
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -180,7 +180,7 @@ function Init()
       colorOffset = colorOffset + 128
 
       -- Change color label to palette
-      DrawSprites(gamepalettetext.spriteIDs, 32 / 8, 168 / 8, gamepalettetext.width, false, false, DrawMode.Tile)
+      -- DrawSprites(gamepalettetext.spriteIDs, 32 / 8, 168 / 8, gamepalettetext.width, false, false, DrawMode.Tile)
 
     end
 
@@ -409,8 +409,6 @@ function Init()
 
     ResetDataValidation()
 
-
-
   else
 
     -- Patch background when loading fails
@@ -548,6 +546,12 @@ function DrawColorPerSpriteDisplay()
     -- end
   end
 
+  -- Redraw the palette label over the CPS display background
+  if(usePalettes == true) then
+    -- Change color label to palette
+    DrawSprites(gamepalettetext.spriteIDs, 32 / 8, 168 / 8, gamepalettetext.width, false, false, DrawMode.Tile)
+
+  end
 
 end
 

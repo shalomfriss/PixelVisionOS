@@ -35,7 +35,7 @@ local canEdit = ConfigureModal ~= nil
 
 local SaveShortcut, RevertShortcut, UndoShortcut, RedoShortcut, ClearShortcut, CopyShortcut, PasteShortcut, ExportPatternShortcut, ExportSongShortcut = 6, 7, 9, 10, 11, 12, 13, 15, 16
 
-local midiTable = 
+local midiTable =
 {
   "C", -- 24
   "C#", -- 25
@@ -171,7 +171,7 @@ function Init()
     totalTracks = gameEditor:TotalTracks()
     totalChannels = gameEditor:TotalChannels()
 
-    local menuOptions = 
+    local menuOptions =
     {
       -- About ID 1
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -189,7 +189,7 @@ function Init()
       {name = "Paste Note", action = OnPasteNote, enabled = false, key = Keys.V, toolTip = "Paste the last copied note."}, -- Reset all the values
       {divider = true},
       -- {name = "Export Pattern", action = ExportLoop, enabled = true, toolTip = "Export the current pattern."}, -- Reset all the values
-      {name = "Export Song", action = function() OnExportSong(currentSongID, true) end, enabled = canEdit, toolTip = "Export the current song."},
+      {name = "Export Song", action = function() OnExportSong(currentSongID, true) end, key = Keys.E, enabled = canEdit, toolTip = "Export the current song."},
       {name = "Export All Songs", action = OnExportAllSongs, enabled = false, toolTip = "Export the current song."},
       {divider = true},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game

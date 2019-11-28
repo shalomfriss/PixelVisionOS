@@ -39,7 +39,7 @@ local refreshDelay = 5
 local fileCount = 0
 local overTarget = nil
 
-local fileTypeMap = 
+local fileTypeMap =
 {
   folder = "filefolder",
   updirectory = "fileparentfolder",
@@ -69,7 +69,7 @@ local fileTypeMap =
   tiles = "filetiles"
 }
 
-local extToTypeMap = 
+local extToTypeMap =
 {
   colors = ".png",
   system = ".json",
@@ -161,12 +161,12 @@ function Init()
   -- TODO need to see if the log file actually exists
   local logExits = true
 
-  local menuOptions = 
+  local menuOptions =
   {
     -- About ID 1
     {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName, aboutText, 220) end, toolTip = "Learn about PV8."},
     -- Settings ID 2
-    {name = "Settings", action = OnLaunchSettings, toolTip = "Learn about PV8."},
+    {name = "Settings", action = OnLaunchSettings, toolTip = "Configure Pixel Vision OS's Settings."},
     -- Settings ID 3
     {name = "View Log", enabled = logExits, action = OnLaunchLog, toolTip = "Open up the log file."},
     {divider = true},

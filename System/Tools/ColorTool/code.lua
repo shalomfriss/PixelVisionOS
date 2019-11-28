@@ -111,7 +111,7 @@ function Init()
     -- The first thing we need to do is rebuild the tool's color table to include the game's system and game colors.
     pixelVisionOS:ImportColorsFromGame()
 
-    local menuOptions = 
+    local menuOptions =
     {
       -- About ID 1
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -130,7 +130,7 @@ function Init()
       {name = "Set BG Color", action = OnSetBGColor, enabled = false, toolTip = "Set the current color as the background."}, -- Reset all the values
       {divider = true},
       {name = "Undo", action = OnRevert, enabled = false, key = Keys.Z, toolTip = "Undo the last action."}, -- Reset all the values
-      {name = "Redo", action = OnRevert, enabled = false, key = Keys.X, toolTip = "Redo the last undo."}, -- Reset all the values
+      {name = "Redo", action = OnRevert, enabled = false, key = Keys.Y, toolTip = "Redo the last undo."}, -- Reset all the values
       {name = "Copy", action = OnCopy, enabled = false, key = Keys.C, toolTip = "Copy the currently selected sound."}, -- Reset all the values
       {name = "Paste", action = OnPaste, enabled = false, key = Keys.V, toolTip = "Paste the last copied sound."}, -- Reset all the values
       {divider = true},

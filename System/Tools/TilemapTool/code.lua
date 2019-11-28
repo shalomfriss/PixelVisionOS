@@ -106,28 +106,28 @@ function Init()
   -- If data loaded activate the tool
   if(success == true) then
 
-    local menuOptions = 
+    local menuOptions =
     {
       -- About ID 1
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
       {divider = true},
       {name = "Edit Sprites", enabled = spriteEditorPath ~= nil, action = OnEditSprites, toolTip = "Open the sprite editor."},
       {name = "Export PNG", action = OnPNGExport, enabled = true, toolTip = "Generate a 'tilemap.png' file."}, -- Reset all the values
-      {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the colors.png file."}, -- Reset all the values
+      {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the tilemap.json file."}, -- Reset all the values
       {divider = true},
-      {name = "Clear", action = OnNewSound, enabled = false, key = Keys.D, toolTip = "Clear the currently selected color."}, -- Reset all the values
-      {name = "Revert", action = nil, enabled = false, key = Keys.R, toolTip = "Revert the colors.png file to its previous state."}, -- Reset all the values
+      {name = "Clear", action = OnNewSound, enabled = false, key = Keys.D, toolTip = "Clear the currently selected tile."}, -- Reset all the values
+      {name = "Revert", action = nil, enabled = false, key = Keys.R, toolTip = "Revert the tilemap.json file to its previous state."}, -- Reset all the values
       {divider = true},
       {name = "Undo", action = OnUndo, enabled = false, key = Keys.Z, toolTip = "Undo the last action."}, -- Reset all the values
       {name = "Redo", action = OnRedo, enabled = false, key = Keys.Y, toolTip = "Redo the last undo."}, -- Reset all the values
-      {name = "Copy", action = OnCopyColor, enabled = false, key = Keys.C, toolTip = "Copy the currently selected sound."}, -- Reset all the values
-      {name = "Paste", action = OnPasteColor, enabled = false, key = Keys.V, toolTip = "Paste the last copied sound."}, -- Reset all the values
+      {name = "Copy", action = OnCopyColor, enabled = false, key = Keys.C, toolTip = "Copy the currently selected tile."}, -- Reset all the values
+      {name = "Paste", action = OnPasteColor, enabled = false, key = Keys.V, toolTip = "Paste the last copied tile."}, -- Reset all the values
       {divider = true},
       {name = "BG Color", action = function() ToggleBackgroundColor(not showBGColor) end, key = Keys.B, toolTip = "Toggle background color."},
       {name = "Flag Mode", action = function() ChangeMode(not flagModeActive) end, key = Keys.F, toolTip = "Toggle flag mode for collision."},
       {divider = true},
-      {name = "Flip H", action = OnFlipH, enabled = false, key = Keys.Z, toolTip = "Flip the current tile horizontally."}, -- Reset all the values
-      {name = "Flip V", action = OnFlipV, enabled = false, key = Keys.X, toolTip = "Flip the current tile vertically."}, -- Reset all the values
+      {name = "Flip H", action = OnFlipH, enabled = false, key = Keys.H, toolTip = "Flip the current tile horizontally."}, -- Reset all the values
+      {name = "Flip V", action = OnFlipV, enabled = false, key = Keys.G, toolTip = "Flip the current tile vertically."}, -- Reset all the values
       {divider = true},
       {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
     }

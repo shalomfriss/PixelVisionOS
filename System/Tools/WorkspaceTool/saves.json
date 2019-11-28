@@ -1,1 +1,13 @@
-{"GameChip":{"savedData":{"selection": "0","scrollPos": "0","sessionID": "201911060656509752","lastPath": "none","showUpgrade": "false"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "showUpgrade": "true",
+            "lastPath": "/Workspace/",
+            "sessionID": "201911231013564759",
+            "scrollPos": "0",
+            "selection": "0"
+        }
+    }
+}
