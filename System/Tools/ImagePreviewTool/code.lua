@@ -151,7 +151,7 @@ function OnImageLoaded()
 
   pixelVisionOS:ImportColorsFromGame()
 
-  local menuOptions = 
+  local menuOptions =
   {
     -- About ID 1
     {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -217,6 +217,9 @@ function OnImageLoaded()
 end
 
 function Update(timeDelta)
+
+  -- Convert timeDelta to a float
+  timeDelta = timeDelta / 1000
 
   -- This needs to be the first call to make sure all of the editor UI is updated first
   pixelVisionOS:Update(timeDelta)

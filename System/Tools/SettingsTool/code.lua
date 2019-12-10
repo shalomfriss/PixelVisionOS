@@ -1,13 +1,11 @@
 --[[
-	Pixel Vision 8 - New Template Script
-	Copyright (C) 2017, Pixel Vision 8 (http://pixelvision8.com)
+	Pixel Vision 8 - Debug Tool
+	Copyright (C) 2016, Pixel Vision 8 (http://pixelvision8.com)
 	Created by Jesse Freeman (@jessefreeman)
 
-	This project was designed to display some basic instructions when you create
-	a new tool.	Simply delete the following code and implement your own Init(),
-	Update() and Draw() logic.
-
-	Learn more about making Pixel Vision 8 games at https://www.gitbook.com/@pixelvision8
+	Please do not copy and distribute verbatim copies
+	of this license document, but modifications without
+	distributing is allowed.
 ]]--
 
 -- Load in the editor framework script to access tool components
@@ -231,7 +229,7 @@ function Init()
   -- Get a reference to the Editor UI
   editorUI = pixelVisionOS.editorUI
 
-  local menuOptions = 
+  local menuOptions =
   {
     -- About ID 1
     {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -736,6 +734,9 @@ end
 -- before the Draw() method. It accepts one argument, timeDelta, which is the difference in
 -- milliseconds since the last frame.
 function Update(timeDelta)
+
+  -- Convert timeDelta to a float
+  timeDelta = timeDelta / 1000
 
   -- This needs to be the first call to make sure all of the OS and editor UI is updated first
   pixelVisionOS:Update(timeDelta)

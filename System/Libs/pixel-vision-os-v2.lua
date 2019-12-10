@@ -144,7 +144,7 @@ function PixelVisionOS:FindEditors()
 
   local editors = {}
 
-  local paths = 
+  local paths =
   {
     NewWorkspacePath("/PixelVisionOS/Tools/"),
   }

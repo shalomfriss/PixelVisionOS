@@ -814,6 +814,9 @@ local lastDrawTileID = -1
 
 function Update(timeDelta)
 
+  -- Convert timeDelta to a float
+  timeDelta = timeDelta / 1000
+  
   -- This needs to be the first call to make sure all of the editor UI is updated first
   pixelVisionOS:Update(timeDelta)
 

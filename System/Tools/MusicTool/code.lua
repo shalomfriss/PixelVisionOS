@@ -1137,6 +1137,9 @@ end
 
 function Update(timeDelta)
 
+  -- Convert timeDelta to a float
+  timeDelta = timeDelta / 1000
+  
   -- Update the editor UI
   pixelVisionOS:Update(timeDelta)
 

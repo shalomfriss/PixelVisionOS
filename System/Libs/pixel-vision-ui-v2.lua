@@ -77,7 +77,7 @@ function EditorUI:Update(timeDelta)
   self.timeDelta = timeDelta
 
   -- Update the refresh time counter
-  self.refreshTime = self.refreshTime + timeDelta
+  self.refreshTime = self.refreshTime + self.timeDelta
 
   -- Reset the refresh counter
   if(self.refreshTime > self.refreshDelay) then
@@ -89,10 +89,10 @@ function EditorUI:Update(timeDelta)
   end
 
   -- Update the collision manager first since the other components need a reference to the collision state
-  self.collisionManager:Update(timeDelta)
+  self.collisionManager:Update(self.timeDelta)
 
   -- Update the mouse cursor
-  self.mouseCursor:Update(timeDelta, self.collisionManager)
+  self.mouseCursor:Update(self.timeDelta, self.collisionManager)
 
 end
 
