@@ -40,7 +40,7 @@ function PixelVisionOS:ImportColorsFromGame()
   end
 
   -- Set the color mode
-  self.paletteMode = gameEditor:ReadMetaData("paletteMode", "false") == "true"
+  self.paletteMode = gameEditor:ReadMetadata("paletteMode", "false") == "true"
 
   -- Calculate the total available system colors based on the palette mode
   self.totalSystemColors = self.paletteMode and self.totalColors / 2 or self.totalColors

@@ -81,8 +81,8 @@ local extToTypeMap =
   wav = ".wav"
 }
 
-local rootPath = ReadMetaData("RootPath", "/")
-local gameName = ReadMetaData("GameName", "FilePickerTool")
+local rootPath = ReadMetadata("RootPath", "/")
+local gameName = ReadMetadata("GameName", "FilePickerTool")
 
 local windowScrollHistory = {}
 

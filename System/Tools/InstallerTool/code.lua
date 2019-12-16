@@ -69,10 +69,10 @@ function Init()
     -- Change the title
     pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
-    rootDirectory = ReadMetaData("directory", nil)
+    rootDirectory = ReadMetadata("directory", nil)
 
     -- Get the target file
-    targetFile = ReadMetaData("file", nil)
+    targetFile = ReadMetadata("file", nil)
 
     if(targetFile ~= nil) then
 
@@ -203,7 +203,7 @@ function ConfigureToolUI()
 
   cleanCheckboxData = editorUI:CreateToggleButton({x = 176, y = 56, w = 8, h = 8}, "radiobutton", "Toggles doing a clean build and removes all previous builds.")
 
-  -- editorUI:ToggleButton(cleanCheckboxData, gameEditor:ReadMetaData("clear", "false") == "true", false)
+  -- editorUI:ToggleButton(cleanCheckboxData, gameEditor:ReadMetadata("clear", "false") == "true", false)
 
   cleanCheckboxData.onAction = function(value)
 

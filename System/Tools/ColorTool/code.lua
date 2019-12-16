@@ -90,7 +90,7 @@ function Init()
   -- Reset the undo history so it's ready for the tool
   pixelVisionOS:ResetUndoHistory()
 
-  rootDirectory = ReadMetaData("directory", nil)
+  rootDirectory = ReadMetadata("directory", nil)
 
   if(rootDirectory ~= nil) then
 
@@ -111,7 +111,7 @@ function Init()
     -- The first thing we need to do is rebuild the tool's color table to include the game's system and game colors.
     pixelVisionOS:ImportColorsFromGame()
 
-    local menuOptions =
+    local menuOptions = 
     {
       -- About ID 1
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -627,7 +627,7 @@ function OnSave()
 
   -- TODO need to tell if we are not in palette mode any more and recolor sprites and delete color-map.png file?
 
-  gameEditor:WriteMetaData("paletteMode", usePalettes and "true" or "false")
+  gameEditor:WriteMetadata("paletteMode", usePalettes and "true" or "false")
 
   -- If the sprites have been re-indexed and we are using palettes we need to save the changes
   if(spritesInvalid == true) then

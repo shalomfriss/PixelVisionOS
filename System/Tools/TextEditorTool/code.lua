@@ -42,10 +42,10 @@ function Init()
   -- Get a reference to the Editor UI
   editorUI = pixelVisionOS.editorUI
 
-  rootDirectory = ReadMetaData("directory", nil)
+  rootDirectory = ReadMetadata("directory", nil)
 
   -- Get the target file
-  targetFile = ReadMetaData("file", nil)
+  targetFile = ReadMetadata("file", nil)
 
   targetFilePath = NewWorkspacePath(targetFile)
 

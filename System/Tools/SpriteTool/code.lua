@@ -87,7 +87,7 @@ function Init()
   -- Get a reference to the Editor UI
   editorUI = pixelVisionOS.editorUI
 
-  rootDirectory = ReadMetaData("directory", nil)
+  rootDirectory = ReadMetadata("directory", nil)
 
   if(rootDirectory == nil) then
 

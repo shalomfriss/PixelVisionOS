@@ -93,7 +93,7 @@ function Init()
   newFileModal = NewFileModal:Init(editorUI)
   newFileModal.editorUI = editorUI
 
-  rootDirectory = ReadMetaData("directory", nil)
+  rootDirectory = ReadMetadata("directory", nil)
 
   if(rootDirectory ~= nil) then
     -- Load only the game data we really need

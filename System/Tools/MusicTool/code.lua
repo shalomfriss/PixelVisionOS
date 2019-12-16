@@ -35,7 +35,7 @@ local canEdit = ConfigureModal ~= nil
 
 local SaveShortcut, RevertShortcut, UndoShortcut, RedoShortcut, ClearShortcut, CopyShortcut, PasteShortcut, ExportPatternShortcut, ExportSongShortcut = 6, 7, 9, 10, 11, 12, 13, 15, 16
 
-local midiTable =
+local midiTable = 
 {
   "C", -- 24
   "C#", -- 25
@@ -145,7 +145,7 @@ function Init()
   -- Reset the undo history so it's ready for the tool
   pixelVisionOS:ResetUndoHistory()
 
-  rootDirectory = ReadMetaData("directory", nil)
+  rootDirectory = ReadMetadata("directory", nil)
 
   if(rootDirectory ~= nil) then
 
@@ -171,7 +171,7 @@ function Init()
     totalTracks = gameEditor:TotalTracks()
     totalChannels = gameEditor:TotalChannels()
 
-    local menuOptions =
+    local menuOptions = 
     {
       -- About ID 1
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -1137,11 +1137,8 @@ end
 
 function Update(timeDelta)
 
-  -- Convert timeDelta to a float
-  timeDelta = timeDelta / 1000
-  
   -- Update the editor UI
-  pixelVisionOS:Update(timeDelta)
+  pixelVisionOS:Update(timeDelta / 1000)
 
   -- Only update the tool's UI when the modal isn't active
   if(pixelVisionOS:IsModalActive() == false) then
@@ -1202,7 +1199,7 @@ function Update(timeDelta)
 
     for i = 1, totalSongFields do
 
-      editorUI:UpdateSongInputField(songInputFields[i], timeDelta)
+      editorUI:UpdateSongInputField(songInputFields[i], editorUI.timeDelta)
 
     end
 
@@ -1270,7 +1267,7 @@ function Update(timeDelta)
   if(installing == true) then
 
 
-    installingTime = installingTime + timeDelta
+    installingTime = installingTime + editorUI.timeDelta
 
     if(installingTime > installingDelay) then
       installingTime = 0

@@ -378,7 +378,7 @@ function Init()
 
       local key = player1Keys[i]
 
-      usedControllerKeys[key] = ConvertKeyCodeToChar(tonumber(ReadMetaData(key)))
+      usedControllerKeys[key] = ConvertKeyCodeToChar(tonumber(ReadMetadata(key)))
 
     end
 
@@ -387,7 +387,7 @@ function Init()
 
       local key = player2Keys[i]
 
-      usedControllerKeys[key] = ConvertKeyCodeToChar(tonumber(ReadMetaData(key)))
+      usedControllerKeys[key] = ConvertKeyCodeToChar(tonumber(ReadMetadata(key)))
 
     end
 
@@ -711,8 +711,8 @@ function TriggerInputSelection(value)
 
   for i = 1, #inputMap do
     local field = inputFields[i]
-    -- print("Display Input Player " .. selectedPlayerID .. " map " .. inputMap[i] .. " value " .. ReadMetaData(inputMap[i]))
-    editorUI:ChangeInputField(field, ConvertKeyCodeToChar(tonumber(ReadMetaData(inputMap[i]))), false)
+    -- print("Display Input Player " .. selectedPlayerID .. " map " .. inputMap[i] .. " value " .. ReadMetadata(inputMap[i]))
+    editorUI:ChangeInputField(field, ConvertKeyCodeToChar(tonumber(ReadMetadata(inputMap[i]))), false)
   end
 
 end
