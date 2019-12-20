@@ -37,7 +37,7 @@ local refreshDelay = 5
 local fileCount = 0
 local overTarget = nil
 
-local fileTypeMap =
+local fileTypeMap = 
 {
   folder = "filefolder",
   updirectory = "fileparentfolder",
@@ -67,7 +67,7 @@ local fileTypeMap =
   tiles = "filetiles"
 }
 
-local extToTypeMap =
+local extToTypeMap = 
 {
   colors = ".png",
   system = ".json",
@@ -159,7 +159,7 @@ function Init()
   -- TODO need to see if the log file actually exists
   local logExits = true
 
-  local menuOptions =
+  local menuOptions = 
   {
     -- About ID 1
     {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName, aboutText, 220) end, toolTip = "Learn about PV8."},
@@ -390,7 +390,7 @@ function DrawWallpaper()
 
   -- Draw logo
   if(logoSpriteData ~= nil) then
-    UpdateTiles(13, 13, logoSpriteData.width, logoSpriteData.spriteIDs, colorOffset)
+    DrawSprites(logoSpriteData.spriteIDs, 13, 13, logoSpriteData.width, false, false, DrawMode.Tile, colorOffset)
   end
 
 end

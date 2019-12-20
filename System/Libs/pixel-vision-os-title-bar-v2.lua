@@ -445,7 +445,7 @@ function PixelVisionOS:UpdateTitleBar(data, timeDelta)
     if(newTimeStamp ~= data.lastTimeStamp) then
 
       -- Clears the time tiles first
-      UpdateTiles(25, 0, 4, { 0, 0, 0, 0})
+      DrawSprites({ 0, 0, 0, 0}, 25, 0, 4, false, false, DrawMode.Tile)
 
       DrawText(newTimeStamp, 200, 1, DrawMode.TilemapCache, "medium", data.textColorOffset, - 4)
 
