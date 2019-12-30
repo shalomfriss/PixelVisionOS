@@ -1,13 +1,12 @@
 {
-    
+
     "GameChip":
     {
         "savedData":{
-            "selection": "10",
-            "scrollPos": "1",
-            "sessionID": "201912301424513349",
-            "lastPath": "/Disks/PixelVisionOS/System/Tools/ImagePreviewTool/",
-            "showUpgrade": "true"
+            "lastPath": "none",
+            "sessionID": "201912301658014823",
+            "scrollPos": "0",
+            "selection": "0"
         }
     }
 }

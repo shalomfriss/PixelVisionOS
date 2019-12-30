@@ -336,13 +336,15 @@ function Init()
 
             local text = ReadTextFile(versionFilePath.Path)
 
-            local ver = text:sub(#text - 5, #text - 2)
+            local ver = text:sub(#text - 6, #text - 3)
 
             if(ver ~= pixelVisionOS.version) then
 
                 pixelVisionOS:ShowMessageModal("Upgrade to " .. ver, "It looks like you are running an older version of Pixel Vision 8. If you hit cancel you will not see this again until you restart Pixel Vision 8. You can upgrade at any time by selecting \"Install OS\" from the settings tool menu.\n\nDo you want to upgrade to the latest version? ", 168, true,
                     function()
                         if(pixelVisionOS.messageModal.selectionValue == true) then
+
+                            WriteSaveData("showUpgrade", "false")
 
                             LoadGame(installerPath.Path)
 

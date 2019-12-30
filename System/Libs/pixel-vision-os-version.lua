@@ -1,1 +1,1 @@
-_G["PixelVisionOSVersion"] = "v2.6"
+_G["PixelVisionOSVersion"] = "v2.7"
