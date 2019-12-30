@@ -35,7 +35,7 @@ local spriteSize = 1
 local maxSpriteSize = 4
 local lastTileSelection = -1
 local enabledUI = {}
-local SaveShortcut, UndoShortcut, RedoShortcut, BGColorShortcut, QuitShortcut = 5, 10, 11, 15, 21
+local SaveShortcut, UndoShortcut, RedoShortcut, CopyShortcut, PasteShortcut, BGColorShortcut, QuitShortcut = 5, 7, 8, 9, 10, 12, 18
 local uiLock = false
 local tools = {"pointer", "pen", "eraser", "fill"}
 local toolKeys = {Keys.v, Keys.P, Keys.E, Keys.F}
@@ -116,14 +116,14 @@ function Init()
             {name = "Edit Sprites", enabled = spriteEditorPath ~= nil, action = OnEditSprites, toolTip = "Open the sprite editor."},
             {name = "Export PNG", action = OnPNGExport, enabled = true, toolTip = "Generate a 'tilemap.png' file."}, -- Reset all the values
             {name = "Save", action = OnSave, enabled = false, key = Keys.S, toolTip = "Save changes made to the tilemap.json file."}, -- Reset all the values
-            {divider = true},
-            {name = "Clear", action = OnNewSound, enabled = false, key = Keys.D, toolTip = "Clear the currently selected tile."}, -- Reset all the values
-            {name = "Revert", action = nil, enabled = false, key = Keys.R, toolTip = "Revert the tilemap.json file to its previous state."}, -- Reset all the values
+            -- {divider = true},
+            -- {name = "Clear", action = OnNewSound, enabled = false, key = Keys.D, toolTip = "Clear the currently selected tile."}, -- Reset all the values
+            -- {name = "Revert", action = nil, enabled = false, key = Keys.R, toolTip = "Revert the tilemap.json file to its previous state."}, -- Reset all the values
             {divider = true},
             {name = "Undo", action = OnUndo, enabled = false, key = Keys.Z, toolTip = "Undo the last action."}, -- Reset all the values
             {name = "Redo", action = OnRedo, enabled = false, key = Keys.Y, toolTip = "Redo the last undo."}, -- Reset all the values
-            {name = "Copy", action = OnCopyColor, enabled = false, key = Keys.C, toolTip = "Copy the currently selected tile."}, -- Reset all the values
-            {name = "Paste", action = OnPasteColor, enabled = false, key = Keys.V, toolTip = "Paste the last copied tile."}, -- Reset all the values
+            {name = "Copy", action = OnCopyTile, enabled = false, key = Keys.C, toolTip = "Copy the currently selected tile."}, -- Reset all the values
+            {name = "Paste", action = OnPasteTile, enabled = false, key = Keys.V, toolTip = "Paste the last copied tile."}, -- Reset all the values
             {divider = true},
             {name = "BG Color", action = function() ToggleBackgroundColor(not showBGColor) end, key = Keys.B, toolTip = "Toggle background color."},
             {name = "Toggle Layer", action = function() ChangeMode(not flagModeActive) end, key = Keys.L, toolTip = "Toggle flag mode for collision."},
@@ -1234,5 +1234,13 @@ function OnRunGame()
         LoadGame(NewWorkspacePath(rootDirectory))
 
     end
+
+end
+
+function OnCopyTile()
+
+end
+
+function OnPasteTile()
 
 end
