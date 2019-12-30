@@ -46,7 +46,7 @@
         "spriteWidth":8,
         "spriteHeight":8,
         "pages":6,
-        "cps":8
+        "cps":16
     },
     "TilemapChip":
     {

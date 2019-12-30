@@ -311,6 +311,20 @@ function Init()
 
         RefreshBGColorIcon()
 
+        local selectedSpritePage = 0
+        local paletteColorPicker = 0
+
+        if(SessionID() == ReadSaveData("sessionID", "") and rootDirectory == ReadSaveData("rootDirectory", "")) then
+
+            selectedSpritePage = tonumber(ReadSaveData("selectedSpritePage", "1"))
+            paletteColorPicker = tonumber(ReadSaveData("selectedPalettePage", "1"))
+
+        end
+
+        pixelVisionOS:OnSpritePickerPage(spritePickerData, selectedSpritePage)
+
+        pixelVisionOS:OnColorPickerPage(paletteColorPickerData, paletteColorPicker)
+
         -- Reset the validation to update the title and set the validation flag correctly for any changes
         ResetDataValidation()
 
@@ -1178,26 +1192,17 @@ end
 
 function Shutdown()
 
-    -- WriteSaveData("editing", gameEditor:Name())
-    -- WriteSaveData("tab", tostring(colorTabBtnData.currentSelection))
-    -- WriteSaveData("selected", CalculateRealIndex(systemColorPickerData.picker.selected))
-
     -- Save the current session ID
     WriteSaveData("sessionID", SessionID())
 
     WriteSaveData("rootDirectory", rootDirectory)
 
-    -- TODO need to save the last set of selections
     if(systemColorPickerData ~= nil) then
-        WriteSaveData("selectedColor", systemColorPickerData.currentSelection)
+        WriteSaveData("selectedSpritePage", spritePickerData.pages.currentSelection)
     end
     if(paletteColorPickerData ~= nil) then
-        WriteSaveData("selectedPalette", paletteColorPickerData.currentSelection)
+        WriteSaveData("selectedPalettePage", paletteColorPickerData.pages.currentSelection)
     end
-    if(spritePickerData ~= nil) then
-        WriteSaveData("selectedSprite", spritePickerData.currentSelection)
-    end
-
 
 end
 
