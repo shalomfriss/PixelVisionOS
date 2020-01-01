@@ -1,12 +1,13 @@
 {
-
+    
     "GameChip":
     {
         "savedData":{
-            "lastPath": "none",
-            "sessionID": "201912301658014823",
+            "lastPath": "/Disks/PixelVisionProTools/",
+            "sessionID": "201912310633307294",
             "scrollPos": "0",
-            "selection": "0"
+            "selection": "0",
+            "showUpgrade": "false"
         }
     }
 }
