@@ -9,7 +9,7 @@
 ]]--
 
 LoadScript("sb-sprites")
-LoadScript("pixel-vision-os-v2")
+LoadScript("pixel-vision-os-v3")
 LoadScript("code-installer-modal")
 LoadScript("configure-installer")
 
@@ -23,437 +23,437 @@ local aboutLines = {}
 -- use this method to configure background color, ScreenBufferChip and draw a text box.
 function Init()
 
-  -- Disable the back key in this tool
-  EnableBackKey(false)
+    -- Disable the back key in this tool
+    EnableBackKey(false)
 
-  EnableAutoRun(false)
+    EnableAutoRun(false)
 
-  -- Create an instance of the Pixel Vision OS
-  pixelVisionOS = PixelVisionOS:Init()
+    -- Create an instance of the Pixel Vision OS
+    pixelVisionOS = PixelVisionOS:Init()
 
-  -- Get a reference to the Editor UI
-  editorUI = pixelVisionOS.editorUI
+    -- Get a reference to the Editor UI
+    editorUI = pixelVisionOS.editorUI
 
-  -- Make sure the background is masked off
-  DrawRect(48, 40, 160 - 8, 8, 0, DrawMode.TilemapCache)
-  DrawRect(16, 72, 208, 64, 0, DrawMode.TilemapCache)
-  DrawRect(16, 168, 228 - 20, 56, 11, DrawMode.TilemapCache)
+    -- Make sure the background is masked off
+    DrawRect(48, 40, 160 - 8, 8, 0, DrawMode.TilemapCache)
+    DrawRect(16, 72, 208, 64, 0, DrawMode.TilemapCache)
+    DrawRect(16, 168, 228 - 20, 56, 11, DrawMode.TilemapCache)
 
-  pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
-
-  if(ConfigureInstaller ~= nil) then
-
-    ConfigureInstaller()
-
-  else
-
-    -- Get a list of all the editors
-    local editorMapping = pixelVisionOS:FindEditors()
-
-    -- Find the json editor
-    textEditorPath = editorMapping["json"]
-
-    local menuOptions =
-    {
-      -- About ID 1
-      {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
-      {divider = true},
-      {name = "Edit Script", enabled = textEditorPath ~= nil, action = OnEditScript, toolTip = "Edit the raw installer script file."}, -- Reset all the values
-      {name = "Reset", action = OnReset, key = Keys.R, toolTip = "Revert the installer to its default state."}, -- Reset all the values
-      {divider = true},
-      {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
-    }
-
-    pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
-
-    -- Change the title
     pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
-    rootDirectory = ReadMetadata("directory", nil)
+    if(ConfigureInstaller ~= nil) then
 
-    -- Get the target file
-    targetFile = ReadMetadata("file", nil)
-
-    if(targetFile ~= nil) then
-
-      LoadInstallScript(ReadTextFile(targetFile))
-
-      ConfigureToolUI()
+        ConfigureInstaller()
 
     else
 
-      pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
+        -- Get a list of all the editors
+        local editorMapping = pixelVisionOS:FindEditors()
+
+        -- Find the json editor
+        textEditorPath = editorMapping["json"]
+
+        local menuOptions = 
+        {
+            -- About ID 1
+            {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
+            {divider = true},
+            {name = "Edit Script", enabled = textEditorPath ~= nil, action = OnEditScript, toolTip = "Edit the raw installer script file."}, -- Reset all the values
+            {name = "Reset", action = OnReset, key = Keys.R, toolTip = "Revert the installer to its default state."}, -- Reset all the values
+            {divider = true},
+            {name = "Quit", key = Keys.Q, action = OnQuit, toolTip = "Quit the current game."}, -- Quit the current game
+        }
+
+        pixelVisionOS:CreateTitleBarMenu(menuOptions, "See menu options for this tool.")
+
+        -- Change the title
+        pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
+
+        rootDirectory = ReadMetadata("directory", nil)
+
+        -- Get the target file
+        targetFile = ReadMetadata("file", nil)
+
+        if(targetFile ~= nil) then
+
+            LoadInstallScript(ReadTextFile(targetFile))
+
+            ConfigureToolUI()
+
+        else
+
+            pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
 
 
-      pixelVisionOS:ShowMessageModal(toolName .. " Error", "The tool could not load without a reference to a file to edit.", 160, false,
-        function()
-          QuitCurrentTool()
+            pixelVisionOS:ShowMessageModal(toolName .. " Error", "The tool could not load without a reference to a file to edit.", 160, false,
+                function()
+                    QuitCurrentTool()
+                end
+            )
         end
-      )
-    end
 
-  end
+    end
 
 
 
 end
 
 function ConfigureToolUI()
-  if(variables["readme"] ~= nil) then
+    if(variables["readme"] ~= nil) then
 
-    local wrap = WordWrap(variables["readme"], 52)
-    aboutLines = SplitLines(wrap)
+        local wrap = WordWrap(variables["readme"], 52)
+        aboutLines = SplitLines(wrap)
 
 
-    if(#aboutLines < maxAboutLines) then
-      maxAboutLines = #aboutLines
+        if(#aboutLines < maxAboutLines) then
+            maxAboutLines = #aboutLines
+        end
+
     end
 
-  end
+    installerRoot = variables["dir"] or "Workspace"
 
-  installerRoot = variables["dir"] or "Workspace"
+    -- Update file paths
+    -- for i = 1, #filePaths do
+    --   filePaths[i][3] = "/" .. installerRoot .. filePaths[i][1]
+    --   print("file", filePaths[i][3], "to", filePaths[i][1])
+    --   -- filePaths[i][3] = filePaths[i][1]
+    -- end
 
-  -- Update file paths
-  -- for i = 1, #filePaths do
-  --   filePaths[i][3] = "/" .. installerRoot .. filePaths[i][1]
-  --   print("file", filePaths[i][3], "to", filePaths[i][1])
-  --   -- filePaths[i][3] = filePaths[i][1]
-  -- end
+    nameInputData = editorUI:CreateInputField({x = 48, y = 40, w = 152}, installerRoot, "Enter in a file name to this string input field.", "file")
 
-  nameInputData = editorUI:CreateInputField({x = 48, y = 40, w = 152}, installerRoot, "Enter in a file name to this string input field.", "file")
+    local startY = 168
 
-  local startY = 168
+    -- Need to see if there are enough files to display
+    if(#filePaths < maxFilesToDisplay) then
+        maxFilesToDisplay = #filePaths
 
-  -- Need to see if there are enough files to display
-  if(#filePaths < maxFilesToDisplay) then
-    maxFilesToDisplay = #filePaths
+        -- TODO disable scroller
+    end
 
-    -- TODO disable scroller
-  end
+    for i = 1, maxFilesToDisplay do
+        local tmpCheckbox = editorUI:CreateToggleButton({x = 16, y = startY, w = 8, h = 8}, "checkbox", "Toggles doing a clean install.")
+        tmpCheckbox.onAction = function(value)
 
-  for i = 1, maxFilesToDisplay do
-    local tmpCheckbox = editorUI:CreateToggleButton({x = 16, y = startY, w = 8, h = 8}, "checkbox", "Toggles doing a clean install.")
-    tmpCheckbox.onAction = function(value)
+            if(Key(Keys.LeftShift) or Key(Keys.RightShift)) then
 
-      if(Key(Keys.LeftShift) or Key(Keys.RightShift)) then
+                -- Loop through all of the files
+                for i = 1, #filePaths do
 
-        -- Loop through all of the files
+                    -- Change all of the file values
+                    filePaths[i][2] = value
+
+                end
+
+                DrawFileList(fileListOffset)
+
+            else
+
+                -- Change a single file value
+                filePaths[i + fileListOffset][2] = value
+            end
+
+        end
+
+        startY = startY + 8
+
+        table.insert(fileCheckBoxes, tmpCheckbox)
+
+    end
+
+    aboutSliderData = editorUI:CreateSlider({x = 227, y = 68, w = 16, h = 72}, "vsliderhandle", "Scroll to see more of the about text.")
+    aboutSliderData.onAction = OnAboutValueChange
+
+    editorUI:Enable(aboutSliderData, #aboutLines > maxAboutLines)
+
+    fileSliderData = editorUI:CreateSlider({x = 224, y = 168, w = 16, h = 56}, "vsliderhandle", "Scroll to see the more files to install.")
+    fileSliderData.onAction = OnFileValueChange
+
+    editorUI:Enable(fileSliderData, #filePaths > maxFilesToDisplay)
+
+    installButtonData = editorUI:CreateButton({x = 208, y = 32}, "installbutton", "Run the installer.")
+    installButtonData.onAction = function(value)
+
+        filesToCopy = {}
+
         for i = 1, #filePaths do
+            if(filePaths[i][2] == true) then
 
-          -- Change all of the file values
-          filePaths[i][2] = value
-
+                table.insert(filesToCopy, {src = filePaths[i][1], dest = filePaths[i][3]})
+            end
         end
 
-        DrawFileList(fileListOffset)
+        -- Create  the install path without the last slash
+        local installPath = "/Workspace" .. (nameInputData.text:lower() ~= "workspace" and "/"..nameInputData.text or "")
 
-      else
+        pixelVisionOS:ShowMessageModal("Install Files", "Are you sure you want to install ".. #filesToCopy .." items in '".. installPath .."/'? This will overwrite any existing files and can not be undone.", 160, true,
+            function()
 
-        -- Change a single file value
-        filePaths[i + fileListOffset][2] = value
-      end
+                if(pixelVisionOS.messageModal.selectionValue == true) then
+
+                    OnInstall(installPath)
+
+                end
+
+            end
+        )
 
     end
 
-    startY = startY + 8
+    cleanCheckboxData = editorUI:CreateToggleButton({x = 176, y = 56, w = 8, h = 8}, "radiobutton", "Toggles doing a clean build and removes all previous builds.")
 
-    table.insert(fileCheckBoxes, tmpCheckbox)
+    -- editorUI:ToggleButton(cleanCheckboxData, gameEditor:ReadMetadata("clear", "false") == "true", false)
 
-  end
+    cleanCheckboxData.onAction = function(value)
 
-  aboutSliderData = editorUI:CreateSlider({x = 227, y = 68, w = 16, h = 72}, "vsliderhandle", "Scroll to see more of the about text.")
-  aboutSliderData.onAction = OnAboutValueChange
-
-  editorUI:Enable(aboutSliderData, #aboutLines > maxAboutLines)
-
-  fileSliderData = editorUI:CreateSlider({x = 224, y = 168, w = 16, h = 56}, "vsliderhandle", "Scroll to see the more files to install.")
-  fileSliderData.onAction = OnFileValueChange
-
-  editorUI:Enable(fileSliderData, #filePaths > maxFilesToDisplay)
-
-  installButtonData = editorUI:CreateButton({x = 208, y = 32}, "installbutton", "Run the installer.")
-  installButtonData.onAction = function(value)
-
-    filesToCopy = {}
-
-    for i = 1, #filePaths do
-      if(filePaths[i][2] == true) then
-
-        table.insert(filesToCopy, {src = filePaths[i][1], dest = filePaths[i][3]})
-      end
-    end
-
-    -- Create  the install path without the last slash
-    local installPath = "/Workspace" .. (nameInputData.text:lower() ~= "workspace" and "/"..nameInputData.text or "")
-
-    pixelVisionOS:ShowMessageModal("Install Files", "Are you sure you want to install ".. #filesToCopy .." items in '".. installPath .."/'? This will overwrite any existing files and can not be undone.", 160, true,
-      function()
-
-        if(pixelVisionOS.messageModal.selectionValue == true) then
-
-          OnInstall(installPath)
-
+        if(value == false) then
+            -- InvalidateData()
+            return
         end
 
-      end
-    )
+        pixelVisionOS:ShowMessageModal("Warning", "Are you sure you want to do a clean install? The root directory will be removed before the installer copies over the files. This can not be undone.", 160, true,
+            function()
 
-  end
+                if(pixelVisionOS.messageModal.selectionValue == false) then
 
-  cleanCheckboxData = editorUI:CreateToggleButton({x = 176, y = 56, w = 8, h = 8}, "radiobutton", "Toggles doing a clean build and removes all previous builds.")
+                    -- Force the checkbox back into the false state
+                    editorUI:ToggleButton(cleanCheckboxData, false, false)
 
-  -- editorUI:ToggleButton(cleanCheckboxData, gameEditor:ReadMetadata("clear", "false") == "true", false)
+                else
+                    -- Force the checkbox back into the false state
+                    editorUI:ToggleButton(cleanCheckboxData, true, false)
+                end
 
-  cleanCheckboxData.onAction = function(value)
+                -- Force the button to redraw since restoring the modal will show the old state
+                editorUI:Invalidate(cleanCheckboxData)
+                -- InvalidateData()
+            end
+        )
 
-    if(value == false) then
-      -- InvalidateData()
-      return
     end
 
-    pixelVisionOS:ShowMessageModal("Warning", "Are you sure you want to do a clean install? The root directory will be removed before the installer copies over the files. This can not be undone.", 160, true,
-      function()
-
-        if(pixelVisionOS.messageModal.selectionValue == false) then
-
-          -- Force the checkbox back into the false state
-          editorUI:ToggleButton(cleanCheckboxData, false, false)
-
-        else
-          -- Force the checkbox back into the false state
-          editorUI:ToggleButton(cleanCheckboxData, true, false)
-        end
-
-        -- Force the button to redraw since restoring the modal will show the old state
-        editorUI:Invalidate(cleanCheckboxData)
-        -- InvalidateData()
-      end
-    )
-
-  end
-
-  -- Reset list
-  DrawFileList()
-  DrawAboutLines()
+    -- Reset list
+    DrawFileList()
+    DrawAboutLines()
 end
 
 function LoadInstallScript(rawData)
 
-  -- local  = ReadTextFile(path)
+    -- local  = ReadTextFile(path)
 
-  biosProperties = {}
-  variables = {}
-  filePaths = {}
+    biosProperties = {}
+    variables = {}
+    filePaths = {}
 
-  for s in rawData:gmatch("[^\r\n]+") do
+    for s in rawData:gmatch("[^\r\n]+") do
 
-    local type = string.sub(s, 1, 1)
+        local type = string.sub(s, 1, 1)
 
-    if(type == "/") then
+        if(type == "/") then
 
-      local split = string.split(s, "|")
+            local split = string.split(s, "|")
 
-      if(PathExists(NewWorkspacePath(rootDirectory .. string.sub(split[1], 2)))) then
-        -- print("Path", split[1], "to", split[2])
+            if(PathExists(NewWorkspacePath(rootDirectory .. string.sub(split[1], 2)))) then
+                -- print("Path", split[1], "to", split[2])
 
-        -- Add the path to the list
-        table.insert(filePaths, {split[1], true, split[2] == nil and split[1] or split[2]})
-      end
-    elseif(type == "$") then
+                -- Add the path to the list
+                table.insert(filePaths, {split[1], true, split[2] == nil and split[1] or split[2]})
+            end
+        elseif(type == "$") then
 
-      -- Need to check if this is a bios property or a variable
-      if(string.sub(s, 1, 5) == "$bios") then
-        local split = string.split(string.sub(s, 7, #s), "|")
+            -- Need to check if this is a bios property or a variable
+            if(string.sub(s, 1, 5) == "$bios") then
+                local split = string.split(string.sub(s, 7, #s), "|")
 
-        -- print("bios", split[1], split[2])
+                -- print("bios", split[1], split[2])
 
-        table.insert(biosProperties, split)
+                table.insert(biosProperties, split)
 
-      else
+            else
 
-        local split = string.split(string.sub(s, 2, #s), "=")
+                local split = string.split(string.sub(s, 2, #s), "=")
 
-        -- print("var", split[1], split[2])
-        variables[split[1]] = split[2]
+                -- print("var", split[1], split[2])
+                variables[split[1]] = split[2]
 
-      end
+            end
 
+        end
+
+        -- print("Type", type, s)
+
+        -- table.insert(lines, s)
     end
-
-    -- print("Type", type, s)
-
-    -- table.insert(lines, s)
-  end
 
 end
 
 function OnAboutValueChange(value)
 
-  local offset = math.ceil((#aboutLines - maxAboutLines - 1) * value)
+    local offset = math.ceil((#aboutLines - maxAboutLines - 1) * value)
 
-  DrawAboutLines(offset)
+    DrawAboutLines(offset)
 
 end
 
 function DrawAboutLines(offset)
 
-  DrawRect(16, 64 + 8, 208, 64, 0, DrawMode.TilemapCache)
-  offset = offset or 0
+    DrawRect(16, 64 + 8, 208, 64, 0, DrawMode.TilemapCache)
+    offset = offset or 0
 
-  for i = 1, maxAboutLines do
+    for i = 1, maxAboutLines do
 
-    local line = aboutLines[i + offset]
+        local line = aboutLines[i + offset]
 
-    line = string.rpad(line, 52, " "):upper()
-    DrawText(line, 16, 64 + (i * 8), DrawMode.TilemapCache, "medium", 15, - 4)
+        line = string.rpad(line, 52, " "):upper()
+        DrawText(line, 16, 64 + (i * 8), DrawMode.TilemapCache, "medium", 15, - 4)
 
-  end
+    end
 
 end
 
 function OnFileValueChange(value)
 
-  local offset = math.ceil((#filePaths - maxFilesToDisplay) * value)
+    local offset = math.ceil((#filePaths - maxFilesToDisplay) * value)
 
-  DrawFileList(offset)
+    DrawFileList(offset)
 
 end
 
 function DrawFileList(offset)
 
-  fileListOffset = offset or 0
+    fileListOffset = offset or 0
 
-  DrawRect(24, 168, 200, 56, 11, DrawMode.TilemapCache)
+    DrawRect(24, 168, 200, 56, 11, DrawMode.TilemapCache)
 
-  for i = 1, maxFilesToDisplay do
+    for i = 1, maxFilesToDisplay do
 
-    local file = filePaths[i + fileListOffset] or ""
-    local fileName = file[1]
-    local checkValue = file[2]
+        local file = filePaths[i + fileListOffset] or ""
+        local fileName = file[1]
+        local checkValue = file[2]
 
-    editorUI:ToggleButton(fileCheckBoxes[i], checkValue, false)
+        editorUI:ToggleButton(fileCheckBoxes[i], checkValue, false)
 
-    -- TODO need to check the size of the name
+        -- TODO need to check the size of the name
 
-    if(#fileName > 49) then
-      fileName = fileName:sub(1, 49 - 3) .. "..."
+        if(#fileName > 49) then
+            fileName = fileName:sub(1, 49 - 3) .. "..."
+        end
+
+        fileName = string.rpad(fileName, 200, " "):upper()
+
+        DrawText(fileName, 25, 160 + (i * 8), DrawMode.TilemapCache, "small", 0, - 4)
+
     end
-
-    fileName = string.rpad(fileName, 200, " "):upper()
-
-    DrawText(fileName, 25, 160 + (i * 8), DrawMode.TilemapCache, "small", 0, - 4)
-
-  end
 
 end
 
 function OnInstall(rootPath)
 
-  if (cleanCheckboxData.selected == true) then
-    local destPath = NewWorkspacePath(rootPath.."/")
-    if(PathExists(destPath)) then
-      Delete(destPath)
+    if (cleanCheckboxData.selected == true) then
+        local destPath = NewWorkspacePath(rootPath.."/")
+        if(PathExists(destPath)) then
+            Delete(destPath)
+        end
     end
-  end
 
-  installing = true
+    installing = true
 
-  installingTime = 0
-  installingDelay = .1
-  installingCounter = 0
-  installingTotal = #filesToCopy
+    installingTime = 0
+    installingDelay = .1
+    installingCounter = 0
+    installingTotal = #filesToCopy
 
-  installRoot = rootPath
+    installRoot = rootPath
 
-  -- print("Install Root", installRoot)
+    -- print("Install Root", installRoot)
 
 end
 
 function OnInstallNextStep()
 
-  -- print("Next step")
-  -- Look to see if the modal exists
-  if(installingModal == nil) then
+    -- print("Next step")
+    -- Look to see if the modal exists
+    if(installingModal == nil) then
 
-    -- Create the model
-    installingModal = InstallerModal:Init("Installing", editorUI)
+        -- Create the model
+        installingModal = InstallerModal:Init("Installing", editorUI)
 
-    -- Open the modal
-    pixelVisionOS:OpenModal(installingModal)
+        -- Open the modal
+        pixelVisionOS:OpenModal(installingModal)
 
 
 
-    -- else
-    --
-    --   -- If the modal exists, configure it with the new values
-    --   installingModal:Configure("Installing", "Installing...", 160)
-  end
-
-  installingCounter = installingCounter + 1
-
-  local paths = filesToCopy[installingCounter]
-
-  if(paths ~= nil) then
-
-    local tmpRoot = NewWorkspacePath(installRoot)
-
-    local dest = NewWorkspacePath(string.starts(paths.dest, "../") and tmpRoot.ParentPath.Path .. paths.dest:sub(4) or installRoot .. paths.dest)
-
-    -- Combine the root directory and path but remove the first slash from the path
-    local path = NewWorkspacePath(rootDirectory .. string.sub(paths.src, 2))
-
-    local parentPath = dest
-
-    -- Need to make sure the directory path exists before doing the copy
-    if(dest.IsDirectory == false) then
-      parentPath = dest.ParentPath
+        -- else
+        --
+        --   -- If the modal exists, configure it with the new values
+        --   installingModal:Configure("Installing", "Installing...", 160)
     end
 
-    -- Test if the parent path exists
-    if(PathExists(parentPath) == false) then
+    installingCounter = installingCounter + 1
 
-      -- Recursively create the parent path
-      CreateDirectory(parentPath)
+    local paths = filesToCopy[installingCounter]
+
+    if(paths ~= nil) then
+
+        local tmpRoot = NewWorkspacePath(installRoot)
+
+        local dest = NewWorkspacePath(string.starts(paths.dest, "../") and tmpRoot.ParentPath.Path .. paths.dest:sub(4) or installRoot .. paths.dest)
+
+        -- Combine the root directory and path but remove the first slash from the path
+        local path = NewWorkspacePath(rootDirectory .. string.sub(paths.src, 2))
+
+        local parentPath = dest
+
+        -- Need to make sure the directory path exists before doing the copy
+        if(dest.IsDirectory == false) then
+            parentPath = dest.ParentPath
+        end
+
+        -- Test if the parent path exists
+        if(PathExists(parentPath) == false) then
+
+            -- Recursively create the parent path
+            CreateDirectory(parentPath)
+
+        end
+        -- print("Copying", path, dest)
+        if(PathExists(path)) then
+
+
+            CopyTo(path, dest)
+        end
+
+        installingModal:UpdateMessage(installingCounter, installingTotal)
 
     end
-    -- print("Copying", path, dest)
-    if(PathExists(path)) then
 
-
-      CopyTo(path, dest)
+    if(installingCounter >= installingTotal) then
+        installingDelay = .5
     end
-
-    installingModal:UpdateMessage(installingCounter, installingTotal)
-
-  end
-
-  if(installingCounter >= installingTotal) then
-    installingDelay = .5
-  end
 
 end
 
 function OnInstallComplete()
 
-  installing = false
+    installing = false
 
-  -- Write to bios
-  for i = 1, #biosProperties do
+    -- Write to bios
+    for i = 1, #biosProperties do
 
-    local prop = biosProperties[i]
-    -- print("Write to bios", prop[1], prop[2])
-    WriteBiosData(prop[1], prop[2])
-  end
+        local prop = biosProperties[i]
+        -- print("Write to bios", prop[1], prop[2])
+        WriteBiosData(prop[1], prop[2])
+    end
 
-  --pixelVisionOS:CloseModal()
+    --pixelVisionOS:CloseModal()
 
-  RebuildWorkspace()
+    RebuildWorkspace()
 
-  OnQuit()
-  -- installingModal:OnComplete()
+    OnQuit()
+    -- installingModal:OnComplete()
 
-  -- installingModal = false
+    -- installingModal = false
 
 end
 
@@ -462,50 +462,50 @@ end
 -- milliseconds since the last frame.
 function Update(timeDelta)
 
-  -- Convert timeDelta to a float
-  timeDelta = timeDelta / 1000
+    -- Convert timeDelta to a float
+    timeDelta = timeDelta / 1000
 
-  -- This needs to be the first call to make sure all of the OS and editor UI is updated first
-  pixelVisionOS:Update(timeDelta)
+    -- This needs to be the first call to make sure all of the OS and editor UI is updated first
+    pixelVisionOS:Update(timeDelta)
 
-  -- Only update the tool's UI when the modal isn't active
-  if(pixelVisionOS:IsModalActive() == false) then
+    -- Only update the tool's UI when the modal isn't active
+    if(pixelVisionOS:IsModalActive() == false) then
 
-    editorUI:UpdateInputField(nameInputData)
+        editorUI:UpdateInputField(nameInputData)
 
-    editorUI:UpdateButton(installButtonData)
-    editorUI:UpdateButton(cleanCheckboxData)
+        editorUI:UpdateButton(installButtonData)
+        editorUI:UpdateButton(cleanCheckboxData)
 
-    for i = 1, maxFilesToDisplay do
-      editorUI:UpdateButton(fileCheckBoxes[i], tmpCheckbox)
-    end
+        for i = 1, maxFilesToDisplay do
+            editorUI:UpdateButton(fileCheckBoxes[i], tmpCheckbox)
+        end
 
-    editorUI:UpdateSlider(aboutSliderData)
-    editorUI:UpdateSlider(fileSliderData)
-
-  end
-
-  if(installing == true) then
-
-
-    installingTime = installingTime + timeDelta
-
-    if(installingTime > installingDelay) then
-      installingTime = 0
-
-
-      OnInstallNextStep()
-
-      if(installingCounter > installingTotal) then
-
-        OnInstallComplete()
-
-      end
+        editorUI:UpdateSlider(aboutSliderData)
+        editorUI:UpdateSlider(fileSliderData)
 
     end
 
+    if(installing == true) then
 
-  end
+
+        installingTime = installingTime + timeDelta
+
+        if(installingTime > installingDelay) then
+            installingTime = 0
+
+
+            OnInstallNextStep()
+
+            if(installingCounter > installingTotal) then
+
+                OnInstallComplete()
+
+            end
+
+        end
+
+
+    end
 
 end
 
@@ -513,70 +513,70 @@ end
 -- all of our draw calls should go. We'll be using this to render sprites to the display.
 function Draw()
 
-  -- We can use the RedrawDisplay() method to clear the screen and redraw the tilemap in a
-  -- single call.
-  RedrawDisplay()
+    -- We can use the RedrawDisplay() method to clear the screen and redraw the tilemap in a
+    -- single call.
+    RedrawDisplay()
 
-  -- This is used by the OS installer to shutdown directly from the install if no OS is installed
-  if(shuttingDown == true) then
-    return
-  end
+    -- This is used by the OS installer to shutdown directly from the install if no OS is installed
+    if(shuttingDown == true) then
+        return
+    end
 
-  -- The UI should be the last thing to draw after your own custom draw calls
-  pixelVisionOS:Draw()
+    -- The UI should be the last thing to draw after your own custom draw calls
+    pixelVisionOS:Draw()
 
 end
 
 function OnQuit()
 
-  -- Quit the tool
-  QuitCurrentTool()
+    -- Quit the tool
+    QuitCurrentTool()
 
 end
 
 function OnEditScript()
 
 
-  pixelVisionOS:ShowMessageModal("Edit Script File", "You are about to leave the installer and edit the raw installer.txt file. Are you sure you want to do this?", 160, true,
-    function()
+    pixelVisionOS:ShowMessageModal("Edit Script File", "You are about to leave the installer and edit the raw installer.txt file. Are you sure you want to do this?", 160, true,
+        function()
 
-      if(pixelVisionOS.messageModal.selectionValue == true) then
-        -- Quit the tool
-        EditInstallerScript()
+            if(pixelVisionOS.messageModal.selectionValue == true) then
+                -- Quit the tool
+                EditInstallerScript()
 
-      end
+            end
 
-    end
-  )
+        end
+    )
 
 
 end
 
 function EditInstallerScript()
 
-  local metaData = {
-    directory = rootDirectory,
-    file = rootDirectory .. "installer.txt",
-  }
+    local metaData = {
+        directory = rootDirectory,
+        file = rootDirectory .. "installer.txt",
+    }
 
-  LoadGame(textEditorPath, metaData)
+    LoadGame(textEditorPath, metaData)
 
 
 end
 
 function OnReset()
 
-  pixelVisionOS:ShowMessageModal("Reset Installer", "Do you want to reset the installer to its default values?", 160, true,
-    function()
-      if(pixelVisionOS.messageModal.selectionValue == true) then
+    pixelVisionOS:ShowMessageModal("Reset Installer", "Do you want to reset the installer to its default values?", 160, true,
+        function()
+            if(pixelVisionOS.messageModal.selectionValue == true) then
 
-        for i = 1, #filePaths do
-          filePaths[i][2] = true
+                for i = 1, #filePaths do
+                    filePaths[i][2] = true
+                end
+
+                DrawFileList(fileListOffset)
+            end
         end
-
-        DrawFileList(fileListOffset)
-      end
-    end
-  )
+    )
 
 end

@@ -10,8 +10,7 @@
 
 -- Load in the editor framework script to access tool components
 LoadScript("sb-sprites")
-LoadScript("pixel-vision-os-v2")
-LoadScript("pixel-vision-os-color-picker-v2")
+LoadScript("pixel-vision-os-v3")
 
 local toolName = "Image Preview"
 local debugMode = false
@@ -252,7 +251,7 @@ function Update(timeDelta)
     pixelVisionOS:Update(timeDelta)
 
     -- We only want to run this when a modal isn't active. Mostly to stop the tool if there is an error modal on load
-    if(pixelVisionOS:IsModalActive() == false) then
+    if(pixelVisionOS:IsModalActive() == false and targetFile ~= nil) then
 
 
         if(imageLoaded == false) then

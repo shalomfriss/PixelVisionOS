@@ -7,6 +7,6 @@
 	"cartChip": "PV8",
 	"soundChip": "PV8",
 	"editType": "sounds",
-	"paletteMode": "false",
+	"colorMode": "advanced"
 
 }

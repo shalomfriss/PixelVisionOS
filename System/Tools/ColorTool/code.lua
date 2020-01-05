@@ -36,6 +36,7 @@ local debugMode = false
 local showBGIcon = false
 local BGIconX = 0
 local BGIconY = 0
+local colorOffsetOverride = -1
 
 local SaveShortcut, AddShortcut, EditShortcut, ClearShortcut, DeleteShortcut, BGShortcut, UndoShortcut, RedoShortcut, CopyShortcut, PasteShortcut = 5, 7, 8, 9, 10, 11, 13, 14, 15, 16
 
@@ -236,6 +237,24 @@ function Init()
 
             -- Change the focus of the current color picker
             ForcePickerFocus(systemColorPickerData)
+
+            -- TODO need to clean this up
+            if(pixelVisionOS.paletteMode == false) then
+                if( Key( Keys.LeftShift, InputState.Down ) ) then
+
+                    print("value", value, lastColor)
+
+                    colorOffsetOverride = value
+
+                    pixelVisionOS:ChangeItemPickerColorOffset(spritePickerData, pixelVisionOS.colorOffset + colorOffsetOverride)
+                elseif(colorOffsetOverride > - 1) then
+
+                    colorOffsetOverride = -1
+
+                    pixelVisionOS:ChangeItemPickerColorOffset(spritePickerData, pixelVisionOS.colorOffset)
+                end
+            end
+
         end
 
         systemColorPickerData.onAction = function(value, doubleClick)
@@ -642,7 +661,8 @@ function OnSave()
 
     -- TODO need to tell if we are not in palette mode any more and recolor sprites and delete color-map.png file?
 
-    gameEditor:WriteMetadata("paletteMode", usePalettes and "true" or "false")
+    -- gameEditor:WriteMetadata("paletteMode", usePalettes and "true" or "false")
+    gameEditor:WriteMetadata("colorMode", usePalettes and "palette" or "direct")
 
     -- If the sprites have been re-indexed and we are using palettes we need to save the changes
     if(spritesInvalid == true) then

@@ -26,8 +26,8 @@ function EditorUI:CreateTextButton(rect, text, toolTip, colorOffset)
     data.doubleClickActive = false
 
     -- By default, we don't want buttons to redraw the background
-    data.redrawBackground = false
-    data.bgColorOverride = nil
+    data.redrawBackground = true
+    data.bgColorOverride = 0
 
     -- Customize the default name by adding Button to it
     data.name = "TextButton" .. data.name
@@ -61,9 +61,10 @@ function EditorUI:CreateTextButton(rect, text, toolTip, colorOffset)
         self:RedrawTextButton(tmpData)
     end
 
-    local sprites = BuildTextButton(text)
+    local sprites = self:BuildTextButton(text)
 
     data.colorOffset = colorOffset
+    local totalColors = 16
 
     if(sprites ~= nil) then
 
@@ -76,23 +77,16 @@ function EditorUI:CreateTextButton(rect, text, toolTip, colorOffset)
         data.rect.h = data.tiles.h * self.spriteSize.y
 
         data.cachedSpriteData = {
-            disabled = {sprites = sprites, width = #sprites, colorOffset = data.colorOffset},
-            up = {sprites = sprites, width = #sprites, colorOffset = data.colorOffset + 16},
-            over = {sprites = sprites, width = #sprites, colorOffset = data.colorOffset + 16 + 16},
-            down = {sprites = sprites, width = #sprites, colorOffset = data.colorOffset + 16 + 16 + 16},
-            selectedup = {sprites = sprites, width = #sprites, colorOffset = data.colorOffset + 16 + 16 + 16},
-            selectedover = {sprites = sprites, width = #sprites, colorOffset = data.colorOffset + 16 + 16 + 16 + 16},
-            -- selecteddown = _G[spriteName .. "selecteddown"] ~= nil and _G[spriteName .. "selecteddown"] or _G[spriteName .. "selectedover"],
-
-            -- empty = _G[spriteName .. "empty"] -- used to clear the sprites
+            disabled = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset},
+            up = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + totalColors},
+            over = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 2)},
+            down = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 3)},
+            selectedup = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 4)},
+            selectedover = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 5)},
+            selecteddown = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 6)}
         }
 
         spriteData = data.cachedSpriteData.up or data.cachedSpriteData.disabled
-
-        -- Cache the tile draw arguments for rendering
-        data.spriteDrawArgs = {data.sprites, 0, 0, spriteData.width, false, false, DrawMode.Sprite, 0, false, false}
-        data.tileDrawArgs = {data.sprites, data.rect.x, data.rect.y, spriteData.width, false, false, DrawMode.TilemapCache, 0}
-        data.bgDrawArgs = {data.rect.x, data.rect.y, data.rect.w, data.rect.h, BackgroundColor(), DrawMode.TilemapCache}
 
     end
 
@@ -166,23 +160,9 @@ function EditorUI:UpdateTextButton(data, hitRect)
 
         local spriteData = data.cachedSpriteData ~= nil and data.cachedSpriteData[state] or nil
 
-        if(spriteData ~= nil and data.spriteDrawArgs ~= nil) then
+        if(spriteData ~= nil) then
 
-            -- -- Sprite Data
-            -- data.spriteDrawArgs[1] = spriteData.spriteIDs
-            --
-            -- -- X pos
-            -- data.spriteDrawArgs[2] = data.rect.x
-            --
-            -- -- Y pos
-            -- data.spriteDrawArgs[3] = data.rect.y
-            --
-            -- -- Color Offset
-            -- data.spriteDrawArgs[8] = spriteData.colorOffset or 0
-            --
-            -- self:NewDraw("DrawSprites", data.spriteDrawArgs)
-
-            self:DrawTextButton(data.cachedSpriteData[state].sprites, data.rect.x, data.rect.y, DrawMode.Sprite, data.cachedSpriteData[state].colorOffset)
+            self:DrawTextButton(data, data.cachedSpriteData[state].sprites, DrawMode.Sprite, data.cachedSpriteData[state].colorOffset)
 
         end
 
@@ -230,8 +210,6 @@ function EditorUI:RedrawTextButton(data, stateOverride)
     -- If the button changes state we need to redraw it to the tilemap
     if(data.invalid == true or stateOverride ~= nil) then
 
-        print("Draw")
-
         -- The default state is up
         local state = "up"
 
@@ -252,43 +230,11 @@ function EditorUI:RedrawTextButton(data, stateOverride)
 
         end
 
-        -- Test to see if the sprite data exist before updating the tiles
-        if(data.cachedSpriteData ~= nil and data.cachedSpriteData[state] ~= nil and data.tileDrawArgs ~= nil) then
-
-            print("spriteData", dump(data.cachedSpriteData[state]))
-
-            self:DrawTextButton(data.cachedSpriteData[state].sprites, data.rect.x, data.rect.y, DrawMode.TilemapCache, data.cachedSpriteData[state].colorOffset)
-            --
-            -- -- Update the tile draw arguments
-            -- data.tileDrawArgs[1] = data.cachedSpriteData[state].spriteIDs
-            --
-            -- -- Color offset
-            -- data.tileDrawArgs[8] = data.cachedSpriteData[state].colorOffset or 0
-            --
-            -- if(data.redrawBackground == true) then
-            --
-            --     -- Make sure we always have the current BG color
-            --     data.bgDrawArgs[5] = data.bgColorOverride ~= nil and data.bgColorOverride or BackgroundColor()
-            --
-            --     self:NewDraw("DrawRect", data.bgDrawArgs)
-            --
-            -- end
-            --
-            -- self:NewDraw("DrawSprites", data.tileDrawArgs)
-
-        end
+        self:DrawTextButton(data, data.cachedSpriteData[state].sprites, DrawMode.TilemapCache, data.cachedSpriteData[state].colorOffset)
 
         self:ResetValidation(data)
 
     end
-
-end
-
-function EditorUI:ButtonTester(text, x, y, drawMode, colorOffset)
-
-    local sprites = self:BuildTextButton(text)
-
-    self:DrawTextButton(sprites, x, y, drawMode, colorOffset)
 
 end
 
@@ -322,7 +268,10 @@ function EditorUI:BuildTextButton(text)
 
 end
 
-function EditorUI:DrawTextButton(sprites, x, y, drawMode, colorOffset, shiftX)
+function EditorUI:DrawTextButton(data, sprites, drawMode, colorOffset, shiftX)
+
+    local x = data.rect.x
+    local y = data.rect.y
 
     shiftX = shiftX or 0
 
@@ -335,7 +284,7 @@ function EditorUI:DrawTextButton(sprites, x, y, drawMode, colorOffset, shiftX)
     for i = 1, total do
         local spriteData = sprites[i]
 
-        DrawSprites( spriteData.spriteIDs, x + ((i - 1) * 4), y, spriteData.width, false, false, drawMode, colorOffset )
+        self:NewDraw("DrawSprites", {spriteData.spriteIDs, x + ((i - 1) * 4), y, spriteData.width, false, false, drawMode, colorOffset})
 
     end
 
