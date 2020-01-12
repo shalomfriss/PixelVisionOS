@@ -3,21 +3,21 @@
     "GameChip":
     {
         "savedData":{
-            "currentBeat": "0",
-            "sessionID": "202001041312577477",
-            "rootDirectory": "/Disks/PixelVisionOS/System/Tools/MusicTool/",
-            "state": "0,0,0,0,0",
-            "configDensity": "5",
-            "configFunk": "5",
-            "configLayering": "5",
-            "configScale": "1",
-            "configSpeedMin": "120",
-            "configSpeedMax": "320",
-            "configTrack0": "3,0,6,6",
-            "configTrack1": "1,1,6,7",
-            "configTrack2": "2,2,3,4",
+            "configTrack4": "4,4,6,7",
             "configTrack3": "3,3,6,6",
-            "configTrack4": "4,4,6,7"
+            "configTrack2": "2,2,3,4",
+            "configTrack1": "1,1,6,7",
+            "configTrack0": "0,0,6,6",
+            "configSpeedMax": "320",
+            "configSpeedMin": "120",
+            "configScale": "1",
+            "configLayering": "5",
+            "configFunk": "5",
+            "configDensity": "5",
+            "state": "0,0,1,0,0",
+            "rootDirectory": "/Workspace/MusicTool/",
+            "sessionID": "202001111409332377",
+            "currentBeat": "0"
         }
     }
 }

@@ -1,1 +1,15 @@
-{"GameChip":{"savedData":{"editing": "undefined","sessionID": "202001041631111065","rootDirectory": "/Disks/PixelVisionProTools/System/Tools/FontTool/","selectedSprite": "0","SpriteSize": "undefined","spriteSize": "1","selectedPalettePage": "1"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "editing": "undefined",
+            "sessionID": "202001111409332377",
+            "rootDirectory": "/Workspace/MusicTool/",
+            "selectedSprite": "0",
+            "SpriteSize": "undefined",
+            "spriteSize": "1",
+            "selectedPalettePage": "1"
+        }
+    }
+}
