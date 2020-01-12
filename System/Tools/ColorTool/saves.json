@@ -3,13 +3,13 @@
     "GameChip":
     {
         "savedData":{
-            "selectedPalettePage": "0",
-            "selectedSpritePage": "1",
-            "sessionID": "202001111409332377",
-            "rootDirectory": "/Workspace/MusicTool/",
-            "selectedColor": "-1",
+            "selectedSprite": "-1",
             "selectedPalette": "-1",
-            "selectedSprite": "-1"
+            "selectedColor": "-1",
+            "rootDirectory": "/Workspace/ArtPacks/DragonSweeper/",
+            "sessionID": "202001121344312602",
+            "selectedSpritePage": "1",
+            "selectedPalettePage": "0"
         }
     }
 }

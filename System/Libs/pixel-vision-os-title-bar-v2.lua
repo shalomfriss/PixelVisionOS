@@ -133,7 +133,7 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
   self.editorUI:Enable(data.iconButton, false)
 
   -- Create mute button
-  data.muteBtnData = self.editorUI:CreateButton({x = data.muteDrawArgs[2], y = data.muteDrawArgs[3]}, "", "Toggle systme wide mute.")
+  data.muteBtnData = self.editorUI:CreateButton({x = data.muteDrawArgs[2], y = data.muteDrawArgs[3]}, "", "Toggle system wide mute.")
   data.muteBtnData.hitRect = {x = data.muteDrawArgs[2], y = data.muteDrawArgs[3], w = 8, h = 11}
 
   data.muteBtnData.onAction = function()
