@@ -1410,7 +1410,7 @@ function DrawNote(track, beat, selected, disabled, muted)
     end
 
     if(sprite ~= nil)then
-        Tile(beat, track + pickerData.tiles.r, sprite)
+        Tile(beat, track + pickerData.tiles.y, sprite)
     end
 end
 

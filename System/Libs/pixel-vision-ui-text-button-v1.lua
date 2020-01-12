@@ -69,21 +69,21 @@ function EditorUI:CreateTextButton(rect, text, toolTip, colorOffset)
   if(sprites ~= nil) then
 
     -- Update the UI tile width and height
-    data.tiles.w = #sprites / 2
-    data.tiles.h = 2
+    data.tiles.width = #sprites / 2
+    data.tiles.height = 2
 
     -- Update the rect width and height with the new sprite size
-    data.rect.width = data.tiles.w * self.spriteSize.x
-    data.rect.height = data.tiles.h * self.spriteSize.y
+    data.rect.width = data.tiles.width * self.spriteSize.x
+    data.rect.height = data.tiles.height * self.spriteSize.y
 
     data.cachedSpriteData = {
-      disabled = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset},
-      up = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + totalColors},
-      over = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 2)},
-      down = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 3)},
-      selectedup = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 4)},
-      selectedover = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 5)},
-      selecteddown = {sprites = sprites, width = data.tiles.w, colorOffset = data.colorOffset + (totalColors * 6)}
+      disabled = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset},
+      up = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + totalColors},
+      over = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 2)},
+      down = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 3)},
+      selectedup = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 4)},
+      selectedover = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 5)},
+      selecteddown = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 6)}
     }
 
     spriteData = data.cachedSpriteData.up or data.cachedSpriteData.disabled

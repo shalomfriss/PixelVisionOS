@@ -27,10 +27,10 @@ LoadScript("pixel-vision-ui-button-v3")
 LoadScript("pixel-vision-ui-text-button-v1")
 LoadScript("pixel-vision-ui-palette-button-v1")
 LoadScript("pixel-vision-ui-toggle-group-v3")
-LoadScript("pixel-vision-ui-text-v2")
+LoadScript("pixel-vision-ui-text-v3")
 LoadScript("pixel-vision-ui-text-editor-v2")
-LoadScript("pixel-vision-ui-input-field-v3")
-LoadScript("pixel-vision-ui-input-area-v3")
+LoadScript("pixel-vision-ui-input-field-v4")
+LoadScript("pixel-vision-ui-input-area-v4")
 LoadScript("pixel-vision-ui-mouse-cursor-v2")
 LoadScript("pixel-vision-ui-picker-v3")
 LoadScript("pixel-vision-ui-number-stepper-v3")
@@ -150,15 +150,15 @@ function EditorUI:CreateData(rect, spriteName, toolTip, forceDraw)
     end
 
     -- Calculate tile dimensions
-    data.tiles = {
-      c = math.floor(data.rect.x / self.spriteSize.x),
-      r = math.floor(data.rect.y / self.spriteSize.y),
-      w = math.ceil(data.rect.width / self.spriteSize.x),
-      h = math.ceil(data.rect.height / self.spriteSize.y)
-    }
+    data.tiles = NewRect(
+      math.floor(data.rect.x / self.spriteSize.x),
+      math.floor(data.rect.y / self.spriteSize.y),
+      math.ceil(data.rect.width / self.spriteSize.x),
+      math.ceil(data.rect.height / self.spriteSize.y)
+    )
 
     -- If the component has a position, append the tile column and row to the name to make it more unique
-    data.name = data.name .. ":"..data.tiles.c..","..data.tiles.r
+    data.name = data.name .. ":"..data.tiles.x..","..data.tiles.y
 
   end
 

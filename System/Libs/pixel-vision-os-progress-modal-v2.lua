@@ -134,7 +134,7 @@ function ProgressModal:UpdateMessage(currentItem, total, action)
     self.canvas:Clear(6, startX + 1, startY + 9, width - 2, 6)
 
     -- TODO need to hack this to work (removed to avoid throwing an error)
-    -- self.canvas:DrawSprites(self.cancelBtnData.cachedSpriteData["up"].spriteIDs, 32 + 16, 32 + 32, self.cancelBtnData.tiles.w)
+    -- self.canvas:DrawSprites(self.cancelBtnData.cachedSpriteData["up"].spriteIDs, 32 + 16, 32 + 32, self.cancelBtnData.tiles.width)
 
     self.canvas:DrawPixels(self.rect.x, self.rect.y, DrawMode.TilemapCache)
 

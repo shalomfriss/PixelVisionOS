@@ -12,7 +12,7 @@
 LoadScript("sb-sprites")
 LoadScript("pixel-vision-os-v3")
 LoadScript("pixel-vision-os-color-picker-v3")
-LoadScript("pixel-vision-os-item-picker-v1")
+LoadScript("pixel-vision-os-item-picker-v2")
 LoadScript("pixel-vision-os-sprite-picker-v3")
 LoadScript("pixel-vision-os-canvas-v2")
 LoadScript("code-render-map-layer")
@@ -509,7 +509,7 @@ function OnTileSelection(value)
   -- When in palette mode, change the palette page
   if(pixelVisionOS.paletteMode == true) then
 
-    local pos = CalculatePosition(value, tilePickerData.tiles.w)
+    local pos = CalculatePosition(value, tilePickerData.tiles.width)
 
     local tileData = gameEditor:Tile(pos.x, pos.y)
 

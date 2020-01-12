@@ -17,322 +17,322 @@
 
 function EditorUI:CreatePicker(rect, itemWidth, itemHeight, total, spriteName, toolTip)
 
-    -- Create the button's default data
-    local data = self:CreateData(rect, spriteName, toolTip, forceDraw)
+  -- Create the button's default data
+  local data = self:CreateData(rect, spriteName, toolTip, forceDraw)
 
-    self:RebuildSpriteCache(data)
+  self:RebuildSpriteCache(data)
 
-    data.doubleClick = false
-    data.doubleClickTime = 0
-    data.doubleClickDelay = .45
-    data.doubleClickActive = false
+  data.doubleClick = false
+  data.doubleClickTime = 0
+  data.doubleClickDelay = .45
+  data.doubleClickActive = false
 
-    data.focusCursor = 2
+  data.focusCursor = 2
 
-    -- Customize the default name by adding Button to it
-    data.name = "Picker" .. data.name
+  -- Customize the default name by adding Button to it
+  data.name = "Picker" .. data.name
 
-    data.total = total
+  data.total = total
 
-    data.itemWidth = itemWidth
-    data.itemHeight = itemHeight
-    data.columns = math.floor(data.rect.w / itemWidth)
-    data.rows = math.floor(data.rect.h / itemHeight)
+  data.itemWidth = itemWidth
+  data.itemHeight = itemHeight
+  data.columns = math.floor(data.rect.width / itemWidth)
+  data.rows = math.floor(data.rect.height / itemHeight)
 
-    data.overIndex = -1
-    data.selected = -1
-    data.lastOverIndex = -1
+  data.overIndex = -1
+  data.selected = -1
+  data.lastOverIndex = -1
 
-    data.borderOffset = 2
+  data.borderOffset = 2
 
-    if(data.cachedSpriteData.over ~= nil) then
+  if(data.cachedSpriteData.over ~= nil) then
 
-        local spriteData = data.cachedSpriteData.selectedup
+    local spriteData = data.cachedSpriteData.selectedup
 
-        local bounds = NewRect(data.rect.x - 8, data.rect.y - 8, data.rect.w + data.rect.x, data.rect.h + data.rect.y)
+    local bounds = NewRect(data.rect.x - 8, data.rect.y - 8, data.rect.width + data.rect.x, data.rect.height + data.rect.y)
 
-        data.selectedDrawArgs = {spriteData.spriteIDs, - 1, - 1, spriteData.width, false, false, DrawMode.UI, spriteData.colorOffset, true, false}
+    data.selectedDrawArgs = {spriteData.spriteIDs, - 1, - 1, spriteData.width, false, false, DrawMode.UI, spriteData.colorOffset, true, false}
 
-        spriteData = data.cachedSpriteData.over
+    spriteData = data.cachedSpriteData.over
 
-        data.overDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.UI, spriteData.colorOffset, true, false}
-    end
-
-
-    data.onClick = function(tmpData)
-
-        if(self.currentPickerDown == tmpData.name) then
+    data.overDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.UI, spriteData.colorOffset, true, false}
+  end
 
 
+  data.onClick = function(tmpData)
 
-            self:PickerClick(tmpData, true, tmpData.doubleClickActive and tmpData.doubleClickTime < tmpData.doubleClickDelay)
+    if(self.currentPickerDown == tmpData.name) then
 
-            tmpData.doubleClickTime = 0
-            tmpData.doubleClickActive = true
-            tmpData.doubleClick = true
 
-        end
-        -- end
+
+      self:PickerClick(tmpData, true, tmpData.doubleClickActive and tmpData.doubleClickTime < tmpData.doubleClickDelay)
+
+      tmpData.doubleClickTime = 0
+      tmpData.doubleClickActive = true
+      tmpData.doubleClick = true
 
     end
+    -- end
 
-    data.onFirstPress = function(tmpData)
+  end
 
-        self.currentPickerDown = tmpData.name
-        self:PickerPress(tmpData, true)
-    end
+  data.onFirstPress = function(tmpData)
 
-    return data
+    self.currentPickerDown = tmpData.name
+    self:PickerPress(tmpData, true)
+  end
+
+  return data
 
 end
 
 function EditorUI:ChangePickerTotal(data, value)
 
-    data.total = total
+  data.total = total
 
 
 end
 
 function EditorUI:UpdatePicker(data, hitRect)
 
-    -- Make sure we have data to work with and the component isn't disabled, if not return out of the update method
-    if(data == nil) then
-        return
+  -- Make sure we have data to work with and the component isn't disabled, if not return out of the update method
+  if(data == nil) then
+    return
+  end
+
+  -- If the button has data but it's not enabled exit out of the update
+  if(data.enabled == false) then
+
+    -- If the button is disabled but still in focus we need to remove focus
+    if(data.inFocus == true) then
+      self:ClearFocus(data)
     end
 
-    -- If the button has data but it's not enabled exit out of the update
-    if(data.enabled == false) then
-
-        -- If the button is disabled but still in focus we need to remove focus
-        if(data.inFocus == true) then
-            self:ClearFocus(data)
-        end
-
-        -- See if the button needs to be redrawn.
-        self:RedrawPicker(data)
-
-        -- Shouldn't update the button if its disabled
-        return
-
-    end
-
-    -- Make sure we don't detect a collision if the mouse is down but not over this button
-    if(self.collisionManager.mouseDown and data.inFocus == false) then
-        -- See if the button needs to be redrawn.
-        self:RedrawPicker(data)
-        return
-    end
-
-    -- If the hit rect hasn't been overridden, then use the buttons own hit rect
-    if(hitRect == nil) then
-        hitRect = data.hitRect or data.rect
-    end
-
-    local overrideFocus = (data.inFocus == true and self.collisionManager.mouseDown)
-
-    -- Ready to test finer collision if needed
-    if(self.collisionManager:MouseInRect(hitRect) == true or overrideFocus) then
-
-        if(data.doubleClick == true) then
-
-            -- If the button wasn't in focus before, reset the timer since it's about to get focus
-            if(data.inFocus == false) then
-                data.doubleClickTime = 0
-                data.doubleClickActive = false
-            end
-
-            data.doubleClickTime = data.doubleClickTime + self.timeDelta
-            if(data.doubleClickActive and data.doubleClickTime > data.doubleClickDelay) then
-                data.doubleClickActive = false
-            end
-        end
-
-        local tmpPos = self:CalculatePickerPosition(data)
-
-        -- Check to see if the mouse is over a valid area
-        if(tmpPos.index > - 1 and tmpPos.index < data.total) then
-
-            -- If we are in the collision area, set the focus
-            self:SetFocus(data, data.focusCursor)
-
-            -- calculate the correct button over state
-            local state = self.collisionManager.mouseDown and "down" or "over"
-
-            if(data.selected == true) then
-                state = "selected" .. state
-            end
-
-            if(state == "over") then
-
-                data.tmpX = tmpPos.x
-                data.tmpY = tmpPos.y
-                data.overIndex = tmpPos.index < data.total and tmpPos.index or - 1
-
-            elseif(state == "down")then
-                data.selected = data.overIndex
-
-            elseif(data.overIndex > - 1) then
-                data.tmpX = -1
-                data.tmpY = -1
-                data.overIndex = -1
-
-            end
-
-            -- Check to see if the button is pressed and has an onAction callback
-            if(self.collisionManager.mouseReleased == true) then
-
-                -- Click the button
-                data.onClick(data)
-                data.firstPress = true
-            elseif(self.collisionManager.mouseDown) then
-
-                if(data.firstPress ~= false) then
-
-                    -- Call the onPress method for the button
-                    data.onFirstPress(data)
-
-                    -- Change the flag so we don't trigger first press again
-                    data.firstPress = false
-                end
-            end
-
-        elseif(self.collisionManager.mouseDown == false) then
-            data.firstPress = true
-            -- If we are not in the button's rect, clear the focus
-            self:ClearFocus(data)
-            data.overIndex = -1
-
-        end
-    else
-
-        if(data.inFocus == true) then
-
-            data.firstPress = true
-            -- If we are not in the button's rect, clear the focus
-            self:ClearFocus(data)
-            data.overIndex = -1
-        end
-
-
-    end
-
-    -- Make sure we don't need to redraw the button.
+    -- See if the button needs to be redrawn.
     self:RedrawPicker(data)
+
+    -- Shouldn't update the button if its disabled
+    return
+
+  end
+
+  -- Make sure we don't detect a collision if the mouse is down but not over this button
+  if(self.collisionManager.mouseDown and data.inFocus == false) then
+    -- See if the button needs to be redrawn.
+    self:RedrawPicker(data)
+    return
+  end
+
+  -- If the hit rect hasn't been overridden, then use the buttons own hit rect
+  if(hitRect == nil) then
+    hitRect = data.hitRect or data.rect
+  end
+
+  local overrideFocus = (data.inFocus == true and self.collisionManager.mouseDown)
+
+  -- Ready to test finer collision if needed
+  if(self.collisionManager:MouseInRect(hitRect) == true or overrideFocus) then
+
+    if(data.doubleClick == true) then
+
+      -- If the button wasn't in focus before, reset the timer since it's about to get focus
+      if(data.inFocus == false) then
+        data.doubleClickTime = 0
+        data.doubleClickActive = false
+      end
+
+      data.doubleClickTime = data.doubleClickTime + self.timeDelta
+      if(data.doubleClickActive and data.doubleClickTime > data.doubleClickDelay) then
+        data.doubleClickActive = false
+      end
+    end
+
+    local tmpPos = self:CalculatePickerPosition(data)
+
+    -- Check to see if the mouse is over a valid area
+    if(tmpPos.index > - 1 and tmpPos.index < data.total) then
+
+      -- If we are in the collision area, set the focus
+      self:SetFocus(data, data.focusCursor)
+
+      -- calculate the correct button over state
+      local state = self.collisionManager.mouseDown and "down" or "over"
+
+      if(data.selected == true) then
+        state = "selected" .. state
+      end
+
+      if(state == "over") then
+
+        data.tmpX = tmpPos.x
+        data.tmpY = tmpPos.y
+        data.overIndex = tmpPos.index < data.total and tmpPos.index or - 1
+
+      elseif(state == "down")then
+        data.selected = data.overIndex
+
+      elseif(data.overIndex > - 1) then
+        data.tmpX = -1
+        data.tmpY = -1
+        data.overIndex = -1
+
+      end
+
+      -- Check to see if the button is pressed and has an onAction callback
+      if(self.collisionManager.mouseReleased == true) then
+
+        -- Click the button
+        data.onClick(data)
+        data.firstPress = true
+      elseif(self.collisionManager.mouseDown) then
+
+        if(data.firstPress ~= false) then
+
+          -- Call the onPress method for the button
+          data.onFirstPress(data)
+
+          -- Change the flag so we don't trigger first press again
+          data.firstPress = false
+        end
+      end
+
+    elseif(self.collisionManager.mouseDown == false) then
+      data.firstPress = true
+      -- If we are not in the button's rect, clear the focus
+      self:ClearFocus(data)
+      data.overIndex = -1
+
+    end
+  else
+
+    if(data.inFocus == true) then
+
+      data.firstPress = true
+      -- If we are not in the button's rect, clear the focus
+      self:ClearFocus(data)
+      data.overIndex = -1
+    end
+
+
+  end
+
+  -- Make sure we don't need to redraw the button.
+  self:RedrawPicker(data)
 
 end
 
 function EditorUI:CalculatePickerPosition(data)
 
-    local position = 
-    {
-        x = math.floor((self.collisionManager.mousePos.x - data.rect.x) / data.itemWidth),
-        y = math.floor((self.collisionManager.mousePos.y - data.rect.y) / data.itemHeight),
+  local position = 
+  {
+    x = math.floor((self.collisionManager.mousePos.x - data.rect.x) / data.itemWidth),
+    y = math.floor((self.collisionManager.mousePos.y - data.rect.y) / data.itemHeight),
 
-    }
+  }
 
-    position.index = math.index(position.x, position.y, data.columns)
+  position.index = math.index(position.x, position.y, data.columns)
 
-    return position
+  return position
 
 end
 
 function EditorUI:RedrawPicker(data)
 
-    if(data == nil) then
-        return
+  if(data == nil) then
+    return
+  end
+
+  if(data.selectedDrawArgs ~= nil and data.selected > - 1 and data.drawSelected ~= false) then
+    self:NewDraw("DrawSprites", data.selectedDrawArgs)
+  end
+
+  if(data.overIndex > - 1 and data.overDrawArgs ~= nil) then
+
+    data.overDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
+    data.overDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
+
+    -- This is used for components that need to draw their own over sprite
+    if(data.drawOver ~= false) then
+      self:NewDraw("DrawSprites", data.overDrawArgs)
     end
 
-    if(data.selectedDrawArgs ~= nil and data.selected > - 1 and data.drawSelected ~= false) then
-        self:NewDraw("DrawSprites", data.selectedDrawArgs)
+  end
+
+  -- If the button changes state we need to redraw it to the tilemap
+  if(data.invalid == true) then
+
+    -- The default state is up
+    local state = "up"
+
+    -- If the button is selected, we will use the selected up state
+    if(data.selected == true) then
+      state = "selected" .. state
     end
 
-    if(data.overIndex > - 1 and data.overDrawArgs ~= nil) then
-
-        data.overDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
-        data.overDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
-
-        -- This is used for components that need to draw their own over sprite
-        if(data.drawOver ~= false) then
-            self:NewDraw("DrawSprites", data.overDrawArgs)
-        end
+    -- Test to see if the button is disabled. If there is a disabled sprite data, we'll change the state to disabled. By default, always use the up state.
+    if(data.enabled == false and data.cachedSpriteData["disabled"] ~= nil and data.selected ~= true) then --_G[spriteName .. "disabled"] ~= nil) then
+      state = "disabled"
 
     end
 
-    -- If the button changes state we need to redraw it to the tilemap
-    if(data.invalid == true) then
+    self:ResetValidation(data)
 
-        -- The default state is up
-        local state = "up"
-
-        -- If the button is selected, we will use the selected up state
-        if(data.selected == true) then
-            state = "selected" .. state
-        end
-
-        -- Test to see if the button is disabled. If there is a disabled sprite data, we'll change the state to disabled. By default, always use the up state.
-        if(data.enabled == false and data.cachedSpriteData["disabled"] ~= nil and data.selected ~= true) then --_G[spriteName .. "disabled"] ~= nil) then
-            state = "disabled"
-
-        end
-
-        self:ResetValidation(data)
-
-    end
+  end
 
 end
 
 -- Use this to perform a click action on a button. It's used internally when a mouse click is detected.
 function EditorUI:PickerClick(data, callAction, doubleClick)
 
-    if(data.onAction ~= nil and callAction ~= false) then
+  if(data.onAction ~= nil and callAction ~= false) then
 
-        -- Trigger the onAction call back and pass in the double click value if the button is set up to use it
-        data.onAction(data.selected, doubleClick)
+    -- Trigger the onAction call back and pass in the double click value if the button is set up to use it
+    data.onAction(data.selected, doubleClick)
 
-    end
+  end
 
 end
 
 function EditorUI:PickerPress(data, callAction)
 
-    data.selected = data.overIndex
+  data.selected = data.overIndex
 
-    if(data.selectedDrawArgs) then
+  if(data.selectedDrawArgs) then
 
-        data.selectedDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
-        data.selectedDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
+    data.selectedDrawArgs[2] = (data.tmpX * data.itemWidth) + data.rect.x - data.borderOffset
+    data.selectedDrawArgs[3] = (data.tmpY * data.itemHeight) + data.rect.y - data.borderOffset
 
-    end
+  end
 
-    if(data.onPress ~= nil and callAction ~= false) then
+  if(data.onPress ~= nil and callAction ~= false) then
 
-        -- Trigger the onPress
-        data.onPress(data.selected)
+    -- Trigger the onPress
+    data.onPress(data.selected)
 
-    end
+  end
 
 end
 
 function EditorUI:SelectPicker(data, value, callAction)
-    data.selected = value
+  data.selected = value
 
-    -- TODO this is a bit sloppy, it should run through the internal press logic and not duplicate it all here
-    local pos = CalculatePosition(value, data.columns)
+  -- TODO this is a bit sloppy, it should run through the internal press logic and not duplicate it all here
+  local pos = CalculatePosition(value, data.columns)
 
-    data.selectedDrawArgs[2] = (pos.x * data.itemWidth) + data.rect.x - data.borderOffset
-    data.selectedDrawArgs[3] = (pos.y * data.itemHeight) + data.rect.y - data.borderOffset
+  data.selectedDrawArgs[2] = (pos.x * data.itemWidth) + data.rect.x - data.borderOffset
+  data.selectedDrawArgs[3] = (pos.y * data.itemHeight) + data.rect.y - data.borderOffset
 
-    if(data.onAction ~= nil and callAction ~= false) then
+  if(data.onAction ~= nil and callAction ~= false) then
 
-        -- Trigger the onAction call back and pass in the double click value if the button is set up to use it
-        data.onAction(data.selected, doubleClick)
+    -- Trigger the onAction call back and pass in the double click value if the button is set up to use it
+    data.onAction(data.selected, doubleClick)
 
-    end
+  end
 
-    self:Invalidate(data)
+  self:Invalidate(data)
 end
 
 function EditorUI:ClearPickerSelection(data)
-    data.selected = -1
-    data.overIndex = -1
+  data.selected = -1
+  data.overIndex = -1
 end

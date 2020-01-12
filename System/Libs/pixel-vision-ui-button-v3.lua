@@ -106,12 +106,12 @@ function EditorUI:UpdateButtonSizeFromCache(data)
   -- Calculate rect and hit rect
   if(spriteData ~= nil) then
     -- Update the UI tile width and height
-    data.tiles.w = spriteData.width
-    data.tiles.h = math.floor(#spriteData.spriteIDs / spriteData.width)
+    data.tiles.width = spriteData.width
+    data.tiles.height = math.floor(#spriteData.spriteIDs / spriteData.width)
 
     -- Update the rect width and height with the new sprite size
-    data.rect.width = data.tiles.w * self.spriteSize.x
-    data.rect.height = data.tiles.h * self.spriteSize.y
+    data.rect.width = data.tiles.width * self.spriteSize.x
+    data.rect.height = data.tiles.height * self.spriteSize.y
 
     -- Cache the tile draw arguments for rendering
     data.spriteDrawArgs = {spriteData.spriteIDs, 0, 0, spriteData.width, false, false, DrawMode.Sprite, 0, false, false}

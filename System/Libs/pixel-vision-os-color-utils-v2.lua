@@ -39,19 +39,8 @@ function PixelVisionOS:ImportColorsFromGame()
         Color(index + self.colorOffset, self.maskColor)
     end
 
-    -- TODO leave this in for older games
-    self.paletteMode = gameEditor:ReadMetadata("paletteMode", "false") == "true"
-
     -- Set the color mode
-    self.colorMode = gameEditor:ReadMetadata("colorMode", "direct")
-
-
-    self.uniqueColors = self.colorMode ~= "advanced"
-
-    -- This is to support legacy games
-    if(self.colorMode == "palette" and self.paletteMode == false) then
-        self.paletteMode = true
-    end
+    self.paletteMode = gameEditor:ReadMetadata("paletteMode", "false") == "true"
 
     -- Calculate the total available system colors based on the palette mode
     self.totalSystemColors = self.paletteMode and self.totalColors / 2 or self.totalColors
@@ -84,14 +73,10 @@ function PixelVisionOS:ImportColorsFromGame()
 
         local ignoreColor = false
 
-
-
-        -- Check to see if we should only display unique colors
-        if(self.uniqueColors) then
-            if(color == self.maskColor or table.indexOf(self.systemColors, color) ~= -1) then
-                ignoreColor = true
-            end
+        if(color == self.maskColor or table.indexOf(self.systemColors, color) ~= -1) then
+            ignoreColor = true
         end
+
         -- Look to see if we have the system color or if its not the mask color
         if(ignoreColor == false) then
 
@@ -115,7 +100,7 @@ function PixelVisionOS:ImportColorsFromGame()
 
     end
 
-    if(self.colorMode == "palette") then
+    if(self.paletteMode == true) then
 
         self.totalPaletteColors = 128
 
