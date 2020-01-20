@@ -34,8 +34,8 @@ function PixelVisionOS:OpenModal(modal, callBack)
 
   self.onCloseCallback = callBack
 
-  -- Activate the new modal
-  self.activeModal:Open()
+  -- Activate the new modal and pass in a reference to pixelVisionOS
+  self.activeModal:Open(self)
 
   -- Disable the menu button in the toolbar
   self.editorUI:Enable(self.titleBar.iconButton, false)
@@ -95,4 +95,33 @@ end
 
 function PixelVisionOS:IsModalActive()
   return self.activeModal ~= nil
+end
+
+function PixelVisionOS:GenerateModalCanvas(rect, title)
+
+  local theme = self.editorUI.theme.modal
+
+  canvas = NewCanvas(rect.width, rect.height)
+
+  -- Draw the black background
+  canvas:SetStroke({theme.outerBorder}, 1, 1)
+  canvas:SetPattern({theme.border}, 1, 1)
+  canvas:DrawSquare(0, 0, canvas.width - 1, canvas.height - 1, true)
+
+  -- Draw the brown background
+  canvas:SetStroke({theme.innerBorderBottom}, 1, 1)
+  canvas:SetPattern({theme.background}, 1, 1)
+  canvas:DrawSquare(3, 9, canvas.width - 4, canvas.height - 4, true)
+
+  local tmpX = (canvas.width - (#title * 4)) * .5
+
+  canvas:DrawText(title:upper(), tmpX, 1, theme.titleFont, theme.titleColor, theme.titleSpacing)
+
+  -- draw highlight stroke
+  canvas:SetStroke({theme.innerBorderTop}, 1, 1)
+  canvas:DrawLine(3, 9, canvas.width - 5, 9)
+  canvas:DrawLine(3, 9, 3, canvas.height - 5)
+
+  return canvas
+
 end

@@ -21,7 +21,6 @@ function PixelVisionOS:CreateMessageBar(x, y, maxChars, clearColorID)
     delay = 0,
     time = 0,
     maxChars = maxChars,
-
     currentMessage = "",
     mode = 1,
     modes = {
@@ -32,7 +31,7 @@ function PixelVisionOS:CreateMessageBar(x, y, maxChars, clearColorID)
   }
 
   -- Create a text label to display the message with
-  data.messageTextData = self.editorUI:CreateText({x = x, y = y}, "TEST", self.editorUI.theme.message.font, self.editorUI.theme.message.spacing, DrawMode.TilemapCache, clearColorID or BackgroundColor())
+  data.messageTextData = self.editorUI:CreateText({x = x, y = y}, "", self.editorUI.theme.message.font, self.editorUI.theme.message.spacing, DrawMode.TilemapCache, clearColorID or BackgroundColor())
 
   return data
 
@@ -71,11 +70,6 @@ function PixelVisionOS:DisplayMessage(text, delay, data)
   -- My default, we want to use the built in message bar but can accept an alternative one
   data = data or self.messageBar
 
-  -- If no messageBar exists, exit out of the method
-  if(data == nil) then
-    return
-  end
-
   if(text == data.currentMessage) then
     return
   end
@@ -102,11 +96,6 @@ function PixelVisionOS:DisplayToolTip(text, override, data)
   -- My default, we want to use the built in message bar but can accept an alternative one
   data = data or self.messageBar
 
-  -- If no messageBar exists, exit out of the method
-  if(data == nil) then
-    return
-  end
-
   if(text == data.currentMessage) then
     return
   end
@@ -121,11 +110,6 @@ function PixelVisionOS:ClearMessage(data)
 
   -- My default, we want to use the built in message bar but can accept an alternative one
   data = data or self.messageBar
-
-  -- If no message bar exists, exit out of the method
-  if(data == nil) then
-    return
-  end
 
   self:DisplayMessage("", 0, data)
   data.mode = data.modes.Empty

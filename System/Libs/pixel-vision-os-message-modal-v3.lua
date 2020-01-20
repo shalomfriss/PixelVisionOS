@@ -31,8 +31,6 @@ function MessageModal:Configure(title, message, width, showCancel, okLabel, canc
   width = math.floor(width / 8) * 8
   height = math.floor(height / 8) * 8
 
-  self.canvas = NewCanvas(width, height)
-
   local displaySize = Display()
 
   self.title = title or "Message Modal"
@@ -52,41 +50,26 @@ function MessageModal:Configure(title, message, width, showCancel, okLabel, canc
 
 end
 
-function MessageModal:Open()
+function MessageModal:Open(pixelVisionOS)
 
   if(self.firstRun == nil) then
 
+    -- Get references to the editor UI
+    self.editorUI = pixelVisionOS.editorUI
+
+    self.canvas = pixelVisionOS:GenerateModalCanvas(self.rect, self.title)
+
     local theme = self.editorUI.theme
-
-    -- Customize the text button to use the pop up background
-    ReplaceColor( theme.textButton.background, theme.modal.background )
-
-    -- Draw the black background
-    self.canvas:SetStroke({theme.modal.outerBorder}, 1, 1)
-    self.canvas:SetPattern({theme.modal.border}, 1, 1)
-    self.canvas:DrawSquare(0, 0, self.canvas.width - 1, self.canvas.height - 1, true)
-
-    -- Draw the brown background
-    self.canvas:SetStroke({theme.modal.innerBorderBottom}, 1, 1)
-    self.canvas:SetPattern({theme.modal.background}, 1, 1)
-    self.canvas:DrawSquare(3, 9, self.canvas.width - 4, self.canvas.height - 4, true)
-
-    local tmpX = (self.canvas.width - (#self.title * 4)) * .5
-
-    self.canvas:DrawText(self.title:upper(), tmpX, 1, "small", theme.text.enabled, - 4)
-
-    -- draw highlight stroke
-    self.canvas:SetStroke({theme.modal.innerBorderTop}, 1, 1)
-    self.canvas:DrawLine(3, 9, self.canvas.width - 5, 9)
-    self.canvas:DrawLine(3, 9, 3, self.canvas.height - 5)
-
     local total = #self.lines
     local startX = 8
     local startY = 16
 
+    -- Customize the text button to use the pop up background
+    ReplaceColor( theme.textButton.background, theme.modal.background )
+
     -- We want to render the text from the bottom of the screen so we offset it and loop backwards.
     for i = 1, total do
-      self.canvas:DrawText(self.lines[i]:upper(), startX, (startY + ((i - 1) * 8)), "medium", theme.modal.border, - 4)
+      self.canvas:DrawText(self.lines[i]:upper(), startX, (startY + ((i - 1) * 8)), theme.modal.messageFont, theme.modal.messageColor, theme.modal.messageSpacing)
     end
 
     self.buttons = {}

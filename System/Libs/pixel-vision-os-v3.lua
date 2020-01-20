@@ -108,9 +108,6 @@ function PixelVisionOS:ShowMessageModal(title, message, width, showCancel, onClo
     -- Create the model
     self.messageModal = MessageModal:Init(title, message, width, showCancel, okLabel, cancelLabel)
 
-    -- Pass a reference of the editorUI to the modal
-    self.messageModal.editorUI = self.editorUI
-
   else
 
     -- If the modal exists, configure it with the new values

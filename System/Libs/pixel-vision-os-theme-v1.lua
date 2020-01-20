@@ -13,7 +13,13 @@ EditorUI.theme.modal = {
   innerBorderBottom = 12, -- The bottom and right side of the inner border (inner shadow)
   innerBorderTop = 15, -- The top and left inner border
   outerBorder = 5,
-  border = 0
+  border = 0,
+  titleFont = "small",
+  titleColor = 15,
+  titleSpacing = -4,
+  messageFont = "medium",
+  messageColor = 0,
+  messageSpacing = -4
 }
 
 EditorUI.theme.message = {
