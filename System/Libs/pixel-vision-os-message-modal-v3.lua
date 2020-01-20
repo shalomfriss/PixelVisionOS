@@ -56,22 +56,27 @@ function MessageModal:Open()
 
   if(self.firstRun == nil) then
 
+    local theme = self.editorUI.theme
+
+    -- Customize the text button to use the pop up background
+    ReplaceColor( theme.textButton.background, theme.modal.background )
+
     -- Draw the black background
-    self.canvas:SetStroke({5}, 1, 1)
-    self.canvas:SetPattern({0}, 1, 1)
+    self.canvas:SetStroke({theme.modal.outerBorder}, 1, 1)
+    self.canvas:SetPattern({theme.modal.border}, 1, 1)
     self.canvas:DrawSquare(0, 0, self.canvas.width - 1, self.canvas.height - 1, true)
 
     -- Draw the brown background
-    self.canvas:SetStroke({12}, 1, 1)
-    self.canvas:SetPattern({11}, 1, 1)
+    self.canvas:SetStroke({theme.modal.innerBorderBottom}, 1, 1)
+    self.canvas:SetPattern({theme.modal.background}, 1, 1)
     self.canvas:DrawSquare(3, 9, self.canvas.width - 4, self.canvas.height - 4, true)
 
     local tmpX = (self.canvas.width - (#self.title * 4)) * .5
 
-    self.canvas:DrawText(self.title:upper(), tmpX, 1, "small", 15, - 4)
+    self.canvas:DrawText(self.title:upper(), tmpX, 1, "small", theme.text.enabled, - 4)
 
     -- draw highlight stroke
-    self.canvas:SetStroke({15}, 1, 1)
+    self.canvas:SetStroke({theme.modal.innerBorderTop}, 1, 1)
     self.canvas:DrawLine(3, 9, self.canvas.width - 5, 9)
     self.canvas:DrawLine(3, 9, 3, self.canvas.height - 5)
 
@@ -81,23 +86,17 @@ function MessageModal:Open()
 
     -- We want to render the text from the bottom of the screen so we offset it and loop backwards.
     for i = 1, total do
-      self.canvas:DrawText(self.lines[i]:upper(), startX, (startY + ((i - 1) * 8)), "medium", 0, - 4)
+      self.canvas:DrawText(self.lines[i]:upper(), startX, (startY + ((i - 1) * 8)), "medium", theme.modal.border, - 4)
     end
 
     self.buttons = {}
 
     local buttonSize = {x = 32, y = 16}
 
-    -- TODO center ok button when no cancel button is shown
-    -- local bX = self.showCancel == true and (self.rect.width - buttonSize.x - 8) or ((self.rect.width - buttonSize.x) * .5)
-    --
-    -- -- snap the x value to the grid
-    -- bX = math.floor((bX + self.rect.x) / 8) * 8
-
     -- Fix the button to the bottom of the window
     local bY = math.floor(((self.rect.y + self.rect.height) - buttonSize.y - 8) / 8) * 8
 
-    local backBtnData = self.editorUI:CreateTextButton({x = 0, y = bY}, self.okLabel, "", PaletteOffset( 1))
+    local backBtnData = self.editorUI:CreateTextButton({x = 0, y = bY}, self.okLabel, "")
 
     backBtnData.onAction = function()
 
@@ -116,7 +115,7 @@ function MessageModal:Open()
       -- Offset the bX value and snap to the grid
       -- bX = math.floor((bX - buttonSize.x - 8) / 8) * 8
 
-      local cancelBtnData = self.editorUI:CreateTextButton({x = 0, y = bY}, self.cancelLabel, "", PaletteOffset(1))
+      local cancelBtnData = self.editorUI:CreateTextButton({x = 0, y = bY}, self.cancelLabel, "")
 
       cancelBtnData.onAction = function()
 

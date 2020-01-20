@@ -18,6 +18,8 @@
 EditorUI = {}
 EditorUI.__index = EditorUI
 
+LoadScript("pixel-vision-ui-theme-v1")
+
 -- Core Framework UI Components
 LoadScript("pixel-vision-ui-utils-v2")
 LoadScript("pixel-vision-ui-collision-manager-v3")
@@ -66,6 +68,9 @@ function EditorUI:Init()
   _editorUI.drawCallTotal = 0
 
   _editorUI.codeEditorClipboardValue = nil
+
+  -- All of the states a button can be in. Use this for iterating over button states.
+  _editorUI.buttonStates = {"disabled", "up", "over", "down", "selectedUp", "selectedOver", "selectedDown"}
 
   -- Return the new instance of the editor ui
   return _editorUI

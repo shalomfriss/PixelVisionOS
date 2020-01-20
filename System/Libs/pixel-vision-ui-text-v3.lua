@@ -15,15 +15,17 @@
 -- Shawn Rakowski - @shwany
 --
 
-function EditorUI:CreateText(rect, text, font, colorOffset, spacing, drawMode)
+function EditorUI:CreateText(rect, text, font, spacing, drawMode, clearColor)
 
   local data = self:CreateData(rect)
   data.text = ""
   data.font = font or "large-bold"
-  data.colorOffset = colorOffset or 0
+  data.colorOffset = self.theme.text.enabled
   data.spacing = spacing or 0
-  data.drawMode = DrawMode.TilemapCache
+  data.drawMode = drawMode or DrawMode.TilemapCache
   data.charSize = SpriteSize()
+  data.clearColor = clearColor or - 1
+  data.totalLines = 0
 
   -- After the component's data is set, update the text
   self:ChangeText(data, text)
@@ -70,7 +72,7 @@ function EditorUI:UpdateText(data)
 
 end
 
-function EditorUI:ChangeText(data, text)
+function EditorUI:ChangeText(data, text, color)
 
   -- If the text is the same, don't update the text component and exit out of the method
   if(data.text == text) then
@@ -78,6 +80,36 @@ function EditorUI:ChangeText(data, text)
   end
 
   self:Invalidate(data)
+
+  if(color ~= nil) then
+    data.colorOffset = color
+  end
+
+  -- Look to see if there is a clear color
+  if(data.clearColor > - 1) then
+
+    -- Loop through each line to clear the previous text
+    for i = 1, data.totalLines do
+
+      local index = i - 1
+      local tmpHeight = data.drawMode == DrawMode.Tile and 1 or data.charSize.y
+
+      drawArguments = {
+        data.rect.x, -- x (1)
+        data.rect.y + (index * tmpHeight), -- y (2)
+        #data.lines[i] * (8 + data.spacing), -- height (4)
+        tmpHeight, -- font (3)
+        data.clearColor, -- colorOffset (6)
+        data.drawMode, -- spacing (7)
+      }
+
+      -- Draw a rect over the text about to be drawn to clear it out
+      self:NewDraw("DrawRect", drawArguments)
+
+    end
+
+  end
+
 
   -- Save the text on the draw arguments
   data.text = text

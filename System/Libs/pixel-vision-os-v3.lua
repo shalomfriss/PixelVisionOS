@@ -19,11 +19,12 @@ PixelVisionOS = {}
 PixelVisionOS.__index = PixelVisionOS
 
 LoadScript("pixel-vision-ui-v3")
+LoadScript("pixel-vision-os-theme-v1")
 
 -- Pixel Vision OS Components
-LoadScript("pixel-vision-os-title-bar-v2")
-LoadScript("pixel-vision-os-message-bar-v2")
-LoadScript("pixel-vision-os-modal-v2")
+LoadScript("pixel-vision-os-title-bar-v3")
+LoadScript("pixel-vision-os-message-bar-v3")
+LoadScript("pixel-vision-os-modal-v3")
 LoadScript("pixel-vision-os-message-modal-v3")
 LoadScript("pixel-vision-os-color-utils-v2")
 LoadScript("pixel-vision-os-undo-v2")
@@ -77,10 +78,6 @@ function PixelVisionOS:Draw()
 
   end
 
-  -- We manually call draw on the message bar since it can be updated at any point outside of its own update call
-  self:DrawMessageBar(self.messageBar)
-
-
   -- Draw the editor UI
   self.editorUI:Draw()
 
@@ -89,22 +86,7 @@ function PixelVisionOS:Draw()
 
 end
 
--- This is a helper for changing the text on the title bar
-function PixelVisionOS:ChangeTitle(text, titleIconName)
 
-  DrawRect(30, 0, 140, 8, 0, DrawMode.TilemapCache)
-
-  local maxChars = 35
-  if(#text > maxChars) then
-    text = text:sub(0, maxChars - 3) .. "..."
-  else
-    text = string.rpad(text, maxChars, "")
-  end
-
-  self.titleBar.titleIcon = _G[titleIconName] and _G[titleIconName].spriteIDs[1] or nil
-  self.titleBar.title = text
-  self.editorUI:Invalidate(self.titleBar)
-end
 
 function PixelVisionOS:ShowAboutModal(toolTitle, optionalText, width)
 

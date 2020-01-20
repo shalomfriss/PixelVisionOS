@@ -63,7 +63,8 @@ function EditorUI:CreateTextButton(rect, text, toolTip, colorOffset)
 
   local sprites = self:BuildTextButton(text)
 
-  data.colorOffset = colorOffset
+  -- Default color starts at 48
+  data.colorOffset = colorOffset or self.theme.textButton
   local totalColors = 16
 
   if(sprites ~= nil) then
@@ -76,15 +77,25 @@ function EditorUI:CreateTextButton(rect, text, toolTip, colorOffset)
     data.rect.width = data.tiles.width * self.spriteSize.x
     data.rect.height = data.tiles.height * self.spriteSize.y
 
-    data.cachedSpriteData = {
-      disabled = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset},
-      up = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + totalColors},
-      over = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 2)},
-      down = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 3)},
-      selectedup = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 4)},
-      selectedover = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 5)},
-      selecteddown = {sprites = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 6)}
-    }
+    -- Get all of the possible button state labels
+    local states = self.buttonStates
+
+    -- Create a table to store the sprite state data
+    data.cachedSpriteData = {}
+
+    -- Loop through all of the states and create data for each one
+    for i = 1, #states do
+
+      -- Get the current state
+      local state = states[i]
+
+      -- Create the button state data and calculate the offset
+      data.cachedSpriteData[state] = {
+        sprites = sprites,
+        width = data.tiles.width,
+        colorOffset = (type(data.colorOffset) == "table" and data.colorOffset[state] ~= nil) and data.colorOffset[state] or data.colorOffset + (totalColors * (i - 1))
+      }
+    end
 
     spriteData = data.cachedSpriteData.up or data.cachedSpriteData.disabled
 
