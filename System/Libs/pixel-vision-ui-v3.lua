@@ -70,7 +70,7 @@ function EditorUI:Init()
   _editorUI.codeEditorClipboardValue = nil
 
   -- All of the states a button can be in. Use this for iterating over button states.
-  _editorUI.buttonStates = {"disabled", "up", "over", "down", "selectedUp", "selectedOver", "selectedDown"}
+  _editorUI.buttonStates = {"disabled", "up", "over", "down", "selectedup", "selectedover", "selecteddown"}
 
   -- Return the new instance of the editor ui
   return _editorUI

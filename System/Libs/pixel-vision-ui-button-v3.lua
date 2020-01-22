@@ -26,6 +26,7 @@ function EditorUI:CreateButton(rect, spriteName, toolTip, spriteCache)
   data.doubleClickTime = 0
   data.doubleClickDelay = .45
   data.doubleClickActive = false
+  data.drawAPI = "DrawSprites"
 
   -- By default, we don't want buttons to redraw the background
   data.redrawBackground = false
@@ -202,7 +203,7 @@ function EditorUI:UpdateButton(data, hitRect)
       -- Color Offset
       data.spriteDrawArgs[8] = spriteData.colorOffset or 0
 
-      self:NewDraw("DrawSprites", data.spriteDrawArgs)
+      self:NewDraw(data.drawAPI, data.spriteDrawArgs)
 
     end
 
@@ -286,7 +287,7 @@ function EditorUI:RedrawButton(data, stateOverride)
 
       end
 
-      self:NewDraw("DrawSprites", data.tileDrawArgs)
+      self:NewDraw(data.drawAPI, data.tileDrawArgs)
 
     end
 

@@ -15,7 +15,7 @@
 -- -- Shawn Rakowski - @shwany
 -- --
 --
-function EditorUI:CreatePaletteButton(rect, spriteName, toolTip, colorOffset, totalColors, remapColorOffsets)
+function EditorUI:CreatePaletteButton(rect, spriteName, toolTip, colorOffset, totalColors)
 
   totalColors = totalColors or 16
 
@@ -24,12 +24,22 @@ function EditorUI:CreatePaletteButton(rect, spriteName, toolTip, colorOffset, to
 
   data.name = "Palette" .. data.name
 
-  data.colorOffset = colorOffset or 0
-
+  -- Find the default sprite
   local defaultSprite = _G[spriteName]
 
+  -- If the default sprite exists set up the states
   if(defaultSprite ~= nil) then
 
+    -- Try to figure out a start offset based on if the colorOffset is a table
+    data.colorOffset = (type(colorOffset) == "table") and
+
+    (colorOffset.disabled ~= nil) and colorOffset.disabled or
+
+    (colorOffset.up ~= nil) and colorOffset.up or 0
+
+    or colorOffset
+
+    -- Get the sprites
     local sprites = defaultSprite.spriteIDs
 
     -- Update the UI tile width and height
@@ -40,24 +50,25 @@ function EditorUI:CreatePaletteButton(rect, spriteName, toolTip, colorOffset, to
     data.rect.width = data.tiles.width * self.spriteSize.x
     data.rect.height = data.tiles.height * self.spriteSize.y
 
-    data.cachedSpriteData = {
-      disabled = {spriteIDs = sprites, width = data.tiles.width, colorOffset = data.colorOffset},
-      up = {spriteIDs = sprites, width = data.tiles.width, colorOffset = data.colorOffset + totalColors},
-      over = {spriteIDs = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 2)},
-      down = {spriteIDs = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 3)},
-      selectedup = {spriteIDs = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 4)},
-      selectedover = {spriteIDs = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 5)},
-      selecteddown = {spriteIDs = sprites, width = data.tiles.width, colorOffset = data.colorOffset + (totalColors * 6)}
-    }
+    -- Create a table to store the sprite state data
+    data.cachedSpriteData = {}
 
-    if(remapColorOffsets ~= nil) then
+    -- Get all of the possible button state labels
+    local states = self.buttonStates
 
-      for k, v in pairs(remapColorOffsets) do
+    -- Loop through all of the states and create data for each one
+    for i = 1, #states do
 
-        if(data.cachedSpriteData[k] ~= nil) then
-          data.cachedSpriteData[k].colorOffset = v
-        end
-      end
+      -- Get the current state
+      local state = states[i]
+
+      -- Create the button state data and calculate the offset
+      data.cachedSpriteData[state] = {
+        spriteIDs = sprites,
+        width = data.tiles.width,
+        -- This assumes that there is an up state if a table is supplied for the color offset
+        colorOffset = (type(colorOffset) == "table" and colorOffset[state] ~= nil) and colorOffset[state] or data.colorOffset + (totalColors * (i - 1))
+      }
     end
 
     -- Rebuild the draw argument tables
@@ -73,9 +84,9 @@ function EditorUI:CreatePaletteButton(rect, spriteName, toolTip, colorOffset, to
   --
 end
 
-function EditorUI:CreateTogglePaletteButton(rect, spriteName, toolTip, colorOffset, totalColors, remapColorOffsets)
+function EditorUI:CreateTogglePaletteButton(rect, spriteName, toolTip, colorOffset, totalColors)
 
-  local data = self:CreatePaletteButton(rect, spriteName, toolTip, colorOffset, totalColors, remapColorOffsets)
+  local data = self:CreatePaletteButton(rect, spriteName, toolTip, colorOffset, totalColors)
 
   data.name = "Toggle" .. data.name
 

@@ -150,7 +150,7 @@ end
 function MessageModal:Update(timeDelta)
 
   for i = 1, #self.buttons do
-    self.editorUI:UpdateTextButton(self.buttons[i])
+    self.editorUI:UpdateButton(self.buttons[i])
   end
 
   if(Key(Keys.Enter, InputState.Released)) then

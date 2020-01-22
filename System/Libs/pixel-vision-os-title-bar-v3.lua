@@ -104,8 +104,10 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
   -- Fix scope for lamda functions below
   local this = self
 
+  local theme = self.editorUI.theme
+
   -- Create mute button
-  data.iconButton = self.editorUI:CreatePaletteButton({x = 8, y = 0}, "titlebarmenubutton", menuButtonTooltip, 22, 4, {up = 22, over = 22 + 4, down = 22 + 8})
+  data.iconButton = self.editorUI:CreatePaletteButton({x = 8, y = 0}, "titlebarmenubutton", menuButtonTooltip, theme.iconButton, 4)
 
   data.iconButton.hitRect = {x = 8, y = 0, w = 13, h = 11}
   data.iconButton.onPress = function()
@@ -120,12 +122,9 @@ function PixelVisionOS:CreateTitleBar(x, y, title, product)
   -- Disable the button but default until the tool creates an option menu
   self.editorUI:Enable(data.iconButton, false)
 
-
-
-
-
+  -- Create mute button
   data.muteBtnData = self.editorUI:CreateTogglePaletteButton({x = 172,
-  y = 0}, "titlebarmutebutton", (value == true and muteOnTooltip or muteOffTooltip), 33, 4, {disabled = 33, up = 33, over = 33 + 4, down = 33 + 4, selectedup = 33 + 7, selectedover = 33 + 11, selecteddown = 33 + 11})
+  y = 0}, "titlebarmutebutton", (value == true and muteOnTooltip or muteOffTooltip), theme.muteButton)
 
   data.muteBtnData.selected = ReadBiosData("Mute", "Flase") == "True" and true or false
 
