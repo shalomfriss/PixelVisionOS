@@ -10,7 +10,7 @@
 
 -- Load in the editor framework script to access tool components
 LoadScript("sb-sprites")
-LoadScript("pixel-vision-os-v3")
+LoadScript("pixel-vision-os-v2")
 
 local toolName = "System Settings"
 
@@ -229,7 +229,7 @@ function Init()
   -- Get a reference to the Editor UI
   editorUI = pixelVisionOS.editorUI
 
-  local menuOptions = 
+  local menuOptions =
   {
     -- About ID 1
     {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -253,17 +253,17 @@ function Init()
   -- Change the title
   pixelVisionOS:ChangeTitle(toolName, "toolbaricontool")
 
-  volumeKnobData = editorUI:CreateKnob({x = 16, y = 192, w = 24, h = 24}, "knob", "Change the volume.", PaletteOffset(7))
+  volumeKnobData = editorUI:CreateKnob({x = 16, y = 192, w = 24, h = 24}, "knob", "Change the volume.")
   volumeKnobData.onAction = OnVolumeChange
   volumeKnobData.value = Volume() / 100
 
   editorUI:Enable(volumeKnobData, not Mute())
 
-  brightnessKnobData = editorUI:CreateKnob({x = 40, y = 192, w = 24, h = 24}, "knob", "Change the brightness.", PaletteOffset(7))
+  brightnessKnobData = editorUI:CreateKnob({x = 40, y = 192, w = 24, h = 24}, "knob", "Change the brightness.")
   brightnessKnobData.onAction = OnBrightnessChange
   brightnessKnobData.value = (Brightness() - .5)
 
-  sharpnessKnobData = editorUI:CreateKnob({x = 64, y = 192, w = 24, h = 24}, "knob", "Change the sharpness.", PaletteOffset(7))
+  sharpnessKnobData = editorUI:CreateKnob({x = 64, y = 192, w = 24, h = 24}, "knob", "Change the sharpness.")
   sharpnessKnobData.onAction = OnSharpnessChange
   sharpnessKnobData.value = (((Sharpness() * - 1) / 6))
 

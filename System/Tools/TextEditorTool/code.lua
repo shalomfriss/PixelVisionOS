@@ -10,7 +10,7 @@
 
 -- Load in the editor framework script to access tool components
 LoadScript("sb-sprites")
-LoadScript("pixel-vision-os-v3")
+LoadScript("pixel-vision-os-v2")
 
 local toolName = "Text Editor"
 
@@ -65,7 +65,7 @@ function Init()
     -- Update title with file path
     toolTitle = pathSplit[#pathSplit - 1] .. "/" .. pathSplit[#pathSplit]
 
-    local menuOptions = 
+    local menuOptions =
     {
       -- About ID 1
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},
@@ -113,31 +113,11 @@ function Init()
     -- lineWidth = lineWidth + 8
 
     -- Create input area
-    inputAreaData = editorUI:CreateInputArea({x = 8, y = 24, w = 224, h = 184}, nil, "Click to edit the text.", nil)
+    inputAreaData = editorUI:CreateInputArea({x = 8, y = 24, w = 224, h = 184}, nil, "Click to edit the text.")
     inputAreaData.wrap = false
     inputAreaData.editable = true
     inputAreaData.autoDeselect = false
     inputAreaData.colorize = codeMode
-
-    --
-    -- local colorShift = PaletteOffset(6)
-    --
-    -- local highlighterPaletteTheme = {
-    --     selection = colorShift + 1,
-    --     text = colorShift + 2,
-    --     keyword = colorShift + 4,
-    --     number = colorShift + 6,
-    --     comment = colorShift + 8,
-    --     string = colorShift,
-    --     api = colorShift + 10,
-    --     callback = colorShift + 12,
-    --     escape = colorShift + 14,
-    --     disabled = colorShift + 8
-    -- }
-    --
-    -- if(highlighter ~= nil) then
-    --     highlighter:setTheme(highlighterPaletteTheme)
-    -- end
 
     -- Prepare the input area for scrolling
     inputAreaData.scrollValue = {x = 0, y = 0}
@@ -145,11 +125,6 @@ function Init()
     -- inputAreaData.colorOffset = 32
     inputAreaData.onAction = function(text)
       -- print("input area updated")
-
-      -- TODO this is a temporary hack to get colors working while migrating to palette mode
-
-
-
     end
 
     -- TODO need to read the toggle line state from the bios
@@ -261,9 +236,9 @@ function CalculateLineGutter()
   -- Only resize the input field if the size doesn't match
   local newWidth = 224 - lineWidth
 
-  if(inputAreaData.rect.width ~= newWidth) then
+  if(inputAreaData.rect.w ~= newWidth) then
 
-    editorUI:ResizeTexdtEditor(inputAreaData, newWidth, inputAreaData.rect.height, 8 + lineWidth, inputAreaData.rect.y)
+    editorUI:ResizeTexdtEditor(inputAreaData, newWidth, inputAreaData.rect.h, 8 + lineWidth, inputAreaData.rect.y)
   end
 
 end
@@ -382,7 +357,7 @@ end
 
 function OnHorizontalScroll(value)
 
-  local charPos = math.ceil(((inputAreaData.maxLineWidth + 1) - (inputAreaData.tiles.width)) * value) + 1
+  local charPos = math.ceil(((inputAreaData.maxLineWidth + 1) - (inputAreaData.tiles.w)) * value) + 1
 
   if(inputAreaData.vx ~= charPos) then
     inputAreaData.vx = charPos
@@ -393,7 +368,7 @@ end
 
 function OnVerticalScroll(value)
 
-  local line = math.ceil((#inputAreaData.buffer - (inputAreaData.tiles.height - 1)) * value)
+  local line = math.ceil((#inputAreaData.buffer - (inputAreaData.tiles.h - 1)) * value)
   if(inputAreaData.vy ~= line) then
     inputAreaData.vy = Clamp(line, 1, #inputAreaData.buffer)
 
@@ -419,12 +394,11 @@ function DrawLineNumbers()
   end
 
   local offset = inputAreaData.vy - 1
-  local totalLines = inputAreaData.tiles.height
+  local totalLines = inputAreaData.tiles.h
   local padWidth = (lineWidth / 8) - 1
-  for i = 1, inputAreaData.tiles.height do
+  for i = 1, inputAreaData.tiles.h do
 
-    -- TODO this color offset is hard coded
-    DrawText(string.lpad(tostring(i + offset), padWidth, "0") .. " ", 1, 2 + i, DrawMode.Tile, "input", PaletteOffset( 6) + 2)
+    DrawText(string.lpad(tostring(i + offset), padWidth, "0") .. " ", 1, 2 + i, DrawMode.Tile, "input", 44)
 
   end
 
@@ -434,7 +408,7 @@ function Update(timeDelta)
 
   -- Convert timeDelta to a float
   timeDelta = timeDelta / 1000
-
+  
   -- This needs to be the first call to make sure all of the editor UI is updated first
   pixelVisionOS:Update(timeDelta)
 
@@ -453,7 +427,7 @@ function Update(timeDelta)
     end
 
     -- Check to see if we should show the horizontal slider
-    local showVSlider = #inputAreaData.buffer > inputAreaData.tiles.height
+    local showVSlider = #inputAreaData.buffer > inputAreaData.tiles.h
 
     -- Test if we need to show or hide the slider
     if(vSliderData.enabled ~= showVSlider) then
@@ -461,7 +435,7 @@ function Update(timeDelta)
     end
 
     if(vSliderData.enabled == true) then
-      inputAreaData.scrollValue.y = (inputAreaData.vy - 1) / (#inputAreaData.buffer - inputAreaData.tiles.height)
+      inputAreaData.scrollValue.y = (inputAreaData.vy - 1) / (#inputAreaData.buffer - inputAreaData.tiles.h)
 
       if(vSliderData.value ~= inputAreaData.scrollValue.y) then
 
@@ -476,7 +450,7 @@ function Update(timeDelta)
     editorUI:UpdateSlider(vSliderData)
 
     -- Check to see if we should show the vertical slider
-    local showHSlider = inputAreaData.maxLineWidth > inputAreaData.tiles.width
+    local showHSlider = inputAreaData.maxLineWidth > inputAreaData.tiles.w
 
     -- Test if we need to show or hide the slider
     if(hSliderData.enabled ~= showHSlider) then
@@ -484,10 +458,10 @@ function Update(timeDelta)
     end
 
     if(hSliderData.enabled == true) then
-      inputAreaData.scrollValue.x = (inputAreaData.vx - 1) / ((inputAreaData.maxLineWidth + 1) - inputAreaData.tiles.width)
+      inputAreaData.scrollValue.x = (inputAreaData.vx - 1) / ((inputAreaData.maxLineWidth + 1) - inputAreaData.tiles.w)
 
       if(hSliderData.value ~= inputAreaData.scrollValue.x) then
-        -- print(inputAreaData.vx, inputAreaData.maxLineWidth, inputAreaData.tiles.width)
+        -- print(inputAreaData.vx, inputAreaData.maxLineWidth, inputAreaData.tiles.w)
         -- print("inputAreaData.scrollValue.x", inputAreaData.scrollValue.x)
 
         editorUI:ChangeSlider(hSliderData, inputAreaData.scrollValue.x, false)

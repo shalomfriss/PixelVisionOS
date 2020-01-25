@@ -385,14 +385,11 @@ function Init()
         -- TODO this is not being triggered, need a better way to select the first sprite
 
         local startSprite = 0
-        local paletteColorPicker = 0
 
         if(SessionID() == ReadSaveData("sessionID", "") and rootDirectory == ReadSaveData("rootDirectory", "")) then
             startSprite = tonumber(ReadSaveData("selectedSprite", "0"))
             spriteSize = tonumber(ReadSaveData("spriteSize", "1")) - 1
             OnNextSpriteSize()
-
-            paletteColorPicker = tonumber(ReadSaveData("selectedPalettePage", "1"))
         end
 
         -- pixelVisionOS:ResetSpritePicker(spritePickerData)
@@ -401,8 +398,6 @@ function Init()
         -- editorUI:ChangeInputField(spriteIDInputData, startSprite)
 
         ChangeSpriteID(startSprite)
-
-        pixelVisionOS:OnColorPickerPage(paletteColorPickerData, paletteColorPicker)
 
         editorUI:ChangeCanvasPixelSize(canvasData, spriteSize)
 
@@ -1316,10 +1311,6 @@ function Shutdown()
     WriteSaveData("selectedSprite", spritePickerData.currentSelection)
 
     WriteSaveData("spriteSize", spriteSize)
-
-    if(paletteColorPickerData ~= nil) then
-        WriteSaveData("selectedPalettePage", paletteColorPickerData.pages.currentSelection)
-    end
 
     editorUI:Shutdown()
 

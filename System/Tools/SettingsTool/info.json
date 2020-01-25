@@ -1,11 +1,7 @@
 {
-    "name":"SystemTool",
-    "version":"v0.9.8",
-    "ext":".pv8",
-    "editType":"settings",
-    "colorMode":"advanced",
-    "gpuChip":"Custom",
-    "cartChip":"Custom",
-    "soundChip":"Custom",
-    
+	"name": "SystemTool",
+	"description": "",
+	"version": "0.7.6",
+	"ext": ".pv8",
+	"editType": "settings"
 }

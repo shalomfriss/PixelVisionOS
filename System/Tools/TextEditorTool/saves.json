@@ -3,11 +3,11 @@
     "GameChip":
     {
         "savedData":{
-            "scroll": "1,1",
+            "scroll": "1,2",
             "selectedSprite": "0",
-            "cursor": "1,8",
+            "cursor": "1,1",
             "rootDirectory": "/Workspace/HelloWorld/",
-            "sessionID": "202001201354021041",
+            "sessionID": "202001250735265222",
             "targetFile": "/Workspace/Projects/MetaSpriteTest/code.lua"
         }
     }

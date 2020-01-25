@@ -9,7 +9,7 @@
 ]]--
 
 LoadScript("sb-sprites")
-LoadScript("pixel-vision-os-v3")
+LoadScript("pixel-vision-os-v2")
 LoadScript("code-installer-modal")
 LoadScript("configure-installer")
 
@@ -53,7 +53,7 @@ function Init()
     -- Find the json editor
     textEditorPath = editorMapping["json"]
 
-    local menuOptions = 
+    local menuOptions =
     {
       -- About ID 1
       {name = "About", action = function() pixelVisionOS:ShowAboutModal(toolName) end, toolTip = "Learn about PV8."},

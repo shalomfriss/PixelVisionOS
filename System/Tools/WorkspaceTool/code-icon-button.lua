@@ -49,13 +49,13 @@ function EditorUI:CreateIconButton(rect, spriteName, label, toolTip, bgColor)
 
   local bgColor = bgColor or BackgroundColor()
 
-  data.bgDrawArgs = {data.rect.x, data.rect.y, data.rect.width, data.rect.height, bgColor, DrawMode.TilemapCache}
+  data.bgDrawArgs = {data.rect.x, data.rect.y, data.rect.w, data.rect.h, bgColor, DrawMode.TilemapCache}
 
 
   self:CreateIconButtonStates(data, spriteName, label)
 
   -- Modify the hit rect to the new rect position
-  data.hitRect = {x = data.rect.x + 12, y = data.rect.y, w = data.rect.width, h = data.rect.height}
+  data.hitRect = {x = data.rect.x + 12, y = data.rect.y, w = data.rect.w, h = data.rect.h}
 
   -- TODO the size isn't correct since the icon sits inside of the 48x40 pixel area
 
@@ -443,8 +443,7 @@ function EditorUI:CreateIconGroup(singleSelection)
 
   singleSelection = singleSelection == nil and true or singleSelection
 
-  -- TODO this was throwing an error since the rect is nil so I put the sprite name in to make it easier to debug later
-  local data = self:CreateData(nil, "icon-group")
+  local data = self:CreateData()
 
   data.name = "IconButtonGroup" .. data.name
 

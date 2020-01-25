@@ -3,11 +3,11 @@
     "GameChip":
     {
         "savedData":{
-            "selection": "2",
+            "showUpgrade": "false",
+            "selection": "5",
             "scrollPos": "0",
-            "sessionID": "202001211946320641",
-            "lastPath": "/Workspace/Projects/PV8Tool/",
-            "showUpgrade": "false"
+            "sessionID": "202001250735265222",
+            "lastPath": "/Workspace/Projects/MetaSpriteTest/"
         }
     }
 }

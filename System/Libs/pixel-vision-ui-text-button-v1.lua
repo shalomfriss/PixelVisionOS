@@ -17,12 +17,16 @@
 
 function EditorUI:CreateTextButton(rect, text, toolTip, colorOffset)
 
+  -- TODO need to do the color offset table test here
+  colorOffset = colorOffset or 25
 
   -- TODO create the name of the button
   local tmpSpriteName = text .. "TextButton"
 
   -- TODO need to generate out the sprite for the button
   local buttonSprites = self:BuildTextButton(text)
+
+  local metaSprite = RegisterMetaSprite(tmpSpriteName)
 
   -- TODO merge all sprites into a single sprite
 
@@ -37,15 +41,19 @@ function EditorUI:CreateTextButton(rect, text, toolTip, colorOffset)
 
     local pos = CalculatePosition( i - 1, width )
 
-    if((pos.x + 1) < width) then
+    if(pos.x < width) then
+
+      metaSprite.AddSprite(buttonSprites[pos.x + 1].spriteIDs[pos.y + 1], pos.x * 4, pos.y * 8, false, false, colorOffset)
+
       -- print("index", pos.x + 1, pos.y + 1)
-      table.insert(spriteData.spriteIDs, buttonSprites[pos.x + 1].spriteIDs[pos.y + 1])
+      -- table.insert(spriteData.spriteIDs, buttonSprites[pos.x + 1].spriteIDs[pos.y + 1])
     end
 
   end
 
-  DrawSprites( spriteData.spriteIDs, 9, 32, 8, false, false, DrawMode.TilemapCache)
-  print("button", dump(spriteData))
+  DrawMetaSprite( tmpSpriteName, 9, 32, false, false, DrawMode.TilemapCache)
+
+  -- print("button", dump(spriteData))
 
   -- _G[tmpSpriteName] = spriteData
 

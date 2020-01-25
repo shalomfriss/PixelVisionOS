@@ -10,11 +10,11 @@
 
 -- Load in the editor framework script to access tool components
 LoadScript("sb-sprites")
-LoadScript("pixel-vision-os-v3")
+LoadScript("pixel-vision-os-v2")
 LoadScript("code-icon-button")
 LoadScript("code-workspace-utils")
-LoadScript("pixel-vision-os-progress-modal-v2")
-LoadScript("pixel-vision-os-file-modal-v2")
+LoadScript("pixel-vision-os-progress-modal-v1")
+LoadScript("pixel-vision-os-file-modal-v1")
 
 local toolName = "Workspace Explorer"
 local filesToCopy = nil
@@ -402,7 +402,7 @@ function OnNewFile(fileName, ext, type, editable)
         type = ext
     end
 
-    newFileModal:SetText("New ".. type, fileName, "Name " .. type .. " file", editable == nil and true or false, " CREATE ")
+    newFileModal:SetText("New ".. type, fileName, "Name " .. type .. " file", editable == nil and true or false)
 
     pixelVisionOS:OpenModal(newFileModal,
         function()
@@ -455,7 +455,7 @@ function OnTriggerRename(callback)
 
     local file = CurrentlySelectedFile()
 
-    newFileModal:SetText("Rename File", file.name, "Name " .. file.type, true, " RENAME ")
+    newFileModal:SetText("Rename File", file.name, "Name " .. file.type, true)
 
     pixelVisionOS:OpenModal(newFileModal,
         function()
@@ -813,8 +813,7 @@ function OnEjectDisk(diskName)
 
             end
 
-        end,
-        " EJECT "
+        end
     )
 
 
@@ -836,8 +835,7 @@ function OnShutdown()
 
             end
 
-        end,
-        " SHUTDOWN "
+        end
     )
 
 end
@@ -1086,11 +1084,11 @@ end
 function OnNewGame()
 
     if(PathExists(fileTemplatePath) == false) then
-        pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false, nil, " CLOSE ")
+        pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false)
         return
     end
 
-    newFileModal:SetText("New Project", "NewProject", "Folder Name", true, " CREATE ")
+    newFileModal:SetText("New Project", "NewProject", "Folder Name", true)
 
     pixelVisionOS:OpenModal(newFileModal,
         function()
@@ -1126,7 +1124,7 @@ function OnNewFolder(name)
     local newPath = UniqueFilePath(currentDirectory.AppendDirectory(name))
 
     -- Set the new file modal to show the folder name
-    newFileModal:SetText("New Folder", newPath.EntityName, "Folder Name", true, " CREATE ")
+    newFileModal:SetText("New Folder", newPath.EntityName, "Folder Name", true)
 
     -- Open the new file modal before creating the folder
     pixelVisionOS:OpenModal(newFileModal,
@@ -1787,7 +1785,7 @@ function OnWindowIconClick(id)
     elseif(TrashOpen()) then
 
         -- Show warning message about trying to edit files in the trash
-        pixelVisionOS:ShowMessageModal(toolName .. " Error", "You are not able to edit files inside of the trash.", 160, false, nil, " CLOSE "
+        pixelVisionOS:ShowMessageModal(toolName .. " Error", "You are not able to edit files inside of the trash.", 160, false
         )
 
         -- Check to see if the file is an executable
@@ -1803,7 +1801,7 @@ function OnWindowIconClick(id)
         -- TODO need to see if there is space to mount another disk
         -- TODO need to know if this disk is being mounted as read only
         -- TODO don't run
-        pixelVisionOS:ShowMessageModal("Mount Disk", "Do you want to mount this disk?", 160, true,
+        pixelVisionOS:ShowMessageModal("Run Disk", "Do you want to mount this disk?", 160, true,
             function()
 
                 -- Only perform the copy if the user selects OK from the modal
@@ -1816,8 +1814,7 @@ function OnWindowIconClick(id)
 
                 end
 
-            end,
-            " MOUNT "
+            end
         )
 
     elseif(type == "wav") then
@@ -1829,7 +1826,7 @@ function OnWindowIconClick(id)
         -- Check to see if there is an editor for the type or if the type is unknown
     elseif(editorMapping[type] == nil or type == "unknown") then
 
-        pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no tool installed to edit this file.", 160, false, nil, " CLOSE "
+        pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no tool installed to edit this file.", 160, false
         )
 
         -- Now we are ready to try to edit a file
@@ -1839,7 +1836,7 @@ function OnWindowIconClick(id)
 
             if(PathExists(NewWorkspacePath("/Workspace/")) == false) then
 
-                pixelVisionOS:ShowMessageModal("Installer Error", "You need to create a 'Workspace' drive before you can run an install script.", 160, false, nil, " CLOSE ")
+                pixelVisionOS:ShowMessageModal("Installer Error", "You need to create a 'Workspace' drive before you can run an install script.", 160, false)
 
                 return
 
@@ -1849,7 +1846,7 @@ function OnWindowIconClick(id)
                 -- TODO need to see if there is space to mount another disk
                 -- TODO need to know if this disk is being mounted as read only
                 -- TODO don't run
-                pixelVisionOS:ShowMessageModal("Installer Error", "Installers can only be run from a disk.", 176, false, nil, " CLOSE ")
+                pixelVisionOS:ShowMessageModal("Installer Error", "Installers can only be run from a disk.", 160, false)
 
                 return
 
@@ -2341,14 +2338,13 @@ function OnExportGame()
 
         local response = CreateDisk(gameName, gameFiles, destPath)
 
-        pixelVisionOS:ShowMessageModal("Build " .. (response.success == true and "Complete" or "Failed"), response.message, 160, true,
+        pixelVisionOS:ShowMessageModal("Build " .. (response.success == true and "Complete" or "Failed"), response.message, 160, false,
 
             function()
                 if(response.success == true) then
                     OpenWindow(NewWorkspacePath(response.path).ParentPath.path)
                 end
-            end,
-            " VIEW DISK ", " CLOSE "
+            end
         )
     end
 

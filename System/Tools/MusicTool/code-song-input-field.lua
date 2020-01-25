@@ -27,7 +27,7 @@ function EditorUI:CreateSongInputField(rect, text, toolTip, pattern, font, force
   -- Create a unique name by removing the InputArea string from the data's name
   data.name = "SongInputField" .. data.name:sub(10, - 1)
 
-  -- data.multiline = data.tiles.height > 1
+  -- data.multiline = data.tiles.h > 1
   data.index = -1
   -- data.nextField = nil
   -- data.previousField = nil
@@ -99,8 +99,8 @@ function EditorUI:UpdateSongInputField(data, dt)
   local doubleClickDelay = .45
 
   -- TODO this should be only happen when in focus
-  local cx = self.collisionManager.mousePos.c - data.tiles.x
-  local cy = self.collisionManager.mousePos.r - data.tiles.y
+  local cx = self.collisionManager.mousePos.c - data.tiles.c
+  local cy = self.collisionManager.mousePos.r - data.tiles.r
 
   -- Ready to test finer collision if needed
   if(self.collisionManager:MouseInRect(data.rect) == true or overrideFocus) then
