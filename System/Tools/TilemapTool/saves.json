@@ -1,9 +1,8 @@
 {
-    
-    "GameChip":
-    {
-        "savedData":{
-            "editing": "undefined"
-        }
+  "GameChip":
+  {
+    "savedData": {
+      "editing": "undefined"
     }
+  }
 }

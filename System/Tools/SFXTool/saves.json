@@ -1,11 +1,10 @@
 {
-    
-    "GameChip":
-    {
-        "savedData":{
-            "sessionID": "202001250657545791",
-            "rootDirectory": "/Workspace/PlaySong/",
-            "currentID": "0"
-        }
+  "GameChip":
+  {
+    "savedData": {
+      "currentID": "0",
+      "rootDirectory": "/Workspace/PlaySong/",
+      "sessionID": "202001260933373084"
     }
+  }
 }
