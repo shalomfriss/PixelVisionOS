@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "scroll": "1,1",
+            "scroll": "1,17",
             "selectedSprite": "0",
-            "cursor": "1,1",
+            "cursor": "22,27",
             "rootDirectory": "/Workspace/HelloWorld/",
-            "sessionID": "202002040909099149",
-            "targetFile": "/Workspace/.vscode/launch.json"
+            "sessionID": "202002081318026516",
+            "targetFile": "/Workspace/MyGame/data.json"
         }
     }
 }

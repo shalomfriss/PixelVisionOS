@@ -2319,6 +2319,7 @@ function OnExportGame()
         local srcPath = currentDirectory
         local destPath = srcPath.AppendDirectory("Builds")
         local infoFile = srcPath.AppendFile("info.json")
+        local dataFile = srcPath.AppendFile("data.json")
 
         -- TODO need to read game name from info file
         if(PathExists(srcPath.AppendDirectory("info.json")) == false) then
@@ -2330,13 +2331,21 @@ function OnExportGame()
         local gameName = (metaData ~= nil and metaData["name"] ~= nil) and metaData["name"] or srcPath.EntityName
 
 
+        local systemData = ReadJson(dataFile)
 
-        -- TODO need a way of validating the size
+        local maxSize = 512
+
+        if(systemData["GameChip"]) then
+
+            if(systemData["GameChip"]["maxSize"]) then
+                maxSize = systemData["GameChip"]["maxSize"]
+            end
+        end
 
         -- Manually create a game disk from the current folder's files
         local gameFiles = GetEntities(srcPath)
 
-        local response = CreateDisk(gameName, gameFiles, destPath)
+        local response = CreateDisk(gameName, gameFiles, destPath, maxSize)
 
         pixelVisionOS:ShowMessageModal("Build " .. (response.success == true and "Complete" or "Failed"), response.message, 160, false,
 
