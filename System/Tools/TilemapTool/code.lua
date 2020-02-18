@@ -93,7 +93,7 @@ function Init()
     newFileModal = NewFileModal:Init(editorUI)
     newFileModal.editorUI = editorUI
 
-    print(dump(ReadAllMetadata()))
+    -- print(dump(ReadAllMetadata()))
 
     rootDirectory = ReadMetadata("directory", nil)
 
@@ -460,7 +460,7 @@ function OnInitCompleated()
             local tmpCol = string.lpad(tostring(tmpPos.x), #tostring(tmpData.columns), "0")
             local tmpRow = string.lpad(tostring(tmpPos.y), #tostring(tmpData.rows), "0")
 
-            print("Tool Mode", toolMode)
+            -- print("Tool Mode", toolMode)
 
             local action = "Select"
 

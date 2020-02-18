@@ -402,7 +402,7 @@ function PixelVisionOS:RenderTile(data, tileData, col, row)
 
     local layer = data.layerCache[data.mapRenderMode]
 
-    if (layer ! = null) then
+    if (layer ~= null) then
 
         -- Make sure the area is cleared first
         layer:Clear(-1, col, row, 8, 8)

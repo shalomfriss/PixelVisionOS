@@ -1,4 +1,4 @@
---[[
+    --[[
 	Pixel Vision 8 - Debug Tool
 	Copyright (C) 2016, Pixel Vision 8 (http://pixelvision8.com)
 	Created by Jesse Freeman (@jessefreeman)
@@ -120,7 +120,7 @@ local editorMapping = {}
 -- The Init() method is part of the game's lifecycle and called a game starts. We are going to
 -- use this method to configure background color, ScreenBufferChip and draw a text box.
 function Init()
-
+print("Init")
     runningFromDisk = string.starts(rootPath, "/Disks/")
 
     DrawWallpaper()
