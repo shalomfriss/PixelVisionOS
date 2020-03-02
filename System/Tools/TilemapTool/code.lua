@@ -628,6 +628,13 @@ function ChangeMode(value)
 
     end
 
+    -- Fix the button state if triggered outside of the button
+    if(flagBtnData.selected ~= value) then
+
+        editorUI:ToggleButton(flagBtnData, value, false)
+
+    end
+
     -- Clear history between layers
     ClearHistory()
 

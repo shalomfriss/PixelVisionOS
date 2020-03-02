@@ -886,6 +886,11 @@ function EditorUI:TextEditorPasteText(data)
   self:TextEditorBeginUndoable(data)
   if data.sxs then self:TextEditorDeleteSelection(data) end
   local text = self:TextEditorClipboard()
+  
+  if(text == nil) then
+    return
+  end
+  
   text = text:gsub("\t", " ") -- tabs mess up the layout, replace them with spaces
   local firstLine = true
   for line in string.gmatch(text.."\n", "([^\r\n]*)\r?\n") do

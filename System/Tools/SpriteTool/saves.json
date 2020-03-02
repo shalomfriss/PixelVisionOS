@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "spriteSize": "1",
-            "SpriteSize": "undefined",
+            "editing": "undefined",
+            "sessionID": "202003011032475022",
+            "rootDirectory": "/Workspace/MyGame/",
             "selectedSprite": "0",
-            "rootDirectory": "/Workspace/ArtPacks/SpaceRanger/",
-            "sessionID": "202002181004384812",
-            "editing": "undefined"
+            "SpriteSize": "undefined",
+            "spriteSize": "1"
         }
     }
 }
