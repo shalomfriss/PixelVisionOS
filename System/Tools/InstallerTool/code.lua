@@ -438,6 +438,9 @@ function OnInstallComplete()
 
   installing = false
 
+  
+  pixelVisionOS:CloseModal()
+
   -- Write to bios
   for i = 1, #biosProperties do
 
@@ -446,15 +449,29 @@ function OnInstallComplete()
     WriteBiosData(prop[1], prop[2])
   end
 
-  --pixelVisionOS:CloseModal()
-
   RebuildWorkspace()
 
-  OnQuit()
-  -- installingModal:OnComplete()
+  pixelVisionOS:ShowMessageModal("Installation Complete", installingCounter .. " files have been installed to '" .. installRoot .. "/'. Ready to exit the installer?", 160, true,
 
-  -- installingModal = false
+      function()
+        
+        if(pixelVisionOS.messageModal.selectionValue == true) then
+  
+          -- Create meta data with the path the workspace should load up
+          local metaData = {
+            overrideLastPath = variables["openPath"] or "/Workspace/"
+          }
 
+          -- Quit the tool and pass in the new metadata
+          QuitCurrentTool(metaData)
+        end
+
+      end
+  )
+
+  
+  -- QuitCurrentTool(metaData)
+  
 end
 
 -- The Update() method is part of the game's life cycle. The engine calls Update() on every frame

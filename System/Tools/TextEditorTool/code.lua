@@ -47,18 +47,11 @@ function Init()
   -- Get the target file
   targetFile = ReadMetadata("file", nil)
 
-  targetFilePath = NewWorkspacePath(targetFile)
-
-  codeMode = targetFilePath.GetExtension() == ".lua"
-  -- if() then
-  --
-  --   print("Code Mode")
-  --
-  -- end
-
-  -- targetFile = "/Workspace/Games/GGSystem/code.lua"
-
   if(targetFile ~= nil) then
+
+    targetFilePath = NewWorkspacePath(targetFile)
+
+    codeMode = targetFilePath.GetExtension() == ".lua"
 
     local pathSplit = string.split(targetFile, "/")
 
@@ -412,7 +405,7 @@ function Update(timeDelta)
   -- This needs to be the first call to make sure all of the editor UI is updated first
   pixelVisionOS:Update(timeDelta)
 
-  if(inputAreaData.inFocus == true and pixelVisionOS:IsModalActive()) then
+  if(inputAreaData ~= nil and inputAreaData.inFocus == true and pixelVisionOS:IsModalActive()) then
     editorUI:ClearFocus(inputAreaData)
   end
   -- Only update the tool's UI when the modal isn't active
@@ -510,19 +503,21 @@ function Shutdown()
   -- Save the current session ID
   WriteSaveData("sessionID", SessionID())
 
-  WriteSaveData("targetFile", targetFile)
+  if(targetFile ~= nil) then
+    WriteSaveData("targetFile", targetFile)
 
-  local state = editorUI:TextEditorGetState(inputAreaData)
+    local state = editorUI:TextEditorGetState(inputAreaData)
 
-  local stateString = tostring(state.cx) .. "," .. tostring(state.cy)
+    local stateString = tostring(state.cx) .. "," .. tostring(state.cy)
 
-  -- if(state.sxs ~= nil and codeMode) then
-  --   stateString = stateString .. "," .. tostring(state.sxs) .. "," .. tostring(state.sys) .. "," .. tostring(state.sxe) .. "," .. tostring(state.sye)
-  -- end
+    -- if(state.sxs ~= nil and codeMode) then
+    --   stateString = stateString .. "," .. tostring(state.sxs) .. "," .. tostring(state.sys) .. "," .. tostring(state.sxe) .. "," .. tostring(state.sye)
+    -- end
 
-  WriteSaveData("cursor", stateString)
+    WriteSaveData("cursor", stateString)
 
-  WriteSaveData("scroll", tostring(inputAreaData.vx) .. "," .. tostring(inputAreaData.vy))
+    WriteSaveData("scroll", tostring(inputAreaData.vx) .. "," .. tostring(inputAreaData.vy))
 
+  end
 
 end

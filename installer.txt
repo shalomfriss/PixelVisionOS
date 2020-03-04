@@ -8,6 +8,9 @@ $bios=AutoRun|/PixelVisionOS/Tools/WorkspaceTool/
 # Where should all of this be installed
 $dir=System
 
+# What path to open when back in Workspace Explorer
+$openPath=/Workspace/
+
 #Files to install
 
 # This will be installed in the parent directory

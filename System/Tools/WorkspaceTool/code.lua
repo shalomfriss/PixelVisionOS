@@ -120,7 +120,7 @@ local editorMapping = {}
 -- The Init() method is part of the game's lifecycle and called a game starts. We are going to
 -- use this method to configure background color, ScreenBufferChip and draw a text box.
 function Init()
-print("Init")
+
     runningFromDisk = string.starts(rootPath, "/Disks/")
 
     DrawWallpaper()
@@ -312,14 +312,30 @@ print("Init")
     desktopHitRect = NewRect(0, 12, 256, 229)
 
     local newPath = ReadSaveData("lastPath", "none")
+    local lastScrollPos = tonumber(ReadSaveData("scrollPos", "0"))
+    local lastSelection = tonumber(ReadSaveData("selection", "0"))
     local showUpgrade = "true"
+    
+    -- Read metadata last path
+    local lastPath =  ReadMetadata("overrideLastPath", "none")
+
+    if(lastPath ~= "none") then
+        -- Clear last path from metadata
+        WriteMetadata( "overrideLastPath", "none" )
+
+        -- override the default path to open
+        newPath = lastPath
+        lastScrollPos = 0
+        lastSelection = 0
+    end
 
     if(SessionID() == ReadSaveData("sessionID", "")) then
 
         showUpgrade = ReadSaveData("showUpgrade", showUpgrade)
+
         -- TODO need to convert this to a path from the start and pass into Open window
         if(newPath ~= "none" and PathExists(NewWorkspacePath(newPath))) then
-            OpenWindow(newPath, tonumber(ReadSaveData("scrollPos", "0")), tonumber(ReadSaveData("selection", "0")))
+            OpenWindow(newPath, lastScrollPos, lastSelection)
         end
 
     end
@@ -2343,7 +2359,16 @@ function OnExportGame()
         end
 
         -- Manually create a game disk from the current folder's files
-        local gameFiles = GetEntities(srcPath)
+        local srcFiles = GetEntities(srcPath)
+        local pathOffset = #srcPath.Path
+
+        local gameFiles = {}
+        
+        for i = 1, #srcFiles do
+            local srcFile = srcFiles[i]
+            local destFile = NewWorkspacePath(srcFile.Path:sub(pathOffset))
+            gameFiles[srcFile] = destFile
+        end
 
         local response = CreateDisk(gameName, gameFiles, destPath, maxSize)
 
