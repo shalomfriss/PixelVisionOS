@@ -2268,6 +2268,45 @@ function Update(timeDelta)
 
     end
 
+    if(buildingDisk) then
+
+        local total = ReadExportPercent()
+
+        if(total >=100) then
+            
+            buildingDisk = false
+            
+            pixelVisionOS:CloseModal()
+            
+            local response = ReadExportMessage()
+            local success = response.DiskExporter_success
+            local message = response.DiskExporter_message
+            local path = response.DiskExporter_path
+
+            -- print("Disk Message", dump(response), success, message, path)
+
+            progressModal = nil
+
+            pixelVisionOS:ShowMessageModal("Build " .. (success == true and "Complete" or "Failed"), message, 160, false,
+
+                function()
+                    if(success == true) then
+                        OpenWindow(NewWorkspacePath(path).ParentPath.path)
+                    end
+                end
+            )
+        else
+            if(progressModal ~= nil) then
+
+                local message = "Building new disk.\n\n\nDo not restart or shut down Pixel Vision 8."
+
+                progressModal:UpdateMessage(message, total/100)
+            end
+        end
+
+        
+    end
+
 end
 
 
@@ -2372,14 +2411,28 @@ function OnExportGame()
 
         local response = CreateDisk(gameName, gameFiles, destPath, maxSize)
 
-        pixelVisionOS:ShowMessageModal("Build " .. (response.success == true and "Complete" or "Failed"), response.message, 160, false,
+        buildingDisk = true
 
-            function()
-                if(response.success == true) then
-                    OpenWindow(NewWorkspacePath(response.path).ParentPath.path)
-                end
-            end
-        )
+        if(progressModal == nil) then
+            --
+            --   -- Create the model
+            progressModal = ProgressModal:Init("File Action ", editorUI)
+    
+            -- Open the modal
+            pixelVisionOS:OpenModal(progressModal)
+    
+        end
+
+        -- pixelVisionOS:OpenModal(progressModal)
+
+        -- pixelVisionOS:ShowMessageModal("Build " .. (response.success == true and "Complete" or "Failed"), response.message, 160, false,
+
+        --     function()
+        --         if(response.success == true) then
+        --             OpenWindow(NewWorkspacePath(response.path).ParentPath.path)
+        --         end
+        --     end
+        -- )
     end
 
 end
@@ -2407,14 +2460,18 @@ function OnFileActionNextStep()
     if(progressModal == nil) then
         --
         --   -- Create the model
-        progressModal = ProgressModal:Init("File Action " .. fileAction, editorUI)
+        progressModal = ProgressModal:Init("File Action ", editorUI)
 
         -- Open the modal
         pixelVisionOS:OpenModal(progressModal)
 
     end
 
-    progressModal:UpdateMessage(fileActionCounter, fileActionActiveTotal, fileAction)
+    local message = fileAction .. " "..string.lpad(tostring(fileActionCounter), string.len(tostring(fileActionActiveTotal)), "0") .. " of " .. fileActionActiveTotal .. ".\n\n\nDo not restart or shut down Pixel Vision 8."
+
+    local percent = (fileActionCounter / fileActionActiveTotal)
+
+    progressModal:UpdateMessage(message, percent)
 
     local destPath = fileAction == "delete" and fileActionDest or NewWorkspacePath(fileActionDest.Path .. srcPath.Path:sub( #fileActionSrc.Path + 1))
 

@@ -3,11 +3,11 @@
     "GameChip":
     {
         "savedData":{
-            "selection": "0",
+            "showUpgrade": "true",
+            "lastPath": "/Workspace/MyGame/Builds/Build/",
+            "sessionID": "202003061424068960",
             "scrollPos": "0",
-            "sessionID": "202003041409426710",
-            "lastPath": "/Workspace/MyGame/",
-            "showUpgrade": "true"
+            "selection": "0"
         }
     }
 }

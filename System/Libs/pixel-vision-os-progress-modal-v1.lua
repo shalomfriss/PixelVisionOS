@@ -94,16 +94,7 @@ function ProgressModal:Open()
 
 end
 
-function ProgressModal:UpdateMessage(currentItem, total, action)
-
-  local message = action .. " "..string.lpad(tostring(currentItem), string.len(tostring(total)), "0") .. " of " .. fileActionActiveTotal .. ".\n\n\nDo not restart or shut down Pixel Vision 8."
-
-  local percent = (currentItem / total)
-
-  -- Need to calculate the height ahead of time
-  -- Draw message text
-  local wrap = WordWrap(message, (self.rect.w / 4) - 4)
-  self.lines = SplitLines(wrap)
+function ProgressModal:UpdatePercentage(percent)
 
   -- Draw message text
   local total = #self.lines
@@ -137,7 +128,21 @@ function ProgressModal:UpdateMessage(currentItem, total, action)
 
   self.canvas:DrawPixels(self.rect.x, self.rect.y, DrawMode.TilemapCache)
 
-  -- print("focus", self.cancelBtnData.inFocus)
+end
+
+
+function ProgressModal:UpdateMessage(message, percent)
+
+  -- local message = action .. " "..string.lpad(tostring(currentItem), string.len(tostring(total)), "0") .. " of " .. fileActionActiveTotal .. ".\n\n\nDo not restart or shut down Pixel Vision 8."
+
+  -- local percent = (currentItem / total)
+
+  -- Need to calculate the height ahead of time
+  -- Draw message text
+  local wrap = WordWrap(message, (self.rect.w / 4) - 4)
+  self.lines = SplitLines(wrap)
+
+  self:UpdatePercentage(percent)
 
   if(self.cancelBtnData.inFocus) then
     self.editorUI.mouseCursor:SetCursor(2, false)
