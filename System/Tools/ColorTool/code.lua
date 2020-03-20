@@ -638,7 +638,7 @@ function OnSave()
     pixelVisionOS:CopyToolColorsToGameMemory()
 
     -- These are the default flags we are going to save
-    local flags = {SaveFlags.System, SaveFlags.Meta, SaveFlags.Colors, SaveFlags.ColorMap}
+    local flags = {SaveFlags.System, SaveFlags.Meta, SaveFlags.Colors, SaveFlags.Sprites}
 
     -- TODO need to tell if we are not in palette mode any more and recolor sprites and delete color-map.png file?
 
@@ -658,7 +658,7 @@ function OnSave()
         end
 
         -- Add the sprite flag
-        table.insert(flags, SaveFlags.Sprites)
+        -- table.insert(flags, SaveFlags.Sprites)
 
         spritesInvalid = false
 

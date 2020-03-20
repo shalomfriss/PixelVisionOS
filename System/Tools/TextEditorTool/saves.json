@@ -5,10 +5,10 @@
         "savedData":{
             "scroll": "1,1",
             "selectedSprite": "0",
-            "cursor": "5,1",
+            "cursor": "1,1",
             "rootDirectory": "/Workspace/HelloWorld/",
-            "sessionID": "202003041409426710",
-            "targetFile": "/Disks/DiskTest/test.json"
+            "sessionID": "202003191232272784",
+            "targetFile": "/Workspace/MyGame/info.json"
         }
     }
 }

@@ -2272,6 +2272,7 @@ function Update(timeDelta)
 
         local total = ReadExportPercent()
 
+        print("total", total)
         if(total >=100) then
             
             buildingDisk = false
@@ -2357,19 +2358,19 @@ end
 
 function OnExportGame()
 
-    local buildTool = editorMapping["build"]
+    -- local buildTool = editorMapping["build"]
 
-    -- Look to see if there is a build tool
-    if(buildTool ~= nil) then
+    -- -- Look to see if there is a build tool
+    -- if(buildTool ~= nil) then
 
-        -- Pass in the current directory
-        local metaData = {
-            directory = currentDirectory.Path,
-        }
-        -- Load the build tool and pass the current directory
-        LoadGame(buildTool, metaData)
+    --     -- Pass in the current directory
+    --     local metaData = {
+    --         directory = currentDirectory.Path,
+    --     }
+    --     -- Load the build tool and pass the current directory
+    --     LoadGame(buildTool, metaData)
 
-    else
+    -- else
 
         local srcPath = currentDirectory
         local destPath = srcPath.AppendDirectory("Builds")
@@ -2377,7 +2378,7 @@ function OnExportGame()
         local dataFile = srcPath.AppendFile("data.json")
 
         -- TODO need to read game name from info file
-        if(PathExists(srcPath.AppendDirectory("info.json")) == false) then
+        if(PathExists(infoFile) == false) then
             SaveText(infoFile, "{\"name\":\""..srcPath.EntityName.."\"}")
         end
 
@@ -2409,7 +2410,40 @@ function OnExportGame()
             gameFiles[srcFile] = destFile
         end
 
+        -- Add shared library files
+
+        -- Get all of the shared library paths
+        local libPath = SharedLibPaths()
+
+        -- Load libs and split
+        local includedLibs = string.split((metaData["includeLibs"] or ""), ",")
+
+        local test = dump(libPath)
+
+        for i = 1, #libPath do
+            
+            local tmpFiles = GetEntities(libPath[i])
+
+            for i = 1, #tmpFiles do
+                
+                local srcFile = tmpFiles[i]
+
+                if(srcFile.IsFile and srcFile.GetExtension() == ".lua") then
+
+                        if(gameFiles[srcFile] ==nil and table.indexOf(includedLibs, srcFile.EntityNameWithoutExtension) > - 1) then
+                        local destFile = NewWorkspacePath("/" .. srcFile.EntityName)
+                        gameFiles[srcFile] = destFile
+                    end
+                    
+                end
+
+            end
+
+        end
+
         local response = CreateDisk(gameName, gameFiles, destPath, maxSize)
+
+        local debugResponse = dump(response)
 
         buildingDisk = true
 
@@ -2433,9 +2467,10 @@ function OnExportGame()
         --         end
         --     end
         -- )
-    end
+    -- end
 
 end
+
 local pathRemap = {}
 
 function OnFileActionNextStep()

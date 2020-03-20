@@ -11,7 +11,6 @@
 -- Load in the editor framework script to access tool components
 LoadScript("sb-sprites")
 LoadScript("pixel-vision-os-v2")
-LoadScript("pixel-vision-os-color-picker-v2")
 
 local toolName = "Image Preview"
 local debugMode = false
@@ -20,12 +19,8 @@ local editorUI = nil
 local invalid = true
 local rootDirectory = nil
 local viewport = {x = 8, y = 24, w = 224, h = 184}
-local mouseOrigin = {x = 0, y = 0}
 local boundary = {x = 0, y = 0, w = 0, h = 0}
 local scrollPos = {x = 0, y = 0}
-local isPanning = false
-local scrollDelay = .2
-local scrollTime = 0
 local imageLoaded = false
 
 function Init()
@@ -85,8 +80,6 @@ function Init()
             end
         )
     end
-
-
 
 end
 
@@ -241,6 +234,8 @@ function OnImageLoaded()
 
     colorMemoryCanvas:SetPixels(pixels)
 
+    InvalidateMap()
+
 end
 
 function Update(timeDelta)
@@ -270,7 +265,6 @@ function Update(timeDelta)
             end
 
         end
-
 
         -- Only update the tool's UI when the modal isn't active
         if(targetFile ~= nil and toolLoaded == true) then
@@ -302,12 +296,8 @@ function Draw()
 
     if(mapInvalid == true and toolLoaded == true and pixelVisionOS:IsModalActive() == false) then
 
-        -- update the scroll position
-
-        -- print("Render", scrollPos.x, scrollPos.y)
         gameEditor:ScrollPosition(scrollPos.x, scrollPos.y)
 
-        local useBG = false
         local bgColor = pixelVisionOS.emptyColorID
 
         gameEditor:CopyRenderToDisplay(viewport.x, viewport.y, viewport.w, viewport.h, 256, bgColor)
