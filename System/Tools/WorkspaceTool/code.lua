@@ -391,7 +391,7 @@ function DrawWallpaper()
     -- Set up logo values
     local logoSpriteData = runningFromDisk == false and _G["logo"] or nil
     local colorOffset = 0
-    local backgroundColor = tonumber(ReadBiosData("DefaultBackgroundColor", "5"))
+    local backgroundColor = runningFromDisk == false and tonumber(ReadBiosData("DefaultBackgroundColor", "5")) or 8 -- TODO Changed this to red so I can tell when I'm running off the disk or not easier
 
     if(runnerName == DrawVersion) then
         logoSpriteData = _G["logodraw"]
@@ -1869,6 +1869,11 @@ function OnWindowIconClick(id)
             end
         end
 
+        -- When trying to load a tilemap.png file, check if there is a json file first
+        if(type == "tiles" and PathExists(currentDirectory.AppendFile("tilemap.json"))) then
+            -- Change the type to PNG so the image editor is used instead of the tilemap editor
+            type = "png"
+        end
 
         -- Find the correct editor from the list
         local editorPath = editorMapping[type]
@@ -2358,20 +2363,6 @@ end
 
 function OnExportGame()
 
-    -- local buildTool = editorMapping["build"]
-
-    -- -- Look to see if there is a build tool
-    -- if(buildTool ~= nil) then
-
-    --     -- Pass in the current directory
-    --     local metaData = {
-    --         directory = currentDirectory.Path,
-    --     }
-    --     -- Load the build tool and pass the current directory
-    --     LoadGame(buildTool, metaData)
-
-    -- else
-
         local srcPath = currentDirectory
         local destPath = srcPath.AppendDirectory("Builds")
         local infoFile = srcPath.AppendFile("info.json")
@@ -2457,21 +2448,7 @@ function OnExportGame()
     
         end
 
-        -- pixelVisionOS:OpenModal(progressModal)
-
-        -- pixelVisionOS:ShowMessageModal("Build " .. (response.success == true and "Complete" or "Failed"), response.message, 160, false,
-
-        --     function()
-        --         if(response.success == true) then
-        --             OpenWindow(NewWorkspacePath(response.path).ParentPath.path)
-        --         end
-        --     end
-        -- )
-    -- end
-
 end
-
-local pathRemap = {}
 
 function OnFileActionNextStep()
 
