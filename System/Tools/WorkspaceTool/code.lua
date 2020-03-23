@@ -520,7 +520,13 @@ function OnRenameFile(text)
 
         end
 
-        MoveTo(NewWorkspacePath(file.path), NewWorkspacePath(file.parentPath .. text))
+        local newPath = NewWorkspacePath(file.parentPath .. text)
+
+        if(PathExists(newPath) == false) then
+            MoveTo(NewWorkspacePath(file.path), newPath)
+        else
+            pixelVisionOS:ShowMessageModal("Rename File Error", "A file with the same name already exists.", 160, false)
+        end
 
         RefreshWindow()
         -- end
@@ -916,14 +922,6 @@ function RebuildDesktopIcons()
         })
     end
 
-    --
-    --
-    -- for k, v in pairs(disks) do
-    --   -- print(k, v)
-    --
-    --
-    --
-    -- end
 
     -- Draw desktop icons
     local startY = 16
@@ -1320,8 +1318,7 @@ function OpenWindow(path, scrollTo, selection)
     -- Get the list of files from the Lua Service
     files = GetDirectoryContents(currentDirectory)
 
-    -- Save a count of the files before we add the special files to the list
-    fileCount = #files
+    
 
     -- TODO need to see if the game can be run only if there is a code file
 
@@ -1365,6 +1362,9 @@ function OpenWindow(path, scrollTo, selection)
 
         )
     end
+
+    -- Save a count of the files after we add the special files to the list
+    fileCount = #files
 
     -- Enable the scroll bar if needed
     editorUI:Enable(vSliderData, #files > totalPerWindow)
@@ -1968,7 +1968,6 @@ function DrawWindow(files, startID, total)
 
     for i = 1, total do
 
-
         -- Calculate the real index
         local fileID = i + startID
 
@@ -2082,9 +2081,6 @@ function OnOverDropTarget(src, dest)
 
         editorUI:HighlightIconButton(dest, true)
 
-
-        -- overTarget = dest
-
     end
 
 end
@@ -2156,6 +2152,9 @@ function GetIconSpriteName(item)
 
 end
 
+local filePos = NewPoint()
+local currentSelectionID = 0
+
 -- The Update() method is part of the game's life cycle. The engine calls Update() on every frame
 -- before the Draw() method. It accepts one argument, timeDelta, which is the difference in
 -- milliseconds since the last frame.
@@ -2201,9 +2200,6 @@ function Update(timeDelta)
             -- Create a new piont to see if we need to change the sprite position
             local newPos = NewPoint(0, 0)
 
-            local columns = 3
-            local rows = 1
-
             -- Offset the new position by the direction button
             if(Key(Keys.Up, InputState.Released)) then
                 newPos.y = -1
@@ -2218,15 +2214,31 @@ function Update(timeDelta)
             -- Test to see if the new position has changed
             if(newPos.x ~= 0 or newPos.y ~= 0) then
 
-                -- TODO need to wire this up correctly
-                local currentSelectionID = 0
+                -- local currentSelection = CurrentlySelectedFile()--spritePickerData.picker.enabled == true and spritePickerData.currentSelection or flagPicker.selected
+
+                -- local debug = dump(currentSelection)
+
+                local columns = 3
+                local rows = math.ceil(fileCount / columns)
 
                 local curPos = CalculatePosition(currentSelectionID, columns)
 
                 newPos.x = Clamp(curPos.x + newPos.x, 0, columns - 1)
                 newPos.y = Clamp(curPos.y + newPos.y, 0, rows - 1)
 
-                local newIndex = CalculateIndex(newPos.x, newPos.y, columns)
+                currentSelectionID = CalculateIndex(newPos.x, newPos.y, columns)
+
+                print("pos", currentSelectionID, Clamp(CalculateIndex(newPos.x, newPos.y, columns) + 1, 1, fileCount), curPos, newPos)
+
+                -- editorUI:SelectIconButton(windowIconButtons, currentSelectionID, true)
+                -- OnWindowIconSelect(currentSelectionID)
+
+                -- if(spritePickerData.picker.enabled == true) then
+                --     ChangeSpriteID(newIndex)
+                -- else
+                --     editorUI:SelectPicker(flagPicker, newIndex)
+                --     -- print("Select flag", newIndex)
+                -- end
 
             end
 
@@ -2240,7 +2252,6 @@ function Update(timeDelta)
         editorUI:UpdateSlider(vSliderData)
 
         if(editorUI.collisionManager.mouseDown and desktopHitRect:Contains(editorUI.collisionManager.mousePos.x, editorUI.collisionManager.mousePos.y) and editorUI.cursorID == 1) then
-
             if(windowIconButtons ~= nil and windowIconButtons.currentSelection > 0) then
                 editorUI:ClearIconGroupSelections(windowIconButtons)
             elseif(desktopIconButtons.currentSelection > 0) then
@@ -2253,12 +2264,10 @@ function Update(timeDelta)
 
     if(fileActionActive == true) then
 
-
         fileActionActiveTime = fileActionActiveTime + timeDelta
 
         if(fileActionActiveTime > fileActionDelay) then
             fileActionActiveTime = 0
-
 
             OnFileActionNextStep()
 

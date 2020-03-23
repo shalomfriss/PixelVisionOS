@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "spriteSize": "1",
-            "SpriteSize": "undefined",
+            "editing": "undefined",
+            "sessionID": "202003220659232029",
+            "rootDirectory": "/Workspace/FileSystemTest/MusicTool/",
             "selectedSprite": "0",
-            "rootDirectory": "/Workspace/ArtPacks/DragonSweeper/",
-            "sessionID": "202003210834138222",
-            "editing": "undefined"
+            "SpriteSize": "undefined",
+            "spriteSize": "1"
         }
     }
 }

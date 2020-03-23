@@ -83,3 +83,4 @@ function GetDirectoryContents(workspacePath)
   return entities
 
 end
+
