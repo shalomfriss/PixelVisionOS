@@ -320,7 +320,7 @@ function PixelVisionOS:OnColorPickerPage(data, value)
   data.lastSelectedPage = value
 
   -- Reset the scroll bar
-  editorUI:ChangeSlider(data.vSlider, 0, false)
+  -- editorUI:ChangeSlider(data.vSlider, 0, false)
 
   local maxTotal = value * data.totalPerPage
 

@@ -122,9 +122,13 @@ function PixelVisionOS:OnSpritePickerPage(data, value)
   -- Select the correct toggle button
   editorUI:SelectToggleButton(data.pages, value)
 
-  -- Reset the scroll bar
-  editorUI:ChangeSlider(data.vSlider, 0, false)
-
+  if(data.vSlider ~= nil) then
+  
+    -- Reset the scroll bar
+    editorUI:ChangeSlider(data.vSlider, 0, false)
+  
+  end
+  
   -- Invalidate the display
   self:InvalidateItemPickerDisplay(data)
 

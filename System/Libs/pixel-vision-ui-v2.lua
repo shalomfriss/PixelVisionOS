@@ -148,6 +148,7 @@ function EditorUI:CreateData(rect, spriteName, toolTip, forceDraw)
             data.rect.h = 0
         end
 
+        local debug = dump(data.rect)
         -- Calculate tile dimensions
         data.tiles = {
             c = math.floor(data.rect.x / self.spriteSize.x),

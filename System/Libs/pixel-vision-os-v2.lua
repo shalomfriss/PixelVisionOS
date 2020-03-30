@@ -87,6 +87,21 @@ function PixelVisionOS:Draw()
     -- Draw modals on top
     self:DrawModal()
 
+    -- if(self.displayFPS == true) then
+
+        local fps = ReadFPS()
+
+        local color = 7
+
+        if(fps < 30) then
+            color = 9
+        elseif(fps <= 40 and fps >= 30) then
+            color = 14
+        end
+
+        DrawText(tostring(fps), Display().x - 10, Display().y - 10, DrawMode.Sprite, "medium", color, -4)
+    -- end
+
 end
 
 -- This is a helper for changing the text on the title bar

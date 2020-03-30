@@ -12,7 +12,7 @@ local validFiles =
   ".gif"
 }
 
-function GetDirectoryContents(workspacePath)
+function WorkspaceTool:GetDirectoryContents(workspacePath)
 
   -- Create empty entities table
   local entities = {}
@@ -38,8 +38,8 @@ function GetDirectoryContents(workspacePath)
         fullName = tmpEntity.EntityName,
         isDirectory = tmpEntity.IsDirectory,
 
-        parentPath = tmpEntity.ParentPath.Path,
-        path = tmpEntity.Path,
+        parentPath = tmpEntity.ParentPath,
+        path = tmpEntity,
         selected = false,
         ext = "",
         type = "none"

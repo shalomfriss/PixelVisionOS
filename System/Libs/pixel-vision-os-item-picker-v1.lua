@@ -73,12 +73,14 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
     -- Force the display to invalidate
     data.invalidateDisplay = true
 
-    data.emptyDrawArgs = {
-        {_G["emptycolor"].spriteIDs[1]},
-        0,
-        0,
-        1,
-    }
+    if(_G["emptycolor"] ~= nil) then
+        data.emptyDrawArgs = {
+            {_G["emptycolor"].spriteIDs[1]},
+            0,
+            0,
+            1,
+        }
+    end
 
     data.overItemDrawArgs = {
         nil,
@@ -89,7 +91,7 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
         false,
         false,
         DrawMode.UI,
-        self.colorOffset
+        data.colorOffset
     }
 
     data.maskSpriteDrawArgs = {
@@ -97,7 +99,7 @@ function PixelVisionOS:CreateItemPicker(rect, itemSize, columns, rows, colorOffs
         0,
         8,
         8,
-        self.colorOffset - 1, -- TODO this is a hack since maskColor ID isn't working so we assume the offset minus 1 is a mask color
+        data.colorOffset - 1, -- TODO this is a hack since maskColor ID isn't working so we assume the offset minus 1 is a mask color
         DrawMode.UI
     }
 
@@ -377,15 +379,18 @@ function PixelVisionOS:UpdateItemPicker(data)
             -- TODO this scale is off
             local tileSize = data.scale * 8
 
-            -- Update the empty tile position
-            data.emptyDrawArgs[2] = data.visibleRect.x + (data.pressSelection.x * data.itemSize.x) - data.lastStartX
-            data.emptyDrawArgs[3] = data.visibleRect.y + (data.pressSelection.y * data.itemSize.y) - data.lastStartY
+            if(data.emptyDrawArgs ~= nil) then
+                -- Update the empty tile position
+                data.emptyDrawArgs[2] = data.visibleRect.x + (data.pressSelection.x * data.itemSize.x) - data.lastStartX
+                data.emptyDrawArgs[3] = data.visibleRect.y + (data.pressSelection.y * data.itemSize.y) - data.lastStartY
 
-            -- Make sure that the empty sprites are inside the viewport before drawing them
-            if(data.viewport:Contains(NewPoint(data.emptyDrawArgs[2] - data.visibleRect.x, data.emptyDrawArgs[3] - data.visibleRect.y))) then
+                -- Make sure that the empty sprites are inside the viewport before drawing them
+                if(data.viewport:Contains(NewPoint(data.emptyDrawArgs[2] - data.visibleRect.x, data.emptyDrawArgs[3] - data.visibleRect.y))) then
 
-                -- Draw empty tiles
-                self.editorUI:NewDraw("DrawSprites", data.emptyDrawArgs)
+                    -- Draw empty tiles
+                    self.editorUI:NewDraw("DrawSprites", data.emptyDrawArgs)
+
+                end
 
             end
 
@@ -583,16 +588,18 @@ function PixelVisionOS:ChangeItemPickerScale(data, scale)
     data.tmpItemRect.width = tmpItemSize
     data.tmpItemRect.height = tmpItemSize
 
-    -- Need to resize empty sprite block
-    local emptySpriteList = {}
-    local totalSprites = scale * scale
+    if(_G["emptycolor"] ~= nil) then
+        -- Need to resize empty sprite block
+        local emptySpriteList = {}
+        local totalSprites = scale * scale
 
-    for i = 1, totalSprites do
-        table.insert(emptySpriteList, _G["emptycolor"].spriteIDs[1])
+        for i = 1, totalSprites do
+            table.insert(emptySpriteList, _G["emptycolor"].spriteIDs[1])
+        end
+
+        data.emptyDrawArgs[1] = emptySpriteList
+        data.emptyDrawArgs[4] = scale
     end
-
-    data.emptyDrawArgs[1] = emptySpriteList
-    data.emptyDrawArgs[4] = scale
 
     -- Need to update the current selection if it's not set to -1
     if(data.currentSelection > - 1) then
