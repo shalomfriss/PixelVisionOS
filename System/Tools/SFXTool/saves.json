@@ -1,1 +1,11 @@
-{"GameChip":{"savedData":{"sessionID": "202003180932049630","rootDirectory": "/Workspace/Projects/SpaceRanger/","currentID": "0"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "currentID": "0",
+            "rootDirectory": "/Workspace/MusicTool/",
+            "sessionID": "202004010931002428"
+        }
+    }
+}

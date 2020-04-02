@@ -22,6 +22,8 @@ function WorkspaceTool:Init()
     -- Get a global reference to the Editor UI
     editorUI = pixelVisionOS.editorUI
 
+    
+
     -- Create a new table for the instance with default properties
     local _workspaceTool = {
         toolName = "Workspace Explorer",
@@ -33,7 +35,6 @@ function WorkspaceTool:Init()
         editorMapping = pixelVisionOS:FindEditors(),
         uiComponents = {},
         uiTotal = 0
-
     }
 
     _workspaceTool.fileTypeMap = 
@@ -215,12 +216,12 @@ function WorkspaceTool:RestoreLastPath()
     local newPath = ReadSaveData("lastPath", "none")
     local lastScrollPos = tonumber(ReadSaveData("scrollPos", "0"))
     local lastSelection = tonumber(ReadSaveData("selection", "0"))
-    local showUpgrade = "true"
 
-    -- Read metadata last path
-    local lastPath =  ReadMetadata("overrideLastPath", "none")
+    -- Read metadata last path and default to the newPath
+    local lastPath =  ReadMetadata("overrideLastPath", newPath)
 
     if(lastPath ~= "none") then
+
         -- Clear last path from metadata
         WriteMetadata( "overrideLastPath", "none" )
 
@@ -228,21 +229,13 @@ function WorkspaceTool:RestoreLastPath()
         newPath = lastPath
         lastScrollPos = 0
         lastSelection = 0
-    end
-
-    if(SessionID() == ReadSaveData("sessionID", "")) then
-
-        showUpgrade = ReadSaveData("showUpgrade", showUpgrade)
-
-        -- TODO need to convert this to a path from the start and pass into Open window
-        if(newPath ~= "none" ) then
-            newPath =  NewWorkspacePath(newPath)
-            if(PathExists(newPath)) then
-                -- TODO need to make this work again
-                self:OpenWindow(newPath, lastScrollPos, lastSelection)
-            end
-        end
 
     end
+
+    -- Convert the path to a Workspace Path
+    newPath =  newPath == "none" and workspacePath or NewWorkspacePath(newPath)
+   
+    -- Open the window to the new path
+    self:OpenWindow(newPath, lastScrollPos, lastSelection)
 
 end

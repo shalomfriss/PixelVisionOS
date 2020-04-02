@@ -122,21 +122,25 @@ function WorkspaceTool:RebuildDesktopIcons()
             self.playingWav = false
         end
     
-        --UpdateContextMenu(DesktopIconFocus)
+        self:UpdateContextMenu(DesktopIconFocus)
     
         -- TODO this should clear the selection in a generic way
         -- Clear any window selections
-        pixelVisionOS:ClearIconGroupSelections(self.windowIconButtons)
+        -- pixelVisionOS:ClearIconGroupSelections(self.windowIconButtons)
     
-        --currentSelectedFile = nil
-    
+        -- Clear all file selections in the window
+        self:ClearSelections()
+
+        -- Redraw the window if needed to remove any current selections
+        self:RefreshWindow()
+        
     end
 
     for i = 1, #self.desktopIcons do
 
         local item = self.desktopIcons[i]
 
-        local button = pixelVisionOS:NewIconGroupButton(self.desktopIconButtons, {x = 216 - 8, y = startY}, item.sprite, item.name, item.tooltip, bgColor)
+        local button = pixelVisionOS:NewIconGroupButton(self.desktopIconButtons, NewPoint(208, startY), item.sprite, item.name, item.tooltip, bgColor)
 
         button.iconName = item.name
         button.iconType = item.type
@@ -175,7 +179,7 @@ function WorkspaceTool:RebuildDesktopIcons()
 
     local item = self.desktopIcons[#self.desktopIcons]
 
-    local trashButton = pixelVisionOS:NewIconGroupButton(self.desktopIconButtons, {x = 216 - 8, y = 200 - 2}, item.sprite, item.name, item.tooltip, bgColor)
+    local trashButton = pixelVisionOS:NewIconGroupButton(self.desktopIconButtons, NewPoint(208, 198), item.sprite, item.name, item.tooltip, bgColor)
 
     trashButton.iconName = item.name
     trashButton.iconType = item.type
@@ -208,26 +212,8 @@ function WorkspaceTool:RebuildDesktopIcons()
 
 end
 
-function WorkspaceTool:TrashOpen()
+function WorkspaceTool:ClearDesktopSelection()
 
-    return self.currentPath.Path == self.trashPath.Path
-
-end
-
-function WorkspaceTool:CanEject()
-
-    local value = false
-
-    local id = desktopIconButtons.currentSelection
-
-    if(id > 0) then
-
-        local selection = desktopIcons[id]
-
-        value = selection.name ~= "Workspace" and selection.name ~= "Trash"
-
-    end
-
-    return value
-
+    pixelVisionOS:ClearIconGroupSelections(self.desktopIconButtons)
+    
 end

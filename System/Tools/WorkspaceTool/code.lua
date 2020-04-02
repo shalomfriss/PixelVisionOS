@@ -134,11 +134,6 @@ function Init()
     workspaceTool = WorkspaceTool:Init()
 
 
-
-
-
-
-
     -- TODO legacy code
 
     -- runningFromDisk = string.starts(rootPath, "/Disks/")
@@ -558,35 +553,35 @@ end
 
 -- end
 
-function OnEmptyTrash()
+-- function OnEmptyTrash()
 
-    pixelVisionOS:ShowMessageModal("Empty Trash", "Are you sure you want to empty the trash? This can not be undone.", 160, true,
-        function()
-            if(pixelVisionOS.messageModal.selectionValue == true) then
+--     pixelVisionOS:ShowMessageModal("Empty Trash", "Are you sure you want to empty the trash? This can not be undone.", 160, true,
+--         function()
+--             if(pixelVisionOS.messageModal.selectionValue == true) then
 
-                -- Get all the files in the trash
-                filesToCopy = GetEntitiesRecursive(trashPath)
+--                 -- Get all the files in the trash
+--                 filesToCopy = GetEntitiesRecursive(trashPath)
 
-                StartFileOperation(trashPath, "delete")
+--                 StartFileOperation(trashPath, "delete")
 
-            end
+--             end
 
-        end
-    )
+--         end
+--     )
 
-end
+-- end
 
-function OnRun()
+-- function OnRun()
 
-    -- Only try to run if the directory is a game
-    if(currentDirectory == nil or pixelVisionOS:ValidateGameInDir(currentDirectory) == false) then
-        return
-    end
+--     -- Only try to run if the directory is a game
+--     if(currentDirectory == nil or pixelVisionOS:ValidateGameInDir(currentDirectory) == false) then
+--         return
+--     end
 
-    -- TODO this should also accept a workspace path?
-    LoadGame(currentDirectory.Path)
+--     -- TODO this should also accept a workspace path?
+--     LoadGame(currentDirectory.Path)
 
-end
+-- end
 
 -- function OnCopy()
 
@@ -1112,96 +1107,96 @@ function OnDesktopIconClick(value, doubleClick)
 end
 
 
-function OnNewGame()
+-- function OnNewGame()
 
-    if(PathExists(fileTemplatePath) == false) then
-        pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false)
-        return
-    end
+--     if(PathExists(fileTemplatePath) == false) then
+--         pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false)
+--         return
+--     end
 
-    newFileModal:SetText("New Project", "NewProject", "Folder Name", true)
+--     newFileModal:SetText("New Project", "NewProject", "Folder Name", true)
 
-    pixelVisionOS:OpenModal(newFileModal,
-        function()
+--     pixelVisionOS:OpenModal(newFileModal,
+--         function()
 
-            if(newFileModal.selectionValue == false) then
-                return
-            end
+--             if(newFileModal.selectionValue == false) then
+--                 return
+--             end
 
-            -- Create a new workspace path
-            local newPath = currentDirectory.AppendDirectory(newFileModal.inputField.text)
+--             -- Create a new workspace path
+--             local newPath = currentDirectory.AppendDirectory(newFileModal.inputField.text)
 
-            -- Copy the contents of the template path to the new unique path
-            CopyTo(fileTemplatePath, UniqueFilePath(newPath))
+--             -- Copy the contents of the template path to the new unique path
+--             CopyTo(fileTemplatePath, UniqueFilePath(newPath))
 
-            RefreshWindow()
+--             RefreshWindow()
 
-        end
-    )
+--         end
+--     )
 
-end
+-- end
 
-function OnNewFolder(name)
+-- function OnNewFolder(name)
 
-    if(currentDirectory == nil) then
-        return
-    end
+--     if(currentDirectory == nil) then
+--         return
+--     end
 
-    if(name == nil) then
-        name = "Untitled"
-    end
+--     if(name == nil) then
+--         name = "Untitled"
+--     end
 
-    -- Create a new unique workspace path for the folder
-    local newPath = UniqueFilePath(currentDirectory.AppendDirectory(name))
+--     -- Create a new unique workspace path for the folder
+--     local newPath = UniqueFilePath(currentDirectory.AppendDirectory(name))
 
-    -- Set the new file modal to show the folder name
-    newFileModal:SetText("New Folder", newPath.EntityName, "Folder Name", true)
+--     -- Set the new file modal to show the folder name
+--     newFileModal:SetText("New Folder", newPath.EntityName, "Folder Name", true)
 
-    -- Open the new file modal before creating the folder
-    pixelVisionOS:OpenModal(newFileModal,
-        function()
+--     -- Open the new file modal before creating the folder
+--     pixelVisionOS:OpenModal(newFileModal,
+--         function()
 
-            if(newFileModal.selectionValue == false) then
-                return
-            end
+--             if(newFileModal.selectionValue == false) then
+--                 return
+--             end
 
 
 
-            -- Create a new workspace path
-            local filePath = currentDirectory.AppendDirectory(newFileModal.inputField.text)
+--             -- Create a new workspace path
+--             local filePath = currentDirectory.AppendDirectory(newFileModal.inputField.text)
 
-            -- Make sure the path doesn't exist before trying to make a new directory
-            if(PathExists(filePath) == false) then
+--             -- Make sure the path doesn't exist before trying to make a new directory
+--             if(PathExists(filePath) == false) then
 
-                -- This is a bit of a hack to get around an issue creating folders on disks.
+--                 -- This is a bit of a hack to get around an issue creating folders on disks.
 
-                -- Test to see if we are creating a folder on a disk
-                if(string.starts(filePath.Path, "/Disks/")) then
+--                 -- Test to see if we are creating a folder on a disk
+--                 if(string.starts(filePath.Path, "/Disks/")) then
 
-                    -- Create a new path in the tmp directory
-                    local tmpPath = UniqueFilePath(NewWorkspacePath("/Tmp/"..newFileModal.inputField.text .. "/"))
+--                     -- Create a new path in the tmp directory
+--                     local tmpPath = UniqueFilePath(NewWorkspacePath("/Tmp/"..newFileModal.inputField.text .. "/"))
 
-                    -- Create a new folder in the tmp directory
-                    CreateDirectory(tmpPath)
+--                     -- Create a new folder in the tmp directory
+--                     CreateDirectory(tmpPath)
 
-                    -- Move the folder from tmp to the new location
-                    MoveTo(tmpPath, filePath)
+--                     -- Move the folder from tmp to the new location
+--                     MoveTo(tmpPath, filePath)
 
-                else
-                    -- Create a new directory
-                    CreateDirectory(filePath)
+--                 else
+--                     -- Create a new directory
+--                     CreateDirectory(filePath)
 
-                end
+--                 end
 
-                -- Refresh the window to show the new folder
-                RefreshWindow()
+--                 -- Refresh the window to show the new folder
+--                 RefreshWindow()
 
-            end
+--             end
 
-        end
-    )
+--         end
+--     )
 
-end
+-- end
 
 -- function OnDeleteFile(path)
 

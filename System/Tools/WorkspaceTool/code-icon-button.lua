@@ -14,12 +14,17 @@
 -- Shawn Rakowski - @shwany
 --
 
-function PixelVisionOS:CreateIconButton(rect, spriteName, label, toolTip, bgColor)
+function PixelVisionOS:CreateIconButton(point, spriteName, label, toolTip, bgColor)
 
     -- TODO Create custom button states?
 
-    -- Use the same data as the button
-    local data = self.editorUI:CreateButton(rect, spriteName, toolTip)
+    label = label or ""
+
+    -- TODO this need to be changed to a real rect when refactoring the components
+    local tmpRect = {x = point.X, y = point.y, w = 48, h = 40}
+    
+    -- Use the same data as the button (but don't pass in a sprite)
+    local data = self.editorUI:CreateButton(tmpRect, nil, toolTip)
 
     data.name = "Icon" .. data.name
 
@@ -52,13 +57,12 @@ function PixelVisionOS:CreateIconButton(rect, spriteName, label, toolTip, bgColo
 
     data.bgDrawArgs = {data.rect.x, data.rect.y, data.rect.w, data.rect.h, bgColor, DrawMode.TilemapCache}
 
-
     self:CreateIconButtonStates(data, spriteName, label)
 
-    -- Modify the hit rect to the new rect position
-    data.hitRect = {x = data.rect.x + 12, y = data.rect.y, w = data.rect.w, h = data.rect.h}
+    -- Modify the hit rect around the icon
+    data.hitRect = {x = data.rect.x + 12, y = data.rect.y, w = 24, h = 24}
 
-    -- TODO the size isn't correct since the icon sits inside of the 48x40 pixel area
+    -- TODO we need multiple hitRects for this to support clicking on the label as well
 
     return data
 
@@ -66,121 +70,131 @@ end
 
 function PixelVisionOS:CreateIconButtonStates(data, spriteName, text)
 
-    local size = NewPoint(48, 40)
+    -- Make sure the spriteName and text have changed before rebuilding the states
+    if(data.spriteName == spriteName and text == data.toolTip) then
+        return
+    end
+
+    data.spriteName = spriteName
+
+    -- Clear the cached pixel data
     data.cachedPixelData = {}
 
-    -- TODO need to resize the button to match the correct dimensions
+    if(spriteName == "none") then
 
-    -- TODO need to create a new state for dragging with transparent background
+        self.editorUI:NewDraw("DrawRect", data.bgDrawArgs)
 
-    local states = {"up", "over", "openup", "selectedup", "disabled", "dragging"}--, "selectedup", "openup"}
+    else
 
-    for i = 1, #states do
+        local states = {"up", "over", "openup", "selectedup", "disabled", "dragging"}
 
-        local state = states[i]
-        local canvas = NewCanvas(size.x, size.y)
+        for i = 1, #states do
 
-        -- Change the sprite state to accommodate for the fact that there is no dragging sprite
-        local spriteState = state == "dragging" and "up" or state
+            local state = states[i]
+            local canvas = NewCanvas(data.rect.w, data.rect.h)
 
-        if(state == "over") then
-            -- print("OVER")
-            state = "over"
-            spriteState = "selectedup"
-        end
-        -- Clear the canvas to the default background color
-        canvas:Clear(-1)
+            -- Change the sprite state to accommodate for the fact that there is no dragging sprite
+            local spriteState = state == "dragging" and "up" or state
 
-        -- Get the background color
-        local bgColor = state ~= "dragging" and data.bgDrawArgs[5] or - 1
-
-        -- Set the stroke and pattern to clear any previous icon this draws over
-        canvas:SetStroke({bgColor}, 1, 1)
-        canvas:SetPattern({bgColor}, 1, 1)
-
-        local offset = 12
-
-        -- Clear icon background
-        canvas:DrawSquare(offset, 0, 24 + offset, 24, true)
-
-        -- Create states
-        if(spriteName == nil) then
-            spriteName = "fileunknown"
-        end
-
-        local spriteData = _G[spriteName .. spriteState]
-        -- print("state", state, spriteState, spriteName, states[i])
-        if(spriteData ~= nil) then
-            -- print("spriteName", spriteName, spriteState, spriteData ~= nil)
-
-            local tmpX = math.floor((size.x - spriteData.width * 8) * .5)
-
-            canvas:DrawSprites(spriteData.spriteIDs, tmpX, 0, spriteData.width)
-
-            -- TODO need to manually split the text
-
-            local lines = {""}
-            local counter = 0
-            local maxWidth = 11
-            local maxChars = maxWidth * 2
-
-            if(#text > maxChars) then
-                text = text:sub(0, maxChars - 3) .. "..."
+            if(state == "over") then
+                -- print("OVER")
+                state = "over"
+                spriteState = "selectedup"
             end
 
-            -- print("Total Chars", #text)
-            for i = 1, #text do
+            -- Clear the canvas to the default background color
+            canvas:Clear(-1)
 
-                lines[#lines] = lines[#lines] .. text:sub(i, i):upper()
+            -- Get the background color
+            local bgColor = state ~= "dragging" and data.bgDrawArgs[5] or - 1
 
-                if(i % maxWidth == 0 and i ~= #text)then
-                    table.insert(lines, "")
-                end
+            -- Set the stroke and pattern to clear any previous icon this draws over
+            canvas:SetStroke({bgColor}, 1, 1)
+            canvas:SetPattern({bgColor}, 1, 1)
 
+            local offset = 12
+
+            -- Clear icon background
+            canvas:DrawSquare(offset, 0, 24 + offset, 24, true)
+
+            -- Create states
+            if(spriteName == nil) then
+                spriteName = "fileunknown"
             end
 
-            -- Clear the area for the text
-            canvas:DrawSquare(0, 24, size.x - 2, 24 + 14, true)
+            local spriteData = _G[spriteName .. spriteState]
+            
+            if(spriteData ~= nil) then
+                
+                local tmpX = math.floor((data.rect.w - spriteData.width * 8) * .5)
 
-            for i = 1, #lines do
+                canvas:DrawSprites(spriteData.spriteIDs, tmpX, 0, spriteData.width)
 
-                -- Get the current line
-                local line = lines[i]
+                local lines = {""}
+                local counter = 0
+                local maxWidth = 11
+                local maxChars = maxWidth * 2
 
-                -- Calculate the centered text
-                local x = (size.x - (#line * 4)) * .5
-
-                -- Calculate the y position
-                local y = ((i - 1) * 6) + 24
-
-                local textColor = state == "up" and 0 or 15
-
-                if(state == "dragging") then
-                    textColor = 15
+                if(#text > maxChars) then
+                    text = text:sub(0, maxChars - 3) .. "..."
                 end
 
-                if(state == "disabled") then
-                    textColor = 12
-                end
+                for i = 1, #text do
 
-                if(textColor == 15) then
+                    lines[#lines] = lines[#lines] .. text:sub(i, i):upper()
 
-                    -- Set the background color to black since the text is white
-                    canvas:SetStroke({0}, 1, 1)
-                    canvas:SetPattern({0}, 1, 1)
-
-                    canvas:DrawSquare(x - 1, y + 1, (x ) + (#line * 4) - 1, (y) + 7, true)
+                    if(i % maxWidth == 0 and i ~= #text)then
+                        table.insert(lines, "")
+                    end
 
                 end
-                -- Draw the text
-                canvas:DrawText(line, x, y, "medium", textColor, - 4)
+
+                -- Clear the area for the text
+                canvas:DrawSquare(0, 24, data.rect.w - 2, 24 + 14, true)
+
+                for i = 1, #lines do
+
+                    -- Get the current line
+                    local line = lines[i]
+
+                    -- Calculate the centered text
+                    local x = (data.rect.w - (#line * 4)) * .5
+
+                    -- Calculate the y position
+                    local y = ((i - 1) * 6) + 24
+
+                    local textColor = state == "up" and 0 or 15
+
+                    if(state == "dragging") then
+                        textColor = 15
+                    end
+
+                    if(state == "disabled") then
+                        textColor = 12
+                    end
+
+                    if(textColor == 15) then
+
+                        -- Set the background color to black since the text is white
+                        canvas:SetStroke({0}, 1, 1)
+                        canvas:SetPattern({0}, 1, 1)
+
+                        canvas:DrawSquare(x - 1, y + 1, (x ) + (#line * 4) - 1, (y) + 7, true)
+
+                    end
+
+                    -- Draw the text
+                    canvas:DrawText(line, x, y, "medium", textColor, - 4)
+
+                end
+
+                data.cachedPixelData[states[i]] = canvas
 
             end
-
-            -- print("save", states[i])
-            data.cachedPixelData[states[i]] = canvas
-
         end
+
+        editorUI:Invalidate(data)
+
     end
 
 end
@@ -417,10 +431,10 @@ function PixelVisionOS:CreateIconGroup(singleSelection)
 end
 
 -- Helper method that created a toggle button and adds it to the group
-function PixelVisionOS:NewIconGroupButton(data, rect, spriteName, label, toolTip, bgColor)
+function PixelVisionOS:NewIconGroupButton(data, point, spriteName, label, toolTip, bgColor)
 
     -- Create a new toggle group button
-    local buttonData = self:CreateIconButton(rect, spriteName, label, toolTip, bgColor)
+    local buttonData = self:CreateIconButton(point, spriteName, label, toolTip, bgColor)
 
     -- Add the new button to the toggle group
     self:IconGroupAddButton(data, buttonData)

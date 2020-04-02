@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "editing": "undefined",
-            "sessionID": "202003220659232029",
-            "rootDirectory": "/Workspace/FileSystemTest/MusicTool/",
-            "selectedSprite": "0",
+            "spriteSize": "1",
             "SpriteSize": "undefined",
-            "spriteSize": "1"
+            "selectedSprite": "14",
+            "rootDirectory": "/Disks/PixelVisionOS/System/Tools/WorkspaceTool/",
+            "sessionID": "202004010931002428",
+            "editing": "undefined"
         }
     }
 }

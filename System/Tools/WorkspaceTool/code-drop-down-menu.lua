@@ -1,8 +1,16 @@
+-- Global sortcut enums
+NewFolderShortcut, EditShortcut, RenameShortcut, CopyShortcut, PasteShortcut, DeleteShortcut, EmptyTrashShortcut, EjectDiskShortcut, NewGameShortcut, RunShortcut, BuildShortcut = "New Folder", "Edit", "Rename", "Copy", "Paste", "Delete", "Empty Trash", "Eject Disk", nil, nil, nil 
+
+-- Global focus enums
+WindowFocus, DesktopIconFocus, WindowIconFocus, MultipleFiles, NoFocus = 1, 2, 3, 4, 5
+
 function WorkspaceTool:CreateDropDownMenu()
 
-    -- Create some enums for the focus types
-    self.WindowFocus, self.DesktopIconFocus, self.WindowIconFocus, self.MultipleFiles, self.NoFocus = 1, 2, 3, 4, 5
+    local tmpProjectPath = ReadBiosData("ProjectTemplate")
+    self.fileTemplatePath = tmpProjectPath == nil and NewWorkspacePath(self.rootPath .. self.gameName .. "/ProjectTemplate/") or NewWorkspacePath(tmpProjectPath)
 
+    -- Create some enums for the focus typess
+    
     -- TODO need to see if the log file actually exists
     local logExits = PathExists(NewWorkspacePath("/Tmp/Log.txt"))--true
 
@@ -26,136 +34,135 @@ function WorkspaceTool:CreateDropDownMenu()
         {name = "Settings", action = function() self:OnLaunchSettings() end, toolTip = "Configure Pixel Vision OS's Settings."},
         -- Settings ID 3
         {name = "View Log", enabled = logExits, action = function() self:OnLaunchLog() end, toolTip = "Open up the log file."},
+        
         {divider = true},
 
-        -- -- New Folder ID 5
-        -- {name = "New Folder", action = OnNewFolder, key = Keys.N, enabled = false, toolTip = "Create a new file."},
+        -- New Folder ID 5
+        {name = "New Folder", action = function() self:OnNewFolder() end, key = Keys.N, enabled = false, toolTip = "Create a new file."},
 
-        -- {divider = true},
+        {divider = true},
 
-        -- -- Edit ID 7
-        -- -- {name = "Edit", key = Keys.E, action = OnEdit, enabled = false, toolTip = "Edit the selected file."},
-        -- -- Edit ID 8
-        -- {name = "Rename", action = OnTriggerRename, enabled = false, toolTip = "Rename the currently selected file."},
-        -- -- Copy ID 9
-        -- {name = "Copy", key = Keys.C, action = OnCopy, enabled = false, toolTip = "Copy the selected file."},
-        -- -- Paste ID 10
-        -- {name = "Paste", key = Keys.V, action = OnPaste, enabled = false, toolTip = "Paste the selected file."},
-        -- -- Delete ID 11
-        -- {name = "Delete", key = Keys.D, action = OnDeleteFile, enabled = false, toolTip = "Delete the current file."},
-        -- {divider = true},
+        -- Edit ID 7
+        -- {name = "Edit", key = Keys.E, action = OnEdit, enabled = false, toolTip = "Edit the selected file."},
+        -- Edit ID 8
+        {name = "Rename", action = function() self:OnTriggerRename() end, enabled = false, toolTip = "Rename the currently selected file."},
+        -- Copy ID 9
+        {name = "Copy", key = Keys.C, action = function() self:OnCopy() end, enabled = false, toolTip = "Copy the selected file."},
+        -- Paste ID 10
+        {name = "Paste", key = Keys.V, action = function() self:OnPaste() end, enabled = false, toolTip = "Paste the selected file."},
+        -- Delete ID 11
+        {name = "Delete", key = Keys.D, action = function() self:OnDeleteFile() end, enabled = false, toolTip = "Delete the current file."},
+        {divider = true},
 
-        -- -- Empty Trash ID 16
-        -- {name = "Empty Trash", action = OnEmptyTrash, enabled = false, toolTip = "Delete everything in the trash."},
-        -- -- Eject ID 17
-        -- {name = "Eject Disk", action = OnEjectDisk, enabled = false, toolTip = "Eject the currently selected disk."},
-        -- -- Shutdown ID 18
+        -- Empty Trash ID 16
+        {name = "Empty Trash", action = function() self:OnEmptyTrash() end, enabled = false, toolTip = "Delete everything in the trash."},
+        -- Eject ID 17
+        {name = "Eject Disk", action = function() self:OnEjectDisk() end, enabled = false, toolTip = "Eject the currently selected disk."},
+        -- Shutdown ID 18
         {name = "Shutdown", action = function() self:OnShutdown() end, toolTip = "Shutdown PV8."} -- Quit the current game
     }
 
-    -- local addAt = 6
+    local addAt = 6
 
-    -- if(PathExists(fileTemplatePath) == true) then
+    if(PathExists(self.fileTemplatePath) == true) then
 
-    --     table.insert(menuOptions, addAt, {name = "New Project", key = Keys.P, action = OnNewGame, enabled = false, toolTip = "Create a new file."})
+        table.insert(menuOptions, addAt, {name = "New Project", key = Keys.P, action = function() self:OnNewGame() end, enabled = false, toolTip = "Create a new file."})
 
-    --     NewGameShortcut = "New Project"
+        NewGameShortcut = "New Project"
 
-    --     addAt = addAt + 1
+        addAt = addAt + 1
 
-    -- end
+    end
 
-    -- newFileOptions = {}
+    self.newFileOptions = {}
 
-    -- -- TODO this should be done better
+    -- TODO this should be done better
 
     -- if(runnerName == DrawVersion or runnerName == TuneVersion) then
 
-    --     table.insert(menuOptions, addAt, {name = "New Data", action = function() OnNewFile("data", "json", "data", false) end, enabled = false, toolTip = "Run the current game."})
-    --     table.insert(newFileOptions, {name = "New Data", file = "data.json"})
-    --     addAt = addAt + 1
+        table.insert(menuOptions, addAt, {name = "New Data", action = function() self:OnNewFile("data", "json", "data", false) end, enabled = false, toolTip = "Run the current game."})
+        table.insert(self.newFileOptions, {name = "New Data", file = "data.json"})
+        addAt = addAt + 1
 
-    --     -- table.insert(menuOptions, addAt, {name = "New Info", action = function() OnNewFile("info", "json", "info", false) end, enabled = false, toolTip = "Run the current game."})
-    --     -- table.insert(newFileOptions, {name = "New Info", file = "info.json"})
-    --     -- addAt = addAt + 1
     -- end
 
-    -- -- Add text options to the menu
+    -- Add text options to the menu
     -- if(runnerName ~= PlayVersion and runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
 
-    --     table.insert(menuOptions, addAt, {name = "New Code", action = function() OnNewFile("code", "lua") end, enabled = false, toolTip = "Run the current game."})
-    --     table.insert(newFileOptions, {name = "New Code"})
-    --     addAt = addAt + 1
+        table.insert(menuOptions, addAt, {name = "New Code", action = function() self:OnNewFile("code", "lua") end, enabled = false, toolTip = "Run the current game."})
+        table.insert(self.newFileOptions, {name = "New Code"})
+        addAt = addAt + 1
 
-    --     table.insert(menuOptions, addAt, {name = "New JSON", action = function() OnNewFile("untitled", "json") end, enabled = false, toolTip = "Run the current game."})
-    --     table.insert(newFileOptions, {name = "New JSON"})
-    --     addAt = addAt + 1
-
-    -- end
-
-    -- -- Add draw options
-
-    -- if(PathExists(fileTemplatePath.AppendFile("colors.png"))) then
-    --     table.insert(menuOptions, addAt, {name = "New Colors", action = function() OnNewFile("colors", "png", "colors", false) end, enabled = false, toolTip = "Run the current game.", file = "colors.png"})
-    --     table.insert(newFileOptions, {name = "New Colors", file = "colors.png"})
-    --     addAt = addAt + 1
-    -- end
-
-    -- if(PathExists(fileTemplatePath.AppendFile("sprites.png"))) then
-
-    --     table.insert(menuOptions, addAt, {name = "New Sprites", action = function() OnNewFile("sprites", "png", "sprites", false) end, enabled = false, toolTip = "Run the current game.", file = "sprites.png"})
-    --     table.insert(newFileOptions, {name = "New Sprites", file = "sprites.png"})
-    --     addAt = addAt + 1
-    -- end
-
-    -- if(PathExists(fileTemplatePath.AppendFile("large.font.png"))) then
-
-    --     table.insert(menuOptions, addAt, {name = "New Font", action = function() OnNewFile("untitled", "font.png", "font") end, enabled = false, toolTip = "Run the current game."})
-    --     table.insert(newFileOptions, {name = "New Font"})
-    --     addAt = addAt + 1
+        table.insert(menuOptions, addAt, {name = "New JSON", action = function() self:OnNewFile("untitled", "json") end, enabled = false, toolTip = "Run the current game."})
+        table.insert(self.newFileOptions, {name = "New JSON"})
+        addAt = addAt + 1
 
     -- end
 
-    -- if(PathExists(fileTemplatePath.AppendFile("tilemap.json"))) then
+    -- Add draw options
 
-    --     table.insert(menuOptions, addAt, {name = "New Tilemap", action = function() OnNewFile("tilemap", "json", "tilemap", false) end, enabled = false, toolTip = "Run the current game.", file = "tilemap.json"})
-    --     table.insert(newFileOptions, {name = "New Tilemap", file = "tilemap.json"})
-    --     addAt = addAt + 1
+    if(PathExists(self.fileTemplatePath.AppendFile("colors.png"))) then
+        table.insert(menuOptions, addAt, {name = "New Colors", action = function() self:OnNewFile("colors", "png", "colors", false) end, enabled = false, toolTip = "Run the current game.", file = "colors.png"})
+        table.insert(self.newFileOptions, {name = "New Colors", file = "colors.png"})
+        addAt = addAt + 1
+    end
 
-    -- end
+    if(PathExists(self.fileTemplatePath.AppendFile("sprites.png"))) then
 
-    -- -- Add music options
+        table.insert(menuOptions, addAt, {name = "New Sprites", action = function() self:OnNewFile("sprites", "png", "sprites", false) end, enabled = false, toolTip = "Run the current game.", file = "sprites.png"})
+        table.insert(self.newFileOptions, {name = "New Sprites", file = "sprites.png"})
+        addAt = addAt + 1
+    end
 
-    -- if(PathExists(fileTemplatePath.AppendFile("sounds.json"))) then
+    if(PathExists(self.fileTemplatePath.AppendFile("large.font.png"))) then
 
-    --     table.insert(menuOptions, addAt, {name = "New Sounds", action = function() OnNewFile("sounds", "json", "sounds", false) end, enabled = false, toolTip = "Run the current game.", file = "sounds.json"})
-    --     table.insert(newFileOptions, {name = "New Sounds", file = "sounds.json"})
-    --     addAt = addAt + 1
-    -- end
+        table.insert(menuOptions, addAt, {name = "New Font", action = function() self:OnNewFile("untitled", "font.png", "font") end, enabled = false, toolTip = "Run the current game."})
+        table.insert(self.newFileOptions, {name = "New Font"})
+        addAt = addAt + 1
 
-    -- if(PathExists(fileTemplatePath.AppendFile("music.json"))) then
+    end
 
-    --     table.insert(menuOptions, addAt, {name = "New Music", action = function() OnNewFile("music", "json", "music", false) end, enabled = false, toolTip = "Run the current game.", file = "music.json"})
-    --     table.insert(newFileOptions, {name = "New Music", file = "music.json"})
-    --     addAt = addAt + 1
+    if(PathExists(self.fileTemplatePath.AppendFile("tilemap.json"))) then
 
-    -- end
+        table.insert(menuOptions, addAt, {name = "New Tilemap", action = function() self:OnNewFile("tilemap", "json", "tilemap", false) end, enabled = false, toolTip = "Run the current game.", file = "tilemap.json"})
+        table.insert(self.newFileOptions, {name = "New Tilemap", file = "tilemap.json"})
+        addAt = addAt + 1
+
+    end
+
+    -- Add music options
+
+    if(PathExists(self.fileTemplatePath.AppendFile("sounds.json"))) then
+
+        table.insert(menuOptions, addAt, {name = "New Sounds", action = function() self:OnNewFile("sounds", "json", "sounds", false) end, enabled = false, toolTip = "Run the current game.", file = "sounds.json"})
+        table.insert(self.newFileOptions, {name = "New Sounds", file = "sounds.json"})
+        addAt = addAt + 1
+    end
+
+    if(PathExists(self.fileTemplatePath.AppendFile("music.json"))) then
+
+        table.insert(menuOptions, addAt, {name = "New Music", action = function() self:OnNewFile("music", "json", "music", false) end, enabled = false, toolTip = "Run the current game.", file = "music.json"})
+        table.insert(self.newFileOptions, {name = "New Music", file = "music.json"})
+        addAt = addAt + 1
+
+    end
 
     -- if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
 
-    --     -- TODO need to add to the offset
-    --     addAt = addAt + 6
-    --     -- Empty Trash ID 13
-    --     table.insert(menuOptions, addAt, {name = "Run", key = Keys.R, action = OnRun, enabled = false, toolTip = "Run the current game."})
-    --     addAt = addAt + 1
+        -- TODO need to add to the offset
+        addAt = addAt + 6
+        -- Empty Trash ID 13
+        table.insert(menuOptions, addAt, {name = "Run", key = Keys.R, action = function() self:OnRun() end, enabled = false, toolTip = "Run the current game."})
+        addAt = addAt + 1
 
-    --     table.insert(menuOptions, addAt, {name = "Build", action = OnExportGame, enabled = false, toolTip = "Create a PV8 file from the current game."})
-    --     addAt = addAt + 1
+        table.insert(menuOptions, addAt, {name = "Build", action = function() self:OnExportGame() end, enabled = false, toolTip = "Create a PV8 file from the current game."})
+        addAt = addAt + 1
 
-    --     table.insert(menuOptions, addAt, {divider = true})
-    --     addAt = addAt + 1
+        table.insert(menuOptions, addAt, {divider = true})
+        addAt = addAt + 1
 
-    --     RunShortcut, BuildShortcut = "Run", "Build"
+        RunShortcut = "Run"
+        BuildShortcut = "Build"
 
     -- end
 
@@ -166,188 +173,212 @@ end
 
 function WorkspaceTool:UpdateContextMenu(inFocus)
 
-    -- if(inFocus == WindowFocus) then
+    -- Set a flag to enable any item that is dependant on the trash being closed
+    local enable = not self:TrashOpen()
 
-    --     local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory, {"code.lua"}) and not TrashOpen()
+    if(inFocus == WindowFocus) then
 
-    --     if(runnerName == DrawVersion or runnerName == TuneVersion) then
-    --         canRun = false
-    --     end
+        local canRun = pixelVisionOS:ValidateGameInDir(self.currentPath, {"code.lua"}) and enable
 
-    --     -- New File options
-    --     if(runnerName ~= PlayVersion) then
-    --         pixelVisionOS:EnableMenuItemByName(NewGameShortcut, not canRun and not TrashOpen())
-    --     end
+        if(self.runnerName == DrawVersion or self.runnerName == TuneVersion) then
+            canRun = false
+        end
 
-    --     pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, not TrashOpen())
-    --     -- pixelVisionOS:EnableMenuItemByName(NewFileShortcut, not TrashOpen())
-    --     for i = 1, #newFileOptions do
+        -- New File options
+        -- if(runnerName ~= PlayVersion) then
+            pixelVisionOS:EnableMenuItemByName(NewGameShortcut, not canRun and enable)
+        -- end
 
-    --         local option = newFileOptions[i]
-    --         local enable = not TrashOpen()
+        pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, enable)
+        -- pixelVisionOS:EnableMenuItemByName(NewFileShortcut, not TrashOpen())
+        
+        self:ToggleOptions(enable)
 
-    --         if(enable == true) then
+        -- File options
+        pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
 
-    --             if(option.file ~= nil) then
+        if(RunShortcut ~= nil) then
+            pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
+        end
 
-    --                 enable = not PathExists(currentDirectory.AppendFile(option.file))
+        pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
 
-    --             end
+        if(BuildShortcut ~= nil) then
+            pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun and string.starts(self.currentPath.Path, "/Disks/") == false)
+        end
 
-    --         end
+        pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, self:CanEject())
 
-    --         pixelVisionOS:EnableMenuItemByName(option.name, enable)
+        -- Special cases
 
-    --     end
+        -- Only active paste if there is something to paste
+        pixelVisionOS:EnableMenuItemByName(PasteShortcut, self.filesToCopy ~= nil and #self.filesToCopy > 0)
 
-    --     -- File options
-    --     pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
+        -- Clear the desktop selction
+        self:ClearDesktopSelection()
+        
+    elseif(inFocus == WindowIconFocus) then
 
-    --     if(RunShortcut ~= nil) then
-    --         pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
-    --     end
+        local selections = self:CurrentlySelectedFiles()
 
-    --     pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
+        -- Check to see if the selction is empty
+        if(selections == nil) then
 
-    --     if(BuildShortcut ~= nil) then
-    --         pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun and string.starts(currentDirectory.Path, "/Disks/") == false)
-    --     end
+            -- Change the focus to the window
+            self:UpdateContextMenu(WindowFocus)
 
-    --     pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, CanEject())
+        -- Check  to see if there are multiple files
+        elseif(#selections > 1) then
 
-    --     -- Special cases
+            -- Chnage the context menu to multiple files
+            self:UpdateContextMenu(MultipleFiles)
 
-    --     -- Only active paste if there is something to paste
-    --     pixelVisionOS:EnableMenuItemByName(PasteShortcut, filesToCopy ~= nil and #filesToCopy > 0)
+        end
 
-    -- elseif(inFocus == DesktopIconFocus) then
+        -- Get the first file which is the current selection
+        local currentSelection = self.files[selections[1]]
 
-    --     -- New File options
-    --     if(runnerName ~= PlayVersion) then
-    --         pixelVisionOS:EnableMenuItemByName(NewGameShortcut, false)
-    --     end
+        -- Look to see if the selection is a special file (parent dir or run)
+        local specialFile = currentSelection.name == ".." or currentSelection.name == "Run"
 
-    --     pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, false)
-    --     -- pixelVisionOS:EnableMenuItemByName(NewFileShortcut, false)
-    --     for i = 1, #newFileOptions do
-    --         pixelVisionOS:EnableMenuItemByName(newFileOptions[i].name, false)
-    --     end
+        -- Check to see if currentPath is a game
+        local canRun = pixelVisionOS:ValidateGameInDir(self.currentPath, {"code.lua"}) and selections
 
-    --     -- File options
-    --     -- pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
+        -- if(runnerName == DrawVersion or runnerName == TuneVersion) then
+        --     canRun = false
+        -- end
 
-    --     if(RunShortcut ~= nil) then
-    --         pixelVisionOS:EnableMenuItemByName(RunShortcut, false)
-    --     end
+        -- Check to see if the build option is available
+        if(BuildShortcut ~= nil) then
+            pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun and string.starts(self.currentPath.Path, "/Disks/") == false)
+        end
 
-    --     pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
-    --     if(BuildShortcut ~= nil) then
-    --         pixelVisionOS:EnableMenuItemByName(BuildShortcut, false)
-    --     end
-    --     -- Disk options
-    --     pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, CanEject())
+        -- Check to see if the new project file is available
+        -- if(runnerName ~= PlayVersion) then
+            pixelVisionOS:EnableMenuItemByName(NewGameShortcut, not canRun and enable)
+        -- end
 
+        -- Enable the new folder option if this file is not in the trash
+        pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, enable)
 
-    -- elseif(inFocus == WindowIconFocus) then
-
-    --     local currentSelection = CurrentlySelectedFile()
-
-    --     local specialFile = currentSelection.name == ".." or currentSelection.name == "Run"
-
-    --     -- Check to see if currentDirectory is a game
-    --     local canRun = pixelVisionOS:ValidateGameInDir(currentDirectory, {"code.lua"}) and not TrashOpen()
-
-    --     if(runnerName == DrawVersion or runnerName == TuneVersion) then
-    --         canRun = false
-    --     end
-    --     if(BuildShortcut ~= nil) then
-    --         pixelVisionOS:EnableMenuItemByName(BuildShortcut, canRun and string.starts(currentDirectory.Path, "/Disks/") == false)
-    --     end
-
-    --     -- New File options
-    --     if(runnerName ~= PlayVersion) then
-    --         pixelVisionOS:EnableMenuItemByName(NewGameShortcut, not canRun and not TrashOpen())
-    --     end
-
-    --     pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, not TrashOpen())
-
-    --     for i = 1, #newFileOptions do
+        self:ToggleOptions(enable)
 
 
-    --         local option = newFileOptions[i]
-    --         local enable = not TrashOpen()
+        pixelVisionOS:EnableMenuItemByName(EditShortcut, enable and not specialFile)
 
-    --         if(enable == true) then
+        -- TODO Can't rename up directory?
+        pixelVisionOS:EnableMenuItemByName(RenameShortcut, enable and not specialFile)
 
-    --             if(option.file ~= nil) then
+        if(RunShortcut ~= nil) then
+            pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
+        end
 
-    --                 enable = not PathExists(currentDirectory.AppendFile(option.file))
+        pixelVisionOS:EnableMenuItemByName(CopyShortcut, enable and not specialFile)
 
-    --             end
+        -- TODO need to makes sure the file can be deleted
+        pixelVisionOS:EnableMenuItemByName(DeleteShortcut, enable and not specialFile)
 
-    --         end
+        -- Disk options
+        pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, false)
 
-    --         pixelVisionOS:EnableMenuItemByName(option.name, enable)
+        -- Clear the desktop selction
+        self:ClearDesktopSelection()
+        
+    elseif(inFocus == DesktopIconFocus) then
 
-    --     end
+        -- New File options
+        -- if(runnerName ~= PlayVersion) then
+            pixelVisionOS:EnableMenuItemByName(NewGameShortcut, false)
+        -- end
 
-    --     pixelVisionOS:EnableMenuItemByName(EditShortcut, not TrashOpen() and not specialFile)
+        pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, false)
+        -- pixelVisionOS:EnableMenuItemByName(NewFileShortcut, false)
+        -- for i = 1, #self.newFileOptions do
+        --     pixelVisionOS:EnableMenuItemByName(self.newFileOptions[i].name, false)
+        -- end
 
-    --     -- TODO Can't rename up directory?
-    --     pixelVisionOS:EnableMenuItemByName(RenameShortcut, not TrashOpen() and not specialFile)
+        self:ToggleOptions(false)
 
-    --     if(RunShortcut ~= nil) then
-    --         pixelVisionOS:EnableMenuItemByName(RunShortcut, canRun)
-    --     end
+        -- File options
+        -- pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
 
-    --     pixelVisionOS:EnableMenuItemByName(CopyShortcut, not TrashOpen() and not specialFile)
+        if(RunShortcut ~= nil) then
+            pixelVisionOS:EnableMenuItemByName(RunShortcut, false)
+        end
 
-    --     -- TODO need to makes sure the file can be deleted
-    --     pixelVisionOS:EnableMenuItemByName(DeleteShortcut, not TrashOpen() and not specialFile)
+        pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
+        if(BuildShortcut ~= nil) then
+            pixelVisionOS:EnableMenuItemByName(BuildShortcut, false)
+        end
+        -- Disk options
+        pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, self:CanEject())
 
-    --     -- Disk options
-    --     pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, false)
+    
+    else
 
-    -- else
+        -- New File options
+        if(runnerName ~= PlayVersion) then
+            pixelVisionOS:EnableMenuItemByName(NewGameShortcut, false)
+        end
 
-    --     -- New File options
-    --     if(runnerName ~= PlayVersion) then
-    --         pixelVisionOS:EnableMenuItemByName(NewGameShortcut, false)
-    --     end
+        pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, false)
+        -- pixelVisionOS:EnableMenuItemByName(NewFileShortcut, false)
 
-    --     pixelVisionOS:EnableMenuItemByName(NewFolderShortcut, false)
-    --     -- pixelVisionOS:EnableMenuItemByName(NewFileShortcut, false)
+        -- for i = 1, #self.newFileOptions do
+        --     pixelVisionOS:EnableMenuItemByName(self.newFileOptions[i].name, false)
+        -- end
 
-    --     for i = 1, #newFileOptions do
-    --         pixelVisionOS:EnableMenuItemByName(newFileOptions[i].name, false)
-    --     end
+        self:ToggleOptions(false)
 
-    --     -- File options
-    --     -- pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
+        -- File options
+        -- pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(EditShortcut, false)
 
-    --     if(RunShortcut ~= nil) then
-    --         pixelVisionOS:EnableMenuItemByName(RunShortcut, false)
-    --     end
+        if(RunShortcut ~= nil) then
+            pixelVisionOS:EnableMenuItemByName(RunShortcut, false)
+        end
 
-    --     pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
-    --     pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(RenameShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(CopyShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(PasteShortcut, false)
+        pixelVisionOS:EnableMenuItemByName(DeleteShortcut, false)
 
-    --     if(BuildShortcut ~= nil) then
-    --         pixelVisionOS:EnableMenuItemByName(BuildShortcut, false)
-    --     end
-    --     -- Disk options
-    --     pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, false)
+        if(BuildShortcut ~= nil) then
+            pixelVisionOS:EnableMenuItemByName(BuildShortcut, false)
+        end
+        -- Disk options
+        pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, false)
 
-    -- end
+    end
+
+end
+
+function WorkspaceTool:ToggleOptions(enabled)
+
+    -- Loop through all the file creation options
+    for i = 1, #self.newFileOptions do
+
+        -- Get the new file option data
+        local option = self.newFileOptions[i]
+
+        -- Check to see if the option should be enabled
+        if(enable == true and option.file ~= nil) then
+
+            -- Change the enable flag based on if the file exists
+            enable = not PathExists(self.currentPath.AppendFile(option.file))
+
+        end
+
+        -- Enable the file in the menu
+        pixelVisionOS:EnableMenuItemByName(option.name, enable)
+
+    end
 
 end
 

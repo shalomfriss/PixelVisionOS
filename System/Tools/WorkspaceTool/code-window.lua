@@ -1,15 +1,36 @@
 function WorkspaceTool:OpenWindow(path, scrollTo, selection)
 
+    -- Make sure the path exists before loading it up
+    if(PathExists(path) == false) then
+              
+        -- Use the fault workspace path
+        path = self.workspacePath
+
+    end
+
     -- Configure window settings
     self.iconPadding = 16
     self.iconWidth = 48
     self.iconHeight = 40
     self.windowBGColor = 11
-    self.lastStartID = -1
+    self.lastStartID = 0
     self.totalPerWindow = 12
     self.totalPerColumn = 3
     self.totalPerPage = 12
     self.pathHistory = {}
+
+    -- TODO this should come from the bios file
+    self.validFiles =
+    {
+    ".png",
+    ".json",
+    ".txt",
+    ".lua",
+    ".pv8",
+    ".pvr",
+    ".wav",
+    ".gif"
+    }
 
     -- Look for the last scroll position of this path
     if(scrollTo == nil and self.pathHistory[path] ~= nil) then
@@ -27,9 +48,6 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
     -- Clear the window refresh time
     self.refreshTime = 0
 
-    -- Clear the previous file list
-    self.files = {}
-
     -- save the current directory
     self.currentPath = path
 
@@ -37,125 +55,78 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
     DrawSprites(windowchrome.spriteIDs, 8, 16, windowchrome.width, false, false, DrawMode.TilemapCache)
 
     if(self.vSliderData == nil) then
-        
+
         -- Create the slider for the window
         self.vSliderData = editorUI:CreateSlider({x = 192, y = 26, w = 16, h = 195}, "vsliderhandle", "This is a vertical slider")
         self.vSliderData.onAction = function(value) 
-            self:DrawWindow(Clamp(self.hiddenRows * value, 0, self.hiddenRows - 1) * self.totalPerColumn)
+
+        -- Set the scroll position
+        self.lastStartID = Clamp(self.hiddenRows * value, 0, self.hiddenRows - 1) * self.totalPerColumn
+
+        -- Refresh the window at the end of the frame
+        self:RefreshWindow()
+
         end
 
-        -- Register the slider
-        self:RegisterUI(self.vSliderData, "UpdateSlider", editorUI)
     end
+
+    -- Register the slider
+    self:RegisterUI(self.vSliderData, "UpdateSlider", editorUI)
 
     -- Create the close button
-    if(self.closeButton == nil) then
+    -- if(self.closeButton == nil) then
+    --     print("Create new window closeButton")
         
-        self.closeButton = editorUI:CreateButton({x = 192, y = 16}, "closewindow", "Close the window.")
-        self.closeButton.hitRect = {x = self.closeButton.rect.x + 2, y = self.closeButton.rect.y + 2, w = 10, h = 10}
-        self.closeButton.onAction = function() self:CloseWindow() end
+    --     self.closeButton = editorUI:CreateButton({x = 192, y = 16}, "closewindow", "Close the window.")
+    --     self.closeButton.hitRect = {x = self.closeButton.rect.x + 2, y = self.closeButton.rect.y + 2, w = 10, h = 10}
+    --     self.closeButton.onAction = function() self:CloseWindow() end
 
-        -- Register the close button
-        self:RegisterUI(self.closeButton, "UpdateButton", editorUI)
+    -- end
 
-    end
+    -- -- Register the close button
+    -- self:RegisterUI(self.closeButton, "UpdateButton", editorUI)
 
-    -- Get the list of files from the Lua Service
-    self.files = self:GetDirectoryContents(self.currentPath)
+    
+    -- Check to see if we have window buttons
+    if(self.windowIconButtons == nil) then
 
-    -- Need to clear the previous button drop targets
-    if(self.windowIconButtons ~= nil) then
-        for i = 1, #self.windowIconButtons.buttons do
-            editorUI.collisionManager:RemoveDragTarget(self.windowIconButtons.buttons[i])
-            -- editorUI:ToggleGroupRemoveButton(windowIconButtons, i)
-        end
-        -- editorUI:ClearIconGroup(windowIconButtons)
-
-        editorUI:ClearFocus()
-    else
         -- Create a icon button group for all of the files
         self.windowIconButtons = pixelVisionOS:CreateIconGroup(false)
 
+        -- Register the icon group so it updates
         self:RegisterUI(self.windowIconButtons, "UpdateIconGroup", pixelVisionOS)
 
+        -- Create default buttons
+        for i = 1, self.totalPerWindow do
+
+            -- Calculate the correct position
+            local pos = CalculatePosition( i-1, self.totalPerColumn )
+            pos.x = (pos.x * (self.iconWidth + self.iconPadding)) + 13
+            pos.y = (pos.y * (self.iconHeight + self.iconPadding / 2)) + 32
+            
+            -- Create the new icon button
+            pixelVisionOS:NewIconGroupButton(self.windowIconButtons, pos, "none", nil, toolTip, self.windowBGColor)
+    
+        end
+
+        -- Add the onTrigger callback
         self.windowIconButtons.onTrigger = function(id) self:OnWindowIconClick(id) end
 
         -- Make sure we disable any selection on the desktop when clicking inside of the window icon group
         self.windowIconButtons.onAction = function(id) self:OnWindowIconSelect(id) end
+    
     end
-
-    -- DrawRect()
 
     -- Reset the last start id
-    self.lastStartID = -1
+    self.lastStartID = 0
 
-    if(runnerName ~= DrawVersion and runnerName ~= TuneVersion) then
+    self:UpdateFileList()
 
-        -- Check to see if this is a game directory
-        if(pixelVisionOS:ValidateGameInDir(self.currentPath, {"code.lua"}) and TrashOpen() == false) then
-
-            table.insert(
-                self.files,
-                1,
-                {
-                    name = "Run",
-                    type = "run",
-                    ext = "run",
-                    path = self.currentPath,
-                    isDirectory = false,
-                    selected = false
-                }
-
-            )
-        end
-
-    end
-
-    local parentDirectory = self.currentPath.ParentPath
-
-    -- Check to see if this is a root directory
-    if(parentDirectory.Path ~= "/Disks/" and parentDirectory.Path ~= "/Tmp/" and parentDirectory.Path ~= "/") then
-
-        table.insert(
-            self.files,
-            1,
-            {
-                name = "..",
-                type = "updirectory",
-                path = parentDirectory,
-                isDirectory = true,
-                selected = false
-            }
-
-        )
-    end
-
-    -- Save a count of the files after we add the special files to the list
-    self.fileCount = #self.files
-
-    -- Update visible and hidden row count
-    self.totalRows = math.ceil(self.fileCount / self.totalPerColumn) + 1
-    self.hiddenRows = self.totalRows - math.ceil(self.totalPerPage / self.totalPerColumn)
-
-    -- -- Enable the scroll bar if needed
-    editorUI:Enable(self.vSliderData, self.fileCount > self.totalPerWindow)
+    
 
     -- Update the slider
     editorUI:ChangeSlider(self.vSliderData, scrollTo)
     
-    -- Redraw the window
-    self:RefreshWindow()
-
-    -- Clear any selected file
-    -- self.currentSelectedFile = nil
-
-    -- -- Select file
-    -- if(selection > 0) then
-    --     editorUI:SelectIconButton(windowIconButtons, selection, true)
-    -- else
-    --     UpdateContextMenu(WindowFocus)
-    -- end
-
     self:ChangeWindowTitle(self.currentPath.Path)
 
     -- make sure the correct desktop icon is open
@@ -189,23 +160,41 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
     -- Registere the window with the tool so it updates
     self:RegisterUI({name = "Window"}, "UpdateWindow", self)
 
+
+    self:UpdateContextMenu(WindowFocus)
+
+    -- TODO restore any selections
+
+    -- Redraw the window
+    self:RefreshWindow()
+
+end
+
+function WorkspaceTool:UpdateFileList()
+
+    -- Get the list of files from the Lua Service
+    self.files = self:GetDirectoryContents(self.currentPath)
+
+    -- Save a count of the files after we add the special files to the list
+    self.fileCount = #self.files
+
+    -- Update visible and hidden row count
+    self.totalRows = math.ceil(self.fileCount / self.totalPerColumn) + 1
+    self.hiddenRows = self.totalRows - math.ceil(self.totalPerPage / self.totalPerColumn)
+
+    -- Enable the scroll bar if needed
+    editorUI:Enable(self.vSliderData, self.fileCount > self.totalPerWindow)
+
 end
 
 function WorkspaceTool:UpdateWindow()
 
-    -- print("Update Window")
-
-    if(self.invalid == true) then
-
-        self:DrawWindow(self.lastStartID)
-        
-        editorUI:ResetValidation(self)
-
-    end
-
+    -- Call draw window after each update
+    self:DrawWindow()
+    
 end
 
-function WorkspaceTool:CurrentlySelectedFile()
+function WorkspaceTool:CurrentlySelectedFiles()
 
     -- Create containers for selected files and temp file
     local selectedFiles = {}
@@ -230,9 +219,19 @@ function WorkspaceTool:CurrentlySelectedFile()
     
 end
 
-function WorkspaceTool:RefreshWindow()
+function WorkspaceTool:RefreshWindow(updateFileList)
+
+    -- Check to see if we need to refresh the file list
+    if(updateFileList == true) then
+
+        -- Update the file list
+        self:UpdateFileList()
+
+    end
+
+    -- Invalidate the component so it redraws at the end of the frame
     editorUI:Invalidate(self)
-    -- self.windowInvalidated = true
+
 end
 
 -- This is a helper for changing the text on the title bar
@@ -256,51 +255,47 @@ function WorkspaceTool:ChangeWindowTitle(pathTitle)
 
     DrawText(pathTitle:upper(), 19, 17, DrawMode.TilemapCache, "medium", 15, - 4)
 
-    -- Look for desktop icon
-    -- TODO make sure the correct desktop item is highlighted
-
-    
 end
 
-function WorkspaceTool:CloseWindow()
+-- function WorkspaceTool:CloseWindow()
 
-    -- Clear the previous scroll history
-    self.pathHistory = {}
+--     -- Clear the previous scroll history
+--     self.pathHistory = {}
 
-    self:RemoveUI(self.closeButton.name)
-    self.closeButton = nil
+--     -- self:RemoveUI(self.closeButton.name)
+--     -- self.closeButton = nil
 
-    self:RemoveUI(self.vSliderData.name)
-    self.vSliderData = nil
+--     self:RemoveUI(self.vSliderData.name)
+--     -- self.vSliderData = nil
 
-    self:RemoveUI(self.windowIconButtons.name)
-    self.windowIconButtons = nil
+--     self:RemoveUI(self.windowIconButtons.name)
+--     self.windowIconButtons = nil
 
-    self.currentSelectedFile = nil
+--     self.currentSelectedFile = nil
 
-    self.currentPath = nil
+--     self.currentPath = nil
 
-    DrawRect(8, 16, windowchrome.width * 8, math.floor(#windowchrome.spriteIDs / windowchrome.width) * 8, BackgroundColor(), DrawMode.TilemapCache)
+--     DrawRect(8, 16, windowchrome.width * 8, math.floor(#windowchrome.spriteIDs / windowchrome.width) * 8, BackgroundColor(), DrawMode.TilemapCache)
 
-    self:DrawWallpaper()
+--     self:DrawWallpaper()
 
-    pixelVisionOS:ClearIconGroupSelections(self.desktopIconButtons)
+--     pixelVisionOS:ClearIconGroupSelections(self.desktopIconButtons)
 
-    if(self.currentOpenIconButton ~= nil) then
-        pixelVisionOS:CloseIconButton(self.currentOpenIconButton)
-    end
+--     if(self.currentOpenIconButton ~= nil) then
+--         pixelVisionOS:CloseIconButton(self.currentOpenIconButton)
+--     end
 
-    editorUI:ClearFocus()
+--     editorUI:ClearFocus()
 
-    -- Update the drop down menu
-    self:UpdateContextMenu(NoFocus)
+--     -- Update the drop down menu
+--     self:UpdateContextMenu(NoFocus)
 
-    -- Remvoe the window UI elements
-    self:RemoveUI("Window")
+--     -- Remvoe the window UI elements
+--     self:RemoveUI("Window")
 
     
 
-end
+-- end
 
 function WorkspaceTool:OnWindowIconSelect(id)
 
@@ -321,7 +316,7 @@ function WorkspaceTool:OnWindowIconSelect(id)
 
     -- TODO need to clear all selected files
 
-    local selections = self:CurrentlySelectedFile()
+    local selections = self:CurrentlySelectedFiles()
   
     if(Key(Keys.LeftShift, InputState.Down) or Key( Keys.RightShift, InputState.Down )) then
 
@@ -348,7 +343,7 @@ function WorkspaceTool:OnWindowIconSelect(id)
         end
 
         -- Update the selection
-        selections = self:CurrentlySelectedFile()
+        selections = self:CurrentlySelectedFiles()
 
     elseif(Key(Keys.LeftControl, InputState.Down) or Key( Keys.RightControl, InputState.Down )) then
 
@@ -372,8 +367,6 @@ function WorkspaceTool:OnWindowIconSelect(id)
     -- Set the selection of the file that was just selected
     selectedFile.selected = selectionFlag
 
-    print("select", realFileID, selectedFile.selected)
-
     local lastValue = false
 
     -- Loop through all of the window buttons
@@ -382,19 +375,22 @@ function WorkspaceTool:OnWindowIconSelect(id)
         -- Get a reference to the window button
         local tmpButton = self.windowIconButtons.buttons[i]
 
-        -- Manually fix the selection of the buttons being displayed
+        if(tmpButton.fileID ~= -1) then
 
-        lastValue = tmpButton.selected
+            -- Manually fix the selection of the buttons being displayed
+            lastValue = tmpButton.selected
 
-        tmpButton.selected = self.files[tmpButton.fileID].selected
+            tmpButton.selected = self.files[tmpButton.fileID].selected
 
-        if(lastValue ~= tmpButton.selected) then
-            editorUI:Invalidate(tmpButton)
+            if(lastValue ~= tmpButton.selected) then
+                editorUI:Invalidate(tmpButton)
+            end
+
         end
 
     end
     -- #4
-    self:UpdateContextMenu(self.WindowIconFocus)
+    self:UpdateContextMenu(WindowIconFocus)
 
 end
 
@@ -407,7 +403,7 @@ function WorkspaceTool:OnWindowIconClick(id)
 
     -- -- local index = id + (lastStartID)-- TODO need to add the scrolling offset
 
-    local tmpItem = self.files[id + self.lastStartID]--CurrentlySelectedFile()-- files[index]
+    local tmpItem = self.files[id + self.lastStartID]--CurrentlySelectedFiles()-- files[index]
 
     local type = tmpItem.type
     local path = tmpItem.path
@@ -542,31 +538,12 @@ function WorkspaceTool:OnOverDropTarget(src, dest)
 
 end
 
-function WorkspaceTool:DrawWindow(startID)
+function WorkspaceTool:DrawWindow()
 
-    -- TODO this should probably be a clamp?
-
-    -- Make sure that the start ID isn't less than 0
-    if(startID < 0) then
-        startID = 0
-    end
-    
-    -- Test to see if there has been a change in the startID
-    if(self.lastStartID == startID) then
+    -- Check to see if the window has been invalidated before drawing it
+    if(self.invalid ~= true or self.files == nil) then
         return
     end
-
-    -- Save the startID offset
-    self.lastStartID = startID
-
-    -- Clear any current selection
-    pixelVisionOS:ClearIconGroup(self.windowIconButtons)
-
-    -- TODO this is static so move it into the tool's constructor
-    local startX = 13
-    local startY = 32
-    local tmpRow = 0
-    
 
     local requiredFiles = {"data.json"}
 
@@ -587,30 +564,22 @@ function WorkspaceTool:DrawWindow(startID)
     for i = 1, self.totalPerPage do
 
         -- Calculate the real index
-        local fileID = i + startID
+        local fileID = i + self.lastStartID
 
+        -- Get a reference to the button
+        local button = self.windowIconButtons.buttons[i]
 
-        local index = i - 1
-
-        -- Update column value
-        local column = index % self.totalPerColumn
-
-        local newX = index % self.totalPerColumn * (self.iconWidth + self.iconPadding) + startX
-        local newY = tmpRow * (self.iconHeight + self.iconPadding / 2) + startY
-
-        -- Update the row for the next loop
-        if (column == (self.totalPerColumn - 1)) then
-            tmpRow = tmpRow + 1
-        end
+        local item = nil
+        local spriteName = "none"
 
         if(fileID <= self.fileCount) then
 
-            local item = self.files[fileID]
+            item = self.files[fileID]
 
             -- Find the right type for the file
             self:UpdateFileType(item, isGameDir)
 
-            local spriteName = self:GetIconSpriteName(item)
+            spriteName = self:GetIconSpriteName(item)
 
             if(spriteName == self.fileTypeMap["folder"] and systemRoot == true) then
 
@@ -645,16 +614,27 @@ function WorkspaceTool:DrawWindow(startID)
                 toolTip = toolTip .. "edit " .. item.fullName .. "."
 
             end
+        else
 
-            local button = pixelVisionOS:NewIconGroupButton(self.windowIconButtons, {x = newX, y = newY}, spriteName, item.name, toolTip, self.windowBGColor)
+        end
 
-            button.fileID = fileID
-            button.iconName = item.name
-            button.iconType = item.type
-            button.iconPath = item.path
-            
-            -- TODO this is keeping the updir and run from selecting
-            button.selected = item.selected
+        pixelVisionOS:CreateIconButtonStates(button, spriteName, item ~= nil and item.name or "")
+        
+        -- Set the button values
+        button.fileID = item ~= nil and fileID or -1
+        button.iconName = item ~= nil and item.name or ""
+        button.iconType = item ~= nil and item.type or "none"
+        button.iconPath = item ~= nil and item.path or ""
+        button.selected = item ~= nil and item.selected or false
+
+        -- Reset button value
+        button.onOverDropTarget = nil
+        button.onDropTarget = nil 
+        button.dragDelay = .5
+
+        editorUI:Enable(button, item ~= nil)
+
+        if(item ~= nil) then
 
             -- Disable the drag on files that don't exist in the directory
             if(item.type == "updirectory" or item.type == "folder") then
@@ -681,16 +661,12 @@ function WorkspaceTool:DrawWindow(startID)
 
             end
 
-        else
-
-            editorUI:NewDraw("DrawRect", {newX, newY, 48, 40, self.windowBGColor, DrawMode.TilemapCache})
-
         end
-
-
 
     end
 
+    -- Reset the component's validation once drwaing is done
+    editorUI:ResetValidation(self)
 
 end
 
@@ -821,11 +797,173 @@ function WorkspaceTool:GetIconSpriteName(item)
 
 end
 
-function WorkspaceTool:OnValueChange(value)
 
-    
 
-    -- local offset = 
+function WorkspaceTool:GetDirectoryContents(workspacePath)
 
+    -- Create empty entities table
+    local entities = {}
+
+    -- Get the parent directory
+    local parentDirectory = workspacePath.ParentPath
+
+    -- Check to see if this is a root directory
+    if(parentDirectory.Path ~= "/Disks/" and parentDirectory.Path ~= "/Tmp/" and parentDirectory.Path ~= "/") then
+
+        -- Add an entity to go up one directory
+        table.insert(
+            entities,
+            {
+                name = "..",
+                type = "updirectory",
+                path = parentDirectory,
+                isDirectory = true,
+                selected = false
+            }
+        )
+
+    end
+
+    -- Check to see if this is a game directory
+    if(pixelVisionOS:ValidateGameInDir(workspacePath, {"code.lua"}) and self:TrashOpen() == false) then
+
+        -- Add an entity to run the game
+        table.insert(
+            entities,
+            {
+                name = "Run",
+                type = "run",
+                ext = "run",
+                path = self.currentPath,
+                isDirectory = false,
+                selected = false
+            }
+        )
+
+    end
+
+    -- Get all of the entities in the directory
+    local srcEntities = GetEntities(workspacePath)
+
+    -- Make sure the src entity value is not empty
+    if(srcEntities ~= nil) then
+
+        -- Get the total and create a entity placeholder
+        local total = #srcEntities
+        local tmpEntity = nil
+
+        -- Loop through each entity
+        for i = 1, total do
+
+            -- Get the current entity
+            tmpEntity = srcEntities[i]
+
+            -- Create the new file
+            local tmpFile = {
+                fullName = tmpEntity.EntityName,
+                isDirectory = tmpEntity.IsDirectory,
+                parentPath = tmpEntity.ParentPath,
+                path = tmpEntity,
+                selected = false,
+                ext = "",
+                type = "none"
+            }
+
+            -- Split the file name by .
+            local nameSplit = string.split(tmpFile.fullName, ".")
+
+            -- The file name is the first item in the array
+            tmpFile.name = nameSplit[1]
+
+            -- Check to see if this is a directory
+            if(tmpFile.isDirectory) then
+
+                tmpFile.type = "folder"
+
+                -- Insert the table
+                table.insert(entities, tmpFile)
+
+            else
+
+                -- Get the entity's exenstion
+                tmpFile.ext = tmpEntity.GetExtension()
+
+                -- make sure that the extension is valid
+                if(table.indexOf(self.validFiles, tmpFile.ext) > - 1) then
+
+                    -- Remove the first item from the name split since it's already used as the name
+                    table.remove(nameSplit, 1)
+
+                    -- Join the nameSplit table with . to create the type
+                    tmpFile.type = table.concat(nameSplit, ".")
+
+                    -- Add theh entity
+                    table.insert(entities, tmpFile)
+                end
+
+            end
+
+        end
+
+    end
+
+    return entities
+
+end
+
+function WorkspaceTool:SelectFile(workspacePath)
+
+    -- set the default value to 0 (invald file ID)
+    local fileID = 0
+
+    -- Loop through all of the files
+    for i = 1, self.fileCount do
+
+        -- Test the file path with the workspace path
+        if(self.files[i].path.Path == workspacePath.Path) then
+
+            -- Save the file ID and exit the loop
+            fileID = i
+            break
+
+        end
+
+    end
+
+    -- Make sure there is a file that can be selected
+    if(fileID > 0) then
+
+        self:ClearSelections()
+
+        -- Select the current file
+        self.files[fileID].selected = true
+
+        -- Calculate position
+        local tmpVPer = CalculatePosition(fileID, self.totalPerColumn).Y / self.totalRows
+
+        -- Update slide position
+        editorUI:ChangeSlider(self.vSliderData, tmpVPer)
+
+        -- Tell the window to redraw
+        self:RefreshWindow()
+
+    end
+
+end
+
+function WorkspaceTool:ClearSelections()
+
+    -- Get the current selections
+    local selections = self:CurrentlySelectedFiles()
+
+    -- Make sure there are selections
+    if(selections ~= nil) then
+
+        -- Loop through the selections and disable them
+        for i = 1, #selections do
+            self.files[selections[i]].selected = false
+        end
+
+    end
 
 end

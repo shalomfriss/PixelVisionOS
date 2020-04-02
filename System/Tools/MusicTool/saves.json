@@ -1,1 +1,23 @@
-{"GameChip":{"savedData":{"configTrack4": "4,4,6,7","configTrack3": "3,3,6,6","configTrack2": "2,2,3,4","configTrack1": "1,1,6,7","configTrack0": "0,0,6,6","configSpeedMax": "320","configSpeedMin": "120","configScale": "1","configLayering": "5","configFunk": "5","configDensity": "5","state": "0,0,15,0,0","rootDirectory": "/Workspace/Projects/SpaceRanger/","sessionID": "202003180932049630","currentBeat": "0"}}}
+{
+    
+    "GameChip":
+    {
+        "savedData":{
+            "currentBeat": "0",
+            "sessionID": "202004010931002428",
+            "rootDirectory": "/Workspace/MusicTool/",
+            "state": "0,2,26,0,0",
+            "configDensity": "5",
+            "configFunk": "5",
+            "configLayering": "5",
+            "configScale": "1",
+            "configSpeedMin": "120",
+            "configSpeedMax": "320",
+            "configTrack0": "0,0,6,6",
+            "configTrack1": "1,1,6,7",
+            "configTrack2": "2,2,3,4",
+            "configTrack3": "3,3,6,6",
+            "configTrack4": "4,4,6,7"
+        }
+    }
+}
