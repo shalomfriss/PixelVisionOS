@@ -33,7 +33,7 @@ function EditorUI:CreateTextEditor(rect, text, toolTip, font, colorOffset)
   data.endOfLineOffset = 1
   data.viewPort = NewRect(data.rect.x, data.rect.y, data.rect.w, data.rect.h)
   data.cursorPos = {x = 0, y = 0, color = 0}
-  data.inputDelay = .15
+  data.inputDelay = .10
   data.flavorBack = 0
   data.theme = {
     bg = 0, --Background Color
@@ -1216,7 +1216,7 @@ function EditorUI:TextEditorUpdate(data, dt)
         keyName = keyName .. "ctrl-"
       end
 
-      if(Key(Keys.Backspace)) then
+      if(Key(Keys.Back)) then
         keyName = keyName .. "backspace"
       elseif(Key(Keys.Delete)) then
         keyName = keyName .. "delete"

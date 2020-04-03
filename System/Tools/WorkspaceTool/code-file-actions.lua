@@ -658,18 +658,18 @@ end
 
 function WorkspaceTool:CanEject()
 
-    local value = false
+    local selections = self:CurrentlySelectedFiles()
 
-    local id = self.desktopIconButtons.currentSelection
-
-    if(id > 0) then
-
-        local selection = self.desktopIcons[id]
-
-        value = selection.name ~= "Workspace" and selection.name ~= "Trash"
-
+    if(selections == nil) then
+        return
     end
 
-    return value
+    for i = 1, #selections do
+        if(selections[i].type == "disk") then
+            return true
+        end
+    end
+
+    return false
 
 end

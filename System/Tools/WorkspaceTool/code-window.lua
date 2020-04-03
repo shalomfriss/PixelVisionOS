@@ -18,6 +18,8 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
     self.totalPerColumn = 3
     self.totalPerPage = 12
     self.pathHistory = {}
+    
+    self.totalDisk = tonumber(ReadBiosData("MaxDisks", 2))
 
     -- TODO this should come from the bios file
     self.validFiles =
@@ -85,7 +87,7 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
 
     -- -- Register the close button
     -- self:RegisterUI(self.closeButton, "UpdateButton", editorUI)
-
+    self.desktopIconCount = 2 + self.totalDisk
     
     -- Check to see if we have window buttons
     if(self.windowIconButtons == nil) then
@@ -95,6 +97,17 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
 
         -- Register the icon group so it updates
         self:RegisterUI(self.windowIconButtons, "UpdateIconGroup", pixelVisionOS)
+
+        local startY  = 16
+        for i = 1, self.totalDisk + 1 do
+            
+            pixelVisionOS:NewIconGroupButton(self.windowIconButtons, NewPoint(208, startY), "none", nil, toolTip)
+            
+            startY = startY + 40
+        end
+
+        -- -- Create the placeholder for the trash can
+        pixelVisionOS:NewIconGroupButton(self.windowIconButtons, NewPoint(208, 198), "none", nil, toolTip, self.windowBGColor)
 
         -- Create default buttons
         for i = 1, self.totalPerWindow do
@@ -131,31 +144,22 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
 
     -- make sure the correct desktop icon is open
 
-    local pathSplit = string.split(self.currentPath.Path, "/")
-
-    local desktopIconName = pathSplit[1]
-
-    local iconID = -1
-
-    for i = 1, #self.desktopIcons do
-        if(self.desktopIcons[i].name == desktopIconName) then
-            iconID = i
-            break
-        end
-    end
     
+    
+    -- TODO this needs to look through the top buttons
+
     -- Try to find the icon button if we open a window and its not selected beforehand
-    if(self.currentOpenIconButton == nil and iconID > 0) then
+    -- if(self.currentOpenIconButton == nil and iconID > 0) then
 
-        self.currentOpenIconButton = self.desktopIconButtons.buttons[iconID]
+    --     self.currentOpenIconButton = self.desktopIconButtons.buttons[iconID]
 
-        if(self.currentOpenIconButton.open == false) then
-            print("Open desktop icon", self.currentOpenIconButton.name)
+    --     if(self.currentOpenIconButton.open == false) then
+    --         print("Open desktop icon", self.currentOpenIconButton.name)
 
-            pixelVisionOS:OpenIconButton(self.currentOpenIconButton)
-        end
+    --         pixelVisionOS:OpenIconButton(self.currentOpenIconButton)
+    --     end
 
-    end
+    -- end
 
     -- Registere the window with the tool so it updates
     self:RegisterUI({name = "Window"}, "UpdateWindow", self)
@@ -311,7 +315,7 @@ function WorkspaceTool:OnWindowIconSelect(id)
     local selectedFile = self.files[realFileID]
 
     local selectionFlag = true
-    
+    local clearSelections = false
     -- TODO test for shift or ctrl
 
     -- TODO need to clear all selected files
@@ -327,16 +331,26 @@ function WorkspaceTool:OnWindowIconSelect(id)
             -- Create the range between the first selected file and the one that was just selected
             local range = {realFileID, selections[1]}
 
-            -- Sort the range from lowest to highest
-            table.sort(range, function(a,b) return a < b end)
+            -- TODO should we test for the total disks?
 
-            -- Loop through all of the files and fix the selected states
-            for i = 1, self.fileCount do
-                
-                print("File", i, "selected",  tostring(i >= range[1] and i <= range[2]))
-                
-                -- Change the value based on if it is within the range
-                self.files[i].selected = i >= range[1] and i <= range[2]
+            if(selections[1] > self.desktopIconCount) then
+
+                -- Sort the range from lowest to highest
+                table.sort(range, function(a,b) return a < b end)
+
+                -- Loop through all of the files and fix the selected states
+                for i = 1, self.fileCount do
+                    
+                    print("File", i, "selected",  tostring(i >= range[1] and i <= range[2]))
+                    
+                    -- Change the value based on if it is within the range
+                    self.files[i].selected = i >= range[1] and i <= range[2]
+
+                end
+
+            else
+
+                clearSelections = true
 
             end
 
@@ -351,15 +365,18 @@ function WorkspaceTool:OnWindowIconSelect(id)
         selectionFlag = not selectedFile.selected
 
         print("crt select", selectionFlag)
+    
     else
 
-        -- Deselect all the files
-        if(selections ~= nil) then
+        clearSelections = true
 
-            for i = 1, #selections do
-                self.files[selections[i]].selected = false
-            end
+    end
+    
+    -- Deselect all the files
+    if(selections ~= nil and clearSelections == true) then
 
+        for i = 1, #selections do
+            self.files[selections[i]].selected = false
         end
 
     end
@@ -389,6 +406,7 @@ function WorkspaceTool:OnWindowIconSelect(id)
         end
 
     end
+
     -- #4
     self:UpdateContextMenu(WindowIconFocus)
 
@@ -417,7 +435,7 @@ function WorkspaceTool:OnWindowIconClick(id)
     local type = tmpItem.type
 
     -- If the type is a folder, open it
-    if(type == "folder" or type == "updirectory") then
+    if(type == "folder" or type == "updirectory" or type == "disk" or type == "drive" or type == "trash") then
 
         
         -- self.pathHistory[self.currentPath.Path].scrollPos = self.vSliderData.value
@@ -559,9 +577,8 @@ function WorkspaceTool:DrawWindow()
     local pathParts = self.currentPath.GetDirectorySegments()
     local systemRoot = ((pathParts[1] == "Workspace" and #pathParts == 1) or (pathParts[1] == "Disks" and #pathParts == 2))
 
-    -- print("parts", #pathParts, dump(pathParts), systemRoot)
 
-    for i = 1, self.totalPerPage do
+    for i = 1, #self.windowIconButtons.buttons do
 
         -- Calculate the real index
         local fileID = i + self.lastStartID
@@ -572,6 +589,23 @@ function WorkspaceTool:DrawWindow()
         local item = nil
         local spriteName = "none"
 
+        -- Determin which index to use for the pathParts
+        local pathOffset = pathParts[1] == "Workspace" and 1 or 2
+
+        -- We'll use this name to figure out which desktopp icon to show as open
+        local desktopName = pathParts[ pathOffset ]
+
+        -- Make sure the index is less than the maximum icon count
+        if(i <= self.desktopIconCount) then
+            
+            -- Pick the files from the top of the list (desktop icons)
+            fileID = i
+
+            -- Check to see if the icon should be set to open if the name matches the desktopName
+            pixelVisionOS:OpenIconButton(button, self.files[i].name == desktopName)
+
+        end
+
         if(fileID <= self.fileCount) then
 
             item = self.files[fileID]
@@ -579,7 +613,7 @@ function WorkspaceTool:DrawWindow()
             -- Find the right type for the file
             self:UpdateFileType(item, isGameDir)
 
-            spriteName = self:GetIconSpriteName(item)
+            spriteName = item.sprite ~= nil and item.sprite or self:GetIconSpriteName(item)
 
             if(spriteName == self.fileTypeMap["folder"] and systemRoot == true) then
 
@@ -618,7 +652,7 @@ function WorkspaceTool:DrawWindow()
 
         end
 
-        pixelVisionOS:CreateIconButtonStates(button, spriteName, item ~= nil and item.name or "")
+        pixelVisionOS:CreateIconButtonStates(button, spriteName, item ~= nil and item.name or "", item ~= nil and item.bgColor or self.windowBGColor)
         
         -- Set the button values
         button.fileID = item ~= nil and fileID or -1
@@ -630,7 +664,7 @@ function WorkspaceTool:DrawWindow()
         -- Reset button value
         button.onOverDropTarget = nil
         button.onDropTarget = nil 
-        button.dragDelay = .5
+        button.dragDelay = item ~= nil and item.dragDelay or .5
 
         editorUI:Enable(button, item ~= nil)
 
@@ -804,6 +838,61 @@ function WorkspaceTool:GetDirectoryContents(workspacePath)
     -- Create empty entities table
     local entities = {}
 
+    -- Create the workspace desktop icon
+    table.insert(
+            entities,
+            {
+                name = "Workspace",
+                type = "drive",
+                path = self.workspacePath,
+                isDirectory = true,
+                selected = false,
+                dragDelay = -1,
+                sprite = PathExists(self.workspacePath.AppendDirectory("System")) and "filedriveos" or "filedrive",
+                bgColor = BackgroundColor()
+            }
+        )
+
+
+    local disks = DiskPaths()
+
+    -- TODO this should loop through the maxium number of disks
+    for i = 1, self.totalDisk do
+
+        local noDisk = i > #disks
+
+        local name = noDisk and "none" or disks[i].EntityName
+        local path = noDisk and "none" or disks[i]
+
+        table.insert(entities, {
+            name = name,
+            isDirectory = true,
+            sprite = noDisk and "empty" or "diskempty",
+            tooltip = "Double click to open the '".. name .. "' disk.",
+            tooltipDrag = "You are dragging the '".. name .. "' disk.",
+            path = path,
+            type = noDisk and "none" or "disk",
+            bgColor = BackgroundColor()
+        })
+    end
+
+    print("trash", PathExists(self.trashPath))
+
+    -- #GetEntities(self.trashPath) > 0 and "filetrashfull" or 
+
+    -- TODO need to set the correct icon and background
+    -- Creat the trash entity
+    table.insert(entities, {
+        name = "Trash",
+        sprite = "filetrashempty",
+        tooltip = "The trash folder",
+        path = self.trashPath,
+        type = "trash",
+        isDirectory = true,
+        bgColor = BackgroundColor()
+    })
+
+
     -- Get the parent directory
     local parentDirectory = workspacePath.ParentPath
 
@@ -818,7 +907,8 @@ function WorkspaceTool:GetDirectoryContents(workspacePath)
                 type = "updirectory",
                 path = parentDirectory,
                 isDirectory = true,
-                selected = false
+                selected = false,
+                bgColor = self.windowBGColor
             }
         )
 

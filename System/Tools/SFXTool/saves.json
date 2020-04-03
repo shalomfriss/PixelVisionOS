@@ -3,9 +3,9 @@
     "GameChip":
     {
         "savedData":{
-            "currentID": "0",
+            "sessionID": "202004022111567560",
             "rootDirectory": "/Workspace/MusicTool/",
-            "sessionID": "202004010931002428"
+            "currentID": "0"
         }
     }
 }

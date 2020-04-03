@@ -136,78 +136,78 @@ function WorkspaceTool:RebuildDesktopIcons()
         
     end
 
-    for i = 1, #self.desktopIcons do
+    -- for i = 1, #self.desktopIcons do
 
-        local item = self.desktopIcons[i]
+    --     local item = self.desktopIcons[i]
 
-        local button = pixelVisionOS:NewIconGroupButton(self.desktopIconButtons, NewPoint(208, startY), item.sprite, item.name, item.tooltip, bgColor)
+    --     local button = pixelVisionOS:NewIconGroupButton(self.desktopIconButtons, NewPoint(208, startY), item.sprite, item.name, item.tooltip, bgColor)
 
-        button.iconName = item.name
-        button.iconType = item.type
-        button.iconPath = item.path
+    --     button.iconName = item.name
+    --     button.iconType = item.type
+    --     button.iconPath = item.path
 
-        if(item.dragDelay ~= nil) then
-            button.dragDelay = item.dragDelay
-        end
+    --     if(item.dragDelay ~= nil) then
+    --         button.dragDelay = item.dragDelay
+    --     end
 
-        button.toolTipDragging = item.tooltipDrag
+    --     button.toolTipDragging = item.tooltipDrag
 
-        -- button.onOverDropTarget = OnOverDropTarget
+    --     -- button.onOverDropTarget = OnOverDropTarget
 
-        -- button.onDropTarget = FileDropAction
+    --     -- button.onDropTarget = FileDropAction
 
-        startY = startY + 32 + 8
+    --     startY = startY + 32 + 8
 
-    end
+    -- end
 
     -- See if the trash exists
-    if(PathExists(self.trashPath) == false) then
-        CreateDirectory(self.trashPath)
-    end
+    -- if(PathExists(self.trashPath) == false) then
+    --     CreateDirectory(self.trashPath)
+    -- end
 
-    local trashFiles = self:GetDirectoryContents(self.trashPath)
+    -- local trashFiles = self:GetDirectoryContents(self.trashPath)
 
-    table.insert(self.desktopIcons, {
-        name = "Trash",
-        sprite = #trashFiles > 0 and "filetrashfull" or "filetrashempty",
-        tooltip = "The trash folder",
-        path = self.trashPath,
-        type = "throw out"
-    })
+    -- table.insert(self.desktopIcons, {
+    --     name = "Trash",
+    --     sprite = #trashFiles > 0 and "filetrashfull" or "filetrashempty",
+    --     tooltip = "The trash folder",
+    --     path = self.trashPath,
+    --     type = "throw out"
+    -- })
 
-    -- pixelVisionOS:EnableMenuItemByName(EmptyTrashShortcut, #trashFiles > 0)
+    -- -- pixelVisionOS:EnableMenuItemByName(EmptyTrashShortcut, #trashFiles > 0)
 
-    local item = self.desktopIcons[#self.desktopIcons]
+    -- local item = self.desktopIcons[#self.desktopIcons]
 
-    local trashButton = pixelVisionOS:NewIconGroupButton(self.desktopIconButtons, NewPoint(208, 198), item.sprite, item.name, item.tooltip, bgColor)
+    -- local trashButton = pixelVisionOS:NewIconGroupButton(self.desktopIconButtons, NewPoint(208, 198), item.sprite, item.name, item.tooltip, bgColor)
 
-    trashButton.iconName = item.name
-    trashButton.iconType = item.type
-    trashButton.iconPath = item.path
+    -- trashButton.iconName = item.name
+    -- trashButton.iconType = item.type
+    -- trashButton.iconPath = item.path
 
-    -- Lock the trash from Dragging
-    trashButton.dragDelay = -1
+    -- -- Lock the trash from Dragging
+    -- trashButton.dragDelay = -1
 
-    trashButton.onOverDropTarget = OnOverDropTarget
+    -- trashButton.onOverDropTarget = OnOverDropTarget
 
-    trashButton.onDropTarget = function(src, dest)
+    -- trashButton.onDropTarget = function(src, dest)
 
-        -- -- print("OnDropTarget", "Trash Icon", src.name, dest.name)
-        if(src.iconType == "disk") then
+    --     -- -- print("OnDropTarget", "Trash Icon", src.name, dest.name)
+    --     if(src.iconType == "disk") then
 
-            OnEjectDisk(src.iconName)
+    --         OnEjectDisk(src.iconName)
 
-        else
-            OnDeleteFile(src.iconPath)
-            -- -- print("Move To", src.iconPath, dest.iconPath)
-        end
+    --     else
+    --         OnDeleteFile(src.iconPath)
+    --         -- -- print("Move To", src.iconPath, dest.iconPath)
+    --     end
 
-    end
+    -- end
 
-    -- Restore old open value
-    if(oldOpen > - 1) then
-        pixelVisionOS:OpenIconButton(self.desktopIconButtons.buttons[oldOpen])
-    end
+    -- -- Restore old open value
+    -- if(oldOpen > - 1) then
+    --     pixelVisionOS:OpenIconButton(self.desktopIconButtons.buttons[oldOpen])
+    -- end
 
 
 end
@@ -215,5 +215,5 @@ end
 function WorkspaceTool:ClearDesktopSelection()
 
     pixelVisionOS:ClearIconGroupSelections(self.desktopIconButtons)
-    
+
 end

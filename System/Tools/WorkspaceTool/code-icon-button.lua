@@ -53,11 +53,9 @@ function PixelVisionOS:CreateIconButton(point, spriteName, label, toolTip, bgCol
         self:RedrawIconButton(tmpData)
     end
 
-    local bgColor = bgColor or BackgroundColor()
+    data.bgDrawArgs = {data.rect.x, data.rect.y, data.rect.w - 1, data.rect.h, BackgroundColor(), DrawMode.TilemapCache}
 
-    data.bgDrawArgs = {data.rect.x, data.rect.y, data.rect.w, data.rect.h, bgColor, DrawMode.TilemapCache}
-
-    self:CreateIconButtonStates(data, spriteName, label)
+    self:CreateIconButtonStates(data, spriteName, label, bgColor)
 
     -- Modify the hit rect around the icon
     data.hitRect = {x = data.rect.x + 12, y = data.rect.y, w = 24, h = 24}
@@ -68,7 +66,7 @@ function PixelVisionOS:CreateIconButton(point, spriteName, label, toolTip, bgCol
 
 end
 
-function PixelVisionOS:CreateIconButtonStates(data, spriteName, text)
+function PixelVisionOS:CreateIconButtonStates(data, spriteName, text, bgColor)
 
     -- Make sure the spriteName and text have changed before rebuilding the states
     if(data.spriteName == spriteName and text == data.toolTip) then
@@ -81,6 +79,9 @@ function PixelVisionOS:CreateIconButtonStates(data, spriteName, text)
     data.cachedPixelData = {}
 
     if(spriteName == "none") then
+
+        -- Make sure the background has been updated
+        data.bgDrawArgs[5] = bgColor or BackgroundColor()
 
         self.editorUI:NewDraw("DrawRect", data.bgDrawArgs)
 
@@ -398,15 +399,20 @@ function PixelVisionOS:ToggleIconButton(data, value, callAction)
 
 end
 
-function PixelVisionOS:OpenIconButton(data)
-    data.open = true
-    self.editorUI:Invalidate(data)
+function PixelVisionOS:OpenIconButton(data, value)
+    
+    if(data.open ~= value) then
+        self.editorUI:Invalidate(data)
+    end
+    
+    data.open = value
+    
 end
 
-function PixelVisionOS:CloseIconButton(data)
-    data.open = false
-    self.editorUI:Invalidate(data)
-end
+-- function PixelVisionOS:CloseIconButton(data)
+--     data.open = false
+--     self.editorUI:Invalidate(data)
+-- end
 
 function PixelVisionOS:CreateIconGroup(singleSelection)
 

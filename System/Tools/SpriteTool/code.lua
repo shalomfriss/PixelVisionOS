@@ -1164,9 +1164,9 @@ function Update(timeDelta)
                 end
 
                 -- Change the scale
-                if(Key(Keys.Minus, InputState.Released) and spriteSize > 1) then
+                if(Key(Keys.OemMinus, InputState.Released) and spriteSize > 1) then
                     OnNextSpriteSize(true)
-                elseif(Key(Keys.Plus, InputState.Released) and spriteSize < 4) then
+                elseif(Key(Keys.OemPlus, InputState.Released) and spriteSize < 4) then
                     OnNextSpriteSize()
                 end
 

@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "targetFile": "/Workspace/MusicTool/sb-sprites.lua",
-            "sessionID": "202004010931002428",
-            "rootDirectory": "/Workspace/HelloWorld/",
-            "cursor": "1,1",
+            "scroll": "1,1",
             "selectedSprite": "0",
-            "scroll": "1,1"
+            "cursor": "1,14",
+            "rootDirectory": "/Workspace/HelloWorld/",
+            "sessionID": "202004022120368015",
+            "targetFile": "/Workspace/ReadMe.txt"
         }
     }
 }

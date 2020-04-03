@@ -94,8 +94,10 @@ function WorkspaceTool:Init()
     pixelVisionOS:ChangeTitle(_workspaceTool.toolName, "toolbaricontool")
 
     -- Create background
-    _workspaceTool:DrawWallpaper()
-    _workspaceTool:RebuildDesktopIcons()
+    -- _workspaceTool:DrawWallpaper()
+    -- _workspaceTool:RebuildDesktopIcons()
+
+    
 
     -- Create dropdown menu
     _workspaceTool:CreateDropDownMenu()

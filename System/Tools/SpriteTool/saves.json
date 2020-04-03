@@ -3,12 +3,12 @@
     "GameChip":
     {
         "savedData":{
-            "spriteSize": "1",
+            "editing": "undefined",
+            "sessionID": "202004022111567560",
+            "rootDirectory": "/Workspace/ArtPacks/DragonSweeper/",
+            "selectedSprite": "4",
             "SpriteSize": "undefined",
-            "selectedSprite": "14",
-            "rootDirectory": "/Disks/PixelVisionOS/System/Tools/WorkspaceTool/",
-            "sessionID": "202004010931002428",
-            "editing": "undefined"
+            "spriteSize": "4"
         }
     }
 }

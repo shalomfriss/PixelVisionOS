@@ -577,14 +577,14 @@ function Init()
         spriteName = "blackkey",
         note = blackKeyMap[6],
         hitRect = blackKeyHitRect,
-        key = Keys.Alpha2
+        key = Keys.D2
       },
       {
         rect = {x = 40 + 112, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[7],
         hitRect = blackKeyHitRect,
-        key = Keys.Alpha3
+        key = Keys.D3
       },
 
       {
@@ -620,21 +620,21 @@ function Init()
         spriteName = "blackkey",
         note = blackKeyMap[8],
         hitRect = blackKeyHitRect,
-        key = Keys.Alpha5
+        key = Keys.D5
       },
       {
         rect = {x = 88 + 112, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[9],
         hitRect = blackKeyHitRect,
-        key = Keys.Alpha6
+        key = Keys.D6
       },
       {
         rect = {x = 104 + 112, y = 184},
         spriteName = "blackkey",
         note = blackKeyMap[10],
         hitRect = blackKeyHitRect,
-        key = Keys.Alpha7
+        key = Keys.D7
       },
       {
         rect = {x = 240, y = 184},
@@ -1253,11 +1253,11 @@ function Update(timeDelta)
 
     -- Increment octave
     if( controlDown == false and editorUI.editingInputField == false) then
-      if(Key(Keys.OpenBrackets, InputState.Released) and octave > 1) then
+      if(Key(Keys.OemOpenBrackets, InputState.Released) and octave > 1) then
         PreviousOctave()
-      elseif(Key(Keys.CloseBrackets, InputState.Released) and octave < 8) then
+      elseif(Key(Keys.OemCloseBrackets, InputState.Released) and octave < 8) then
         NextOctave()
-      elseif(Key(Keys.Delete, InputState.Released) or Key(Keys.Backspace, InputState.Released)) then
+      elseif(Key(Keys.Delete, InputState.Released) or Key(Keys.Back, InputState.Released)) then
         EraseNote()
       end
     end
