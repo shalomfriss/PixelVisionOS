@@ -73,50 +73,51 @@ function PixelVisionOS:CreateIconButtonStates(data, spriteName, text, bgColor)
         return
     end
 
+    -- Save the sprite name
     data.spriteName = spriteName
 
     -- Clear the cached pixel data
     data.cachedPixelData = {}
 
+    -- Make sure the background has been updated
+    if(bgColor ~= nil) then
+        data.bgDrawArgs[5] = bgColor
+    end
+
     if(spriteName == "none") then
 
-        -- Make sure the background has been updated
-        data.bgDrawArgs[5] = bgColor or BackgroundColor()
-
+        -- Clear the bakground since there is nothing to display
         self.editorUI:NewDraw("DrawRect", data.bgDrawArgs)
 
     else
-
+        
+        -- A list of states to build
         local states = {"up", "over", "openup", "selectedup", "disabled", "dragging"}
 
+        -- Loop through each state to make a custom sprite for it
         for i = 1, #states do
 
             local state = states[i]
-            local canvas = NewCanvas(data.rect.w, data.rect.h)
+            local canvas = NewCanvas(data.rect.w - 1, data.rect.h)
 
             -- Change the sprite state to accommodate for the fact that there is no dragging sprite
             local spriteState = state == "dragging" and "up" or state
 
             if(state == "over") then
-                -- print("OVER")
+                
                 state = "over"
                 spriteState = "selectedup"
             end
 
-            -- Clear the canvas to the default background color
-            canvas:Clear(-1)
-
             -- Get the background color
             local bgColor = state ~= "dragging" and data.bgDrawArgs[5] or - 1
+
+            -- Clear the canvas to the default background color
+            canvas:Clear(bgColor)
 
             -- Set the stroke and pattern to clear any previous icon this draws over
             canvas:SetStroke({bgColor}, 1, 1)
             canvas:SetPattern({bgColor}, 1, 1)
-
-            local offset = 12
-
-            -- Clear icon background
-            canvas:DrawSquare(offset, 0, 24 + offset, 24, true)
 
             -- Create states
             if(spriteName == nil) then

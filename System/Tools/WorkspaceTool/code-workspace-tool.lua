@@ -3,13 +3,12 @@ WorkspaceTool = {}
 WorkspaceTool.__index = WorkspaceTool
 
 -- Import scripts needed by the workspace tool
-LoadScript("code-desktop")
 LoadScript("code-window")
 LoadScript("code-drop-down-menu")
 LoadScript("code-icon-button")
+LoadScript("code-process-file-actions")
 LoadScript("code-file-actions")
 LoadScript("pixel-vision-os-item-picker-v1")
-LoadScript("code-utils")
 
 function WorkspaceTool:Init()
 
@@ -21,8 +20,6 @@ function WorkspaceTool:Init()
 
     -- Get a global reference to the Editor UI
     editorUI = pixelVisionOS.editorUI
-
-    
 
     -- Create a new table for the instance with default properties
     local _workspaceTool = {
@@ -36,51 +33,6 @@ function WorkspaceTool:Init()
         uiComponents = {},
         uiTotal = 0
     }
-
-    _workspaceTool.fileTypeMap = 
-    {
-        folder = "filefolder",
-        updirectory = "fileparentfolder",
-        lua = "filecode",
-        json = "filejson",
-        png = "filepng",
-        run = "filerun", -- TODO need to change this to run
-        txt = "filetext",
-        installer = "fileinstaller", -- TODO need a custom icon
-        info = "fileinfo",
-        pv8 = "diskempty",
-        pvr = "disksystem",
-        wav = "filewav",
-
-        -- TODO these are not core file types
-        unknown = "fileunknown",
-        colors = "filecolor",
-        system = "filesettings",
-        font = "filefont",
-        music = "filemusic",
-        sounds = "filesound",
-        sprites = "filesprites",
-        tilemap = "filetilemap",
-        pvt = "filerun",
-        new = "filenewfile",
-        gif = "filegif",
-        tiles = "filetiles"
-    }
-
-    _workspaceTool.extToTypeMap = 
-    {
-        colors = ".png",
-        system = ".json",
-        font = ".font.png",
-        music = ".json",
-        sounds = ".json",
-        sprites = ".png",
-        tilemap = ".json",
-        installer = ".txt",
-        info = ".json",
-        wav = ".wav"
-    }
-
 
     -- Create a global reference of the new workspace tool
     setmetatable(_workspaceTool, WorkspaceTool)
@@ -114,20 +66,24 @@ function WorkspaceTool:Update(timeDelta)
     -- This needs to be the first call to make sure all of the OS and editor UI is updated first
     pixelVisionOS:Update(timeDelta)
 
-    -- Only update UI when the modal is not active
-    if(pixelVisionOS:IsModalActive() == false) then
+    
 
-        -- Loop through all of the registered UI and update them
-        for i = 1, self.uiTotal do
+    -- Loop through all of the registered UI and update them
+    for i = 1, self.uiTotal do
 
-            -- Get a reference to the UI data
-            local ref = self.uiComponents[i]
-            
-            if(ref ~= nil) then
+        -- Get a reference to the UI data
+        local ref = self.uiComponents[i]
+        
+        if(ref ~= nil) then
+
+            -- Only update UI when the modal is not active
+            if(pixelVisionOS:IsModalActive() == false or ref.ignoreModal) then
+                
                 -- Call the UI scope's update and pass back in the UI data
                 ref.uiScope[ref.uiUpdate](ref.uiScope, ref.uiData)
             
             end
+
         end
 
     end
@@ -141,14 +97,14 @@ function WorkspaceTool:Draw()
 
 end
 
-function WorkspaceTool:RegisterUI(data, updateCall, scope)
+function WorkspaceTool:RegisterUI(data, updateCall, scope, ignoreModal)
 
     scope = scope or pixelVisionOS
 
     -- Try to remove an existing instance of the component
-     self:RemoveUI(data.name)
+    self:RemoveUI(data.name)
 
-    table.insert(self.uiComponents, {uiData = data, uiUpdate = updateCall, uiScope = scope})
+    table.insert(self.uiComponents, {uiData = data, uiUpdate = updateCall, uiScope = scope, ignoreModal = ignoreModal or false})
 
     self.uiTotal = #self.uiComponents
 
@@ -215,7 +171,7 @@ end
 
 function WorkspaceTool:RestoreLastPath()
 
-    local newPath = ReadSaveData("lastPath", "none")
+    local newPath = SessionID() == ReadSaveData("sessionID", "") and ReadSaveData("lastPath", "none") or "none"
     local lastScrollPos = tonumber(ReadSaveData("scrollPos", "0"))
     local lastSelection = tonumber(ReadSaveData("selection", "0"))
 
@@ -235,7 +191,7 @@ function WorkspaceTool:RestoreLastPath()
     end
 
     -- Convert the path to a Workspace Path
-    newPath =  newPath == "none" and workspacePath or NewWorkspacePath(newPath)
+    newPath =  newPath == "none" and self.workspacePath or NewWorkspacePath(newPath)
    
     -- Open the window to the new path
     self:OpenWindow(newPath, lastScrollPos, lastSelection)

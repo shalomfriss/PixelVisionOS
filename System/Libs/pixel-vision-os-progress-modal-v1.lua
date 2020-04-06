@@ -1,13 +1,15 @@
 ProgressModal = {}
 ProgressModal.__index = ProgressModal
 
-function ProgressModal:Init(title, editorUI)
+function ProgressModal:Init(title, editorUI, onCloseCallback)
 
   local _progressModal = {} -- our new object
   setmetatable(_progressModal, ProgressModal) -- make Account handle lookup
 
   _progressModal.editorUI = editorUI
   _progressModal:Configure(title)
+
+  _progressModal.onClose = onCloseCallback
 
   return _progressModal
 
@@ -78,7 +80,9 @@ function ProgressModal:Open()
       -- Set value to true when cancel is pressed
       self.selectionValue = false
 
-      CancelFileActions()
+      if(self.onCancel ~= nil) then
+        self.onCancel()
+      end
 
       -- Close the panel
       if(self.onParentClose ~= nil) then

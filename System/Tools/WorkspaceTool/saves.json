@@ -3,11 +3,10 @@
     "GameChip":
     {
         "savedData":{
-            "showUpgrade": "true",
-            "lastPath": "/Workspace/",
-            "sessionID": "202004022126464510",
+            "sessionID": "202004051454046423",
+            "selection": "0",
             "scrollPos": "0",
-            "selection": "0"
+            "lastPath": "/Workspace/FileSystemTest/"
         }
     }
 }

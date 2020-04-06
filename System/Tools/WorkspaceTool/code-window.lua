@@ -1,4 +1,36 @@
+FileTypeMap = 
+    {
+        folder = "filefolder",
+        updirectory = "fileparentfolder",
+        lua = "filecode",
+        json = "filejson",
+        png = "filepng",
+        run = "filerun", -- TODO need to change this to run
+        txt = "filetext",
+        installer = "fileinstaller", -- TODO need a custom icon
+        info = "fileinfo",
+        pv8 = "diskempty",
+        pvr = "disksystem",
+        wav = "filewav",
+
+        -- TODO these are not core file types
+        unknown = "fileunknown",
+        colors = "filecolor",
+        system = "filesettings",
+        font = "filefont",
+        music = "filemusic",
+        sounds = "filesound",
+        sprites = "filesprites",
+        tilemap = "filetilemap",
+        pvt = "filerun",
+        new = "filenewfile",
+        gif = "filegif",
+        tiles = "filetiles"
+    }
+    
 function WorkspaceTool:OpenWindow(path, scrollTo, selection)
+
+    print("Open", path)
 
     -- Make sure the path exists before loading it up
     if(PathExists(path) == false) then
@@ -7,6 +39,8 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
         path = self.workspacePath
 
     end
+
+    print("Loading Path", path)
 
     -- Configure window settings
     self.iconPadding = 16
@@ -62,18 +96,18 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
         self.vSliderData = editorUI:CreateSlider({x = 192, y = 26, w = 16, h = 195}, "vsliderhandle", "This is a vertical slider")
         self.vSliderData.onAction = function(value) 
 
-        -- Set the scroll position
-        self.lastStartID = Clamp(self.hiddenRows * value, 0, self.hiddenRows - 1) * self.totalPerColumn
+            -- Set the scroll position
+            self.lastStartID = Clamp(self.hiddenRows * value, 0, self.hiddenRows - 1) * self.totalPerColumn
 
-        -- Refresh the window at the end of the frame
-        self:RefreshWindow()
+            -- Refresh the window at the end of the frame
+            self:RefreshWindow()
 
         end
 
     end
 
     -- Register the slider
-    self:RegisterUI(self.vSliderData, "UpdateSlider", editorUI)
+    
 
     -- Create the close button
     -- if(self.closeButton == nil) then
@@ -94,9 +128,6 @@ function WorkspaceTool:OpenWindow(path, scrollTo, selection)
 
         -- Create a icon button group for all of the files
         self.windowIconButtons = pixelVisionOS:CreateIconGroup(false)
-
-        -- Register the icon group so it updates
-        self:RegisterUI(self.windowIconButtons, "UpdateIconGroup", pixelVisionOS)
 
         local startY  = 16
         for i = 1, self.totalDisk + 1 do
@@ -183,7 +214,7 @@ function WorkspaceTool:UpdateFileList()
     self.fileCount = #self.files
 
     -- Update visible and hidden row count
-    self.totalRows = math.ceil(self.fileCount / self.totalPerColumn) + 1
+    self.totalRows = math.ceil((self.fileCount- self.desktopIconCount) / self.totalPerColumn) + 1
     self.hiddenRows = self.totalRows - math.ceil(self.totalPerPage / self.totalPerColumn)
 
     -- Enable the scroll bar if needed
@@ -192,6 +223,10 @@ function WorkspaceTool:UpdateFileList()
 end
 
 function WorkspaceTool:UpdateWindow()
+
+    editorUI:UpdateSlider(self.vSliderData)
+
+    pixelVisionOS:UpdateIconGroup(self.windowIconButtons)
 
     -- Call draw window after each update
     self:DrawWindow()
@@ -341,8 +376,6 @@ function WorkspaceTool:OnWindowIconSelect(id)
                 -- Loop through all of the files and fix the selected states
                 for i = 1, self.fileCount do
                     
-                    print("File", i, "selected",  tostring(i >= range[1] and i <= range[2]))
-                    
                     -- Change the value based on if it is within the range
                     self.files[i].selected = i >= range[1] and i <= range[2]
 
@@ -414,7 +447,7 @@ end
 
 function WorkspaceTool:OnWindowIconClick(id)
 
-    print("OnWindowIconClick", id)
+    
 
     -- Make sure desktop icons are not selected
     pixelVisionOS:ClearIconGroupSelections(self.desktopIconButtons)
@@ -425,6 +458,8 @@ function WorkspaceTool:OnWindowIconClick(id)
 
     local type = tmpItem.type
     local path = tmpItem.path
+
+    print("OnWindowIconClick", id, type, path)
 
 
     -- TODO need a list of things we can't delete
@@ -559,7 +594,7 @@ end
 function WorkspaceTool:DrawWindow()
 
     -- Check to see if the window has been invalidated before drawing it
-    if(self.invalid ~= true or self.files == nil) then
+    if(self.invalid ~= true or self.files == nil or self.fileActionActive == true) then
         return
     end
 
@@ -615,7 +650,7 @@ function WorkspaceTool:DrawWindow()
 
             spriteName = item.sprite ~= nil and item.sprite or self:GetIconSpriteName(item)
 
-            if(spriteName == self.fileTypeMap["folder"] and systemRoot == true) then
+            if(spriteName == FileTypeMap["folder"] and systemRoot == true) then
 
                 -- TODO need another check for libs and tools
 
@@ -671,7 +706,7 @@ function WorkspaceTool:DrawWindow()
         if(item ~= nil) then
 
             -- Disable the drag on files that don't exist in the directory
-            if(item.type == "updirectory" or item.type == "folder") then
+            if(item.type == "updirectory" or item.type == "folder" or item.type == "disk" or item.type == "drive" or item.type == "trash") then
 
                 -- updirectory and folder share the same code but we don't want to drag updirectory
                 if(item.type == "updirectory") then
@@ -825,9 +860,9 @@ end
 
 function WorkspaceTool:GetIconSpriteName(item)
 
-    local iconName = self.fileTypeMap[item.type]
+    local iconName = FileTypeMap[item.type]
     -- -- print("name", name, iconName)
-    return iconName == nil and "fileunknown" or self.fileTypeMap[item.type]
+    return iconName == nil and "fileunknown" or FileTypeMap[item.type]
 
 end
 
@@ -876,20 +911,27 @@ function WorkspaceTool:GetDirectoryContents(workspacePath)
         })
     end
 
-    print("trash", PathExists(self.trashPath))
+    --  
 
-    -- #GetEntities(self.trashPath) > 0 and "filetrashfull" or 
+    -- Check to see if there is a trash
+    if(PathExists(self.trashPath) == false) then
+
+        -- Create the trash directory
+        CreateDirectory(self.trashPath)
+
+    end
 
     -- TODO need to set the correct icon and background
     -- Creat the trash entity
     table.insert(entities, {
         name = "Trash",
-        sprite = "filetrashempty",
+        sprite = #GetEntities(self.trashPath) > 0 and "filetrashfull" or "filetrashempty",
         tooltip = "The trash folder",
         path = self.trashPath,
         type = "trash",
         isDirectory = true,
-        bgColor = BackgroundColor()
+        bgColor = BackgroundColor(),
+        dragDelay = -1,
     })
 
 

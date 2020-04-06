@@ -45,7 +45,7 @@ function WorkspaceTool:CreateDropDownMenu()
         -- Edit ID 7
         -- {name = "Edit", key = Keys.E, action = OnEdit, enabled = false, toolTip = "Edit the selected file."},
         -- Edit ID 8
-        {name = "Rename", action = function() self:OnTriggerRename() end, enabled = false, toolTip = "Rename the currently selected file."},
+        {name = "Rename", action = function() self:OnRename() end, enabled = false, toolTip = "Rename the currently selected file."},
         -- Copy ID 9
         {name = "Copy", key = Keys.C, action = function() self:OnCopy() end, enabled = false, toolTip = "Copy the selected file."},
         -- Paste ID 10
@@ -66,7 +66,7 @@ function WorkspaceTool:CreateDropDownMenu()
 
     if(PathExists(self.fileTemplatePath) == true) then
 
-        table.insert(menuOptions, addAt, {name = "New Project", key = Keys.P, action = function() self:OnNewGame() end, enabled = false, toolTip = "Create a new file."})
+        table.insert(menuOptions, addAt, {name = "New Project", key = Keys.P, action = function() self:OnNewProject() end, enabled = false, toolTip = "Create a new file."})
 
         NewGameShortcut = "New Project"
 
@@ -216,8 +216,8 @@ function WorkspaceTool:UpdateContextMenu(inFocus)
         -- Only active paste if there is something to paste
         pixelVisionOS:EnableMenuItemByName(PasteShortcut, self.filesToCopy ~= nil and #self.filesToCopy > 0)
 
-        -- Clear the desktop selction
-        self:ClearDesktopSelection()
+        -- -- Clear the desktop selction
+        -- self:ClearDesktopSelection()
         
     elseif(inFocus == WindowIconFocus) then
 
@@ -284,7 +284,7 @@ function WorkspaceTool:UpdateContextMenu(inFocus)
         pixelVisionOS:EnableMenuItemByName(EjectDiskShortcut, false)
 
         -- Clear the desktop selction
-        self:ClearDesktopSelection()
+        -- self:ClearDesktopSelection()
         
     elseif(inFocus == DesktopIconFocus) then
 

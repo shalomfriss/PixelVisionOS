@@ -1,3 +1,17 @@
+extToTypeMap = 
+{
+    colors = ".png",
+    system = ".json",
+    font = ".font.png",
+    music = ".json",
+    sounds = ".json",
+    sprites = ".png",
+    tilemap = ".json",
+    installer = ".txt",
+    info = ".json",
+    wav = ".wav"
+}
+
 -- Helper utility to delete files by moving them to the trash
 function WorkspaceTool:DeleteFile(path)
 
@@ -19,7 +33,7 @@ function WorkspaceTool:DeleteFile(path)
 
 end
 
-function WorkspaceTool:OnDeleteFile(selections)
+function WorkspaceTool:OnDeleteFile()
 
     -- Get the current selections
     local selections = self:CurrentlySelectedFiles()
@@ -39,6 +53,9 @@ function WorkspaceTool:OnDeleteFile(selections)
         
         local srcPath = self.files[selections[i]].path
 
+        -- Make sure the selected directory is included
+        table.insert(self.filesToCopy, srcPath)
+
         if(srcPath.IsDirectory) then
 
             -- Add all of the files that need to be copied to the list
@@ -51,15 +68,12 @@ function WorkspaceTool:OnDeleteFile(selections)
 
         end
 
-        -- Make sure the selected directory is included
-        table.insert(self.filesToCopy, srcPath)
-
     end
+
+    print("Files", dump(self.filesToCopy))
 
     -- Always make sure anything going into the trash has a unique file name
     self:StartFileOperation(self.trashPath, "throw out")
-
-
 
     -- if(path == nil) then
 
@@ -104,49 +118,30 @@ end
 
 function WorkspaceTool:StartFileOperation(destPath, action)
     
-    self.fileActionActiveTotal = #filesToCopy
-    self.fileActionDest = destPath
 
-    -- Clear the path filter (used to change base path if there is a duplicate)
-    self.fileActionPathFilter = nil
-
-    self.fileAction = action
-    self.fileActionActiveTime = 0
-    self.fileActionDelay = .02
-    self.fileActionCounter = 0
-    self.fileActionBasePath = destPath
-    self.fileCleanup = {}
-
-    -- Registere the file action update function with the tool so it updates
-    self:RegisterUI({name = "FileAction"}, "OnFileActionNextStep", self)
-
-    if(action == "delete") then
-        invalidateTrashIcon = true
-        self.fileActionActive = true
-        return
-    end
-
+    local fileActionActiveTotal = #self.filesToCopy
+    
     -- Modify the destPath with the first item for testing
-    destPath = destPath.AppendPath(filesToCopy[1].Path:sub( #fileActionSrc.Path + 1))
-    self.fileActionBasePath = destPath
-
+    
+    destPath = destPath.AppendPath(self.filesToCopy[1].Path:sub( #self.fileActionSrc.Path + 1))
+    
     if(action == "throw out") then
         self.fileActionPathFilter = UniqueFilePath(destPath)
-        invalidateTrashIcon = true
+        self.invalidateTrashIcon = true
     end
 
-    if(filesToCopy[1].IsChildOf(destPath)) then
+    if(self.filesToCopy[1].IsChildOf(destPath)) then
 
         pixelVisionOS:ShowMessageModal(
             "Workspace Path Conflict",
             "Can't perform a file action on a path that is the child of the destination path.",
-            128 + 16, false, function() CancelFileActions() end
+            128 + 16, false, function() self:CancelFileActions() end
         )
         return
 
     elseif(PathExists(destPath) and self.fileActionPathFilter == nil) then
 
-        local duplicate = destPath.Path == filesToCopy[1].Path
+        local duplicate = destPath.Path == self.filesToCopy[1].Path
 
         -- Ask if the file first item should be duplicated
         pixelVisionOS:ShowMessageModal(
@@ -167,11 +162,12 @@ function WorkspaceTool:StartFileOperation(destPath, action)
                         -- print("Delete", destPath)
                         SafeDelete(destPath)
                     end
+
                     -- Start the file action process
-                    fileActionActive = true
+                    self:OnRunFileAction(destPath, action)
 
                 else
-                    CancelFileActions()
+                    self:CancelFileActions()
                     RefreshWindow()
                 end
 
@@ -182,7 +178,7 @@ function WorkspaceTool:StartFileOperation(destPath, action)
 
         pixelVisionOS:ShowMessageModal(
             "Workspace ".. action .." Action",
-            "Do you want to ".. action .. " " .. self.fileActionActiveTotal .. " files?",
+            "Do you want to ".. action .. " " .. fileActionActiveTotal .. " files?",
             160,
             true,
             function()
@@ -191,181 +187,92 @@ function WorkspaceTool:StartFileOperation(destPath, action)
                 if(pixelVisionOS.messageModal.selectionValue) then
 
                     -- Start the file action process
-                    fileActionActive = true
+                    self:OnRunFileAction(destPath, action)
+                    -- Registere the file action update function with the tool so it updates
+                    -- self:RegisterUI({name = "FileAction"}, "FileActionUpdate", self)
 
                 else
-                    CancelFileActions()
-                    RefreshWindow()
+                    self:CancelFileActions()
+                    -- self:RefreshWindow(true)
                 end
 
             end
         )
 
     end
-
+    
 end
 
-function WorkspaceTool:FileActionUpdate()
+function WorkspaceTool:OnRunFileAction(destPath, action)
+    
+    local args = { destPath, action }
 
-    if(self.fileActionActive == true) then
+    for i = 1, #self.filesToCopy do
+        table.insert(args, self.filesToCopy[i].Path)
+    end
 
-        self.fileActionActiveTime = self.fileActionActiveTime + editorUI.timeDelta
+    print("args", dump(args))
 
-        if(self.fileActionActiveTime > self.fileActionDelay) then
-            self.fileActionActiveTime = 0
-
-            self:OnFileActionNextStep()
-
-            if(self.fileActionCounter >= self.fileActionActiveTotal) then
-
-                OnFileActionComplete()
-
-            end
-
+    local success = ExportScript("code-process-file-actions.lua", self.rootPath, args)
+    
+    print("success", success)
+    
+    if(success) then
+       
+        if(self.progressModal == nil) then
+            
+            -- Create the model
+            self.progressModal = ProgressModal:Init("File Action ", editorUI, function() self:CancelFileActions() end)
+            
+            self.progressModal.fileAction = action
+            self.progressModal.totalFiles = (#self.filesToCopy - 2)
         end
 
+         -- Open the modal
+         pixelVisionOS:OpenModal(self.progressModal)
+
+         self:RegisterUI({name = "ProgressUpdate"}, "UpdateFileActionProgress", self, true)
 
     end
 
+    self:UpdateFileActionProgress()
+    
+
 end
 
-function WorkspaceTool:OnFileActionNextStep()
+function WorkspaceTool:UpdateFileActionProgress(data)
 
-    if(#filesToCopy == 0) then
+    print("UpdateFileActionProgress running", IsExporting())
+
+    -- Check to see if exporting is done
+    if(IsExporting() == false) then
+
+        pixelVisionOS:CloseModal()
+
+        self.progressModal = nil
+
+        -- Refresh the window and get the new file list
+        self:RefreshWindow(true)
+
+        -- Remove the callback from the UI update loop
+        self:RemoveUI("ProgressUpdate")
+
+        -- Exit out of the function
         return
+
     end
 
-    -- -- Increment the counter
-    -- self.fileActionCounter = self.fileActionCounter + 1
+    -- Get the current percentage
+    local percent = ReadExportPercent()
 
-    -- -- Test to see if the counter is equil to the total
-    -- if(self.fileActionCounter > self.fileActionActiveTotal) then
+    local fileActionActiveTotal = self.progressModal.totalFiles
+    local fileActionCounter = math.ceil(fileActionActiveTotal * (percent/100))
 
-    --     self.fileActionDelay = 4
-    --     return
-    -- end
+    local message = self.progressModal.fileAction .. " "..string.lpad(tostring(fileActionCounter), string.len(tostring(fileActionActiveTotal)), "0") .. " of " .. fileActionActiveTotal .. ".\n\n\nDo not restart or shut down Pixel Vision 8."
 
-    -- local srcPath = filesToCopy[self.fileActionCounter]
+    self.progressModal:UpdateMessage(message, percent)
 
-    -- -- -- Look to see if the modal exists
-    -- if(progressModal == nil) then
-    --     --
-    --     --   -- Create the model
-    --     progressModal = ProgressModal:Init("File Action ", editorUI)
-
-    --     -- Open the modal
-    --     pixelVisionOS:OpenModal(progressModal)
-
-    -- end
-
-    -- local message = self.fileAction .. " "..string.lpad(tostring(self.fileActionCounter), string.len(tostring(self.fileActionActiveTotal)), "0") .. " of " .. self.fileActionActiveTotal .. ".\n\n\nDo not restart or shut down Pixel Vision 8."
-
-    -- local percent = (self.fileActionCounter / self.fileActionActiveTotal)
-
-    -- progressModal:UpdateMessage(message, percent)
-
-    -- local destPath = self.fileAction == "delete" and self.fileActionDest or NewWorkspacePath(self.fileActionDest.Path .. srcPath.Path:sub( #fileActionSrc.Path + 1))
-
-    -- if(self.fileActionPathFilter ~= nil) then
-
-    --     destPath = NewWorkspacePath(self.fileActionPathFilter.Path .. destPath.Path:sub( #self.fileActionBasePath.Path + 1))
-
-    -- end
-
-    -- -- Find the path to the directory being copied
-    -- local dirPath = destPath.IsFile and destPath.ParentPath or destPath
-
-    -- -- Make sure the directory exists
-    -- if(PathExists(dirPath) == false) then
-
-    --     CreateDirectory(dirPath)
-    -- end
-
-    -- if(srcPath.IsFile) then
-
-    --     TriggerSingleFileAction(srcPath, destPath, self.fileAction)
-    -- elseif(self.fileAction ~= "copy") then
-
-    --     table.insert(self.fileCleanup, srcPath)
-    -- end
-
-end
-
-function WorkspaceTool:OnFileActionComplete()
-
-    if(self.fileCleanup == nil) then
-        return
-    end
-
-    -- TODO perform any cleanup after moving
-    for i = 1, #self.fileCleanup do
-        local path = self.fileCleanup[i]
-        if(PathExists(path)) then
-            Delete(path)
-        end
-    end
-
-    -- Turn off the file action loop
-    self.fileActionActive = false
-
-    -- Remove the file action update from the UI loop
-    self:RemoveUI("FileAction")
-
-    -- Close the modal
-    pixelVisionOS:CloseModal()
-
-    -- Destroy the progress modal
-    self.progressModal = nil
-
-    -- Clear files to copy list
-    self.filesToCopy = nil
-
-    self:RefreshWindow()
-
-    if(self.invalidateTrashIcon == true) then
-        self:RebuildDesktopIcons()
-        self.invalidateTrashIcon = false
-    end
-
-end
-
-function WorkspaceTool:TriggerSingleFileAction(srcPath, destPath, action)
-
-    -- Copy the file to the new location, if a file with the same name exists it will be overwritten
-    if(action == "copy") then
-
-        -- Only copy files over since we create the directory in the previous step
-        if(destPath.isFile) then
-            print("CopyTo", srcPath, destPath)
-            -- CopyTo(srcPath, destPath)
-        end
-
-    elseif(action == "move" or action == "throw out") then
-
-        -- Need to keep track of directories that listed since we want to clean them up when they are empty at the end
-        if(srcPath.IsDirectory) then
-            -- print("Save file path", srcPath)
-            table.insert(self.fileCleanup, srcPath)
-        else
-            -- MoveTo(srcPath, destPath)
-            print("MoveTo", srcPath, destPath)
-        end
-
-    elseif(action == "delete") then
-        if(srcPath.IsDirectory) then
-            -- print("Save file path", srcPath)
-            table.insert(self.fileCleanup, srcPath)
-        else
-            -- Delete(srcPath)
-            print("MoveTo", srcPath, destPath)
-        end
-    else
-        -- nothing happened so exit before we refresh the window
-        return
-    end
-
-    -- Refresh the window
-    self:RefreshWindow()
+        
 
 end
 
@@ -536,87 +443,98 @@ function WorkspaceTool:GetNewFileModal()
 
 end
 
-function WorkspaceTool:OnNewGame()
+function WorkspaceTool:OnNewProject()
 
-    -- if(PathExists(fileTemplatePath) == false) then
-    --     pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false)
-    --     return
-    -- end
+    if(PathExists(self.fileTemplatePath) == false) then
+        pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false)
+        return
+    end
 
-    -- newFileModal:SetText("New Project", "NewProject", "Folder Name", true)
+    local newFileModal = self:GetNewFileModal()
 
-    -- pixelVisionOS:OpenModal(newFileModal,
-    --     function()
+    newFileModal:SetText("New Project", "NewProject", "Folder Name", true)
 
-    --         if(newFileModal.selectionValue == false) then
-    --             return
-    --         end
+    pixelVisionOS:OpenModal(newFileModal,
+        function()
 
-    --         -- Create a new workspace path
-    --         local newPath = currentDirectory.AppendDirectory(newFileModal.inputField.text)
+            if(newFileModal.selectionValue == false) then
+                return
+            end
 
-    --         -- Copy the contents of the template path to the new unique path
-    --         CopyTo(fileTemplatePath, UniqueFilePath(newPath))
+            -- Create a new workspace path
+            local newPath = UniqueFilePath(self.currentPath.AppendDirectory(newFileModal.inputField.text))
 
-    --         RefreshWindow()
+            -- Copy the contents of the template path to the new unique path
+            CopyTo(self.fileTemplatePath, newPath)
 
-    --     end
-    -- )
+            -- Refresh the window to show the new folder
+            self:RefreshWindow(true)
+
+            self:SelectFile(newPath)
+
+        end
+    )
 
 end
 
 function WorkspaceTool:OnNewFile(fileName, ext, type, editable)
 
-    -- if(type == nil) then
-    --     type = ext
-    -- end
+    if(type == nil) then
+        type = ext
+    end
 
-    -- newFileModal:SetText("New ".. type, fileName, "Name " .. type .. " file", editable == nil and true or false)
+    local newFileModal = self:GetNewFileModal()
+    
+    newFileModal:SetText("New ".. type, fileName, "Name " .. type .. " file", editable == nil and true or false)
 
-    -- pixelVisionOS:OpenModal(newFileModal,
-    --     function()
+    pixelVisionOS:OpenModal(newFileModal,
+        function()
 
-    --         if(newFileModal.selectionValue == false) then
-    --             return
-    --         end
+            if(newFileModal.selectionValue == false) then
+                return
+            end
 
-    --         local filePath = UniqueFilePath(currentDirectory.AppendFile(newFileModal.inputField.text .. "." .. ext))
+            local filePath = UniqueFilePath(self.currentPath.AppendFile(newFileModal.inputField.text .. "." .. ext))
 
-    --         local tmpPath = fileTemplatePath.AppendFile(filePath.EntityName)
+            local tmpPath = self.fileTemplatePath.AppendFile(filePath.EntityName)
 
-    --         -- Check for lua files first since we always want to make them empty
-    --         if(ext == "lua") then
-    --             SaveText(filePath, "-- Empty code file")
+            -- Check for lua files first since we always want to make them empty
+            if(ext == "lua") then
+                
+                SaveText(filePath, "-- Empty code file")
 
-    --             -- Check for any files in the template folder we can copy over
-    --         elseif(PathExists(tmpPath)) then
+                -- Check for any files in the template folder we can copy over
+            elseif(PathExists(tmpPath)) then
 
-    --             CopyTo(tmpPath, filePath)
-    --             -- -- print("Copy from template", tmpPath.Path)
+                CopyTo(tmpPath, filePath)
+                -- -- print("Copy from template", tmpPath.Path)
 
-    --             -- Create an empty text file
-    --         elseif( ext == "txt") then
-    --             SaveText(filePath, "")
+                -- Create an empty text file
+            elseif( ext == "txt") then
+                SaveText(filePath, "")
 
-    --             -- Create an empty json file
-    --         elseif(ext == "json") then
-    --             SaveText(filePath, "{}")
-    --         elseif(type == "font") then
+                -- Create an empty json file
+            elseif(ext == "json") then
+                SaveText(filePath, "{}")
 
-    --             tmpPath = fileTemplatePath.AppendFile("large.font.png")
-    --             CopyTo(tmpPath, filePath)
+            elseif(type == "font") then
 
-    --         else
-    --             -- print("File not supported")
-    --             -- TODO need to display an error message that the file couldn't be created
-    --             return
-    --         end
+                tmpPath = self.fileTemplatePath.AppendFile("large.font.png")
+                CopyTo(tmpPath, filePath)
 
-    --         -- NewFile(filePath)
-    --         RefreshWindow()
+            else
+                -- print("File not supported")
+                -- TODO need to display an error message that the file couldn't be created
+                return
+            end
 
-    --     end
-    -- )
+            -- Refresh the window to show the new folder
+            self:RefreshWindow(true)
+
+            self:SelectFile(filePath)
+
+        end
+    )
 
 end
 
@@ -671,5 +589,80 @@ function WorkspaceTool:CanEject()
     end
 
     return false
+
+end
+
+function WorkspaceTool:OnRename()
+
+    local selections = self:CurrentlySelectedFiles()
+
+    if(selections == nil) then
+
+        -- Return because we can't rename if there are no selections
+        return
+
+    elseif(#selections > 1) then
+        
+        -- TODO display warning about renaming multiple files
+
+        return
+
+    else
+
+        local newFileModal = self:GetNewFileModal()
+
+        local file = self.files[selections[1]]
+
+        newFileModal:SetText("Rename File", file.name, "Name " .. file.type, true)
+    
+        pixelVisionOS:OpenModal(newFileModal,
+            function()
+    
+                -- Get the new file name from the input field
+                local text = newFileModal.inputField.text
+                
+                if(newFileModal.selectionValue == true and text ~= file.name) then
+
+                    -- Check to see if the file is an extension
+                    if(file.isDirectory == true) then
+        
+                        -- Add a trailing slash to the extension
+                        text = text .. "/"
+        
+                    else
+        
+                        -- Remap the extension by looking for it in the extToTypeMap
+                        local tmpExt = extToTypeMap[file.type]
+        
+                        -- If the type doesn't exist, use the default ext
+                        if(tmpExt == nil) then
+                            tmpExt = file.ext
+                        end
+        
+                        -- Add the new ext to the file
+                        text = text .. tmpExt
+        
+                    end
+        
+                    local newPath = NewWorkspacePath(file.parentPath.Path .. text)
+        
+                    if(PathExists(newPath) == false) then
+                        MoveTo(NewWorkspacePath(file.path), newPath)
+                    else
+                        pixelVisionOS:ShowMessageModal("Rename File Error", "A file with the same name already exists.", 160, false)
+                    end
+        
+                    -- Refresh the window to show the new folder
+                    self:RefreshWindow(true)
+
+                    self:SelectFile(newPath)
+                    -- end
+        
+                end
+
+            end
+        )
+
+    end
 
 end

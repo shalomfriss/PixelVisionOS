@@ -1,10 +1,10 @@
 {
-    
-    "GameChip":
-    {
-        "savedData":{
-            "sessionID": "202004022111567560",
-            "rootDirectory": "/Workspace/MusicTool/"
-        }
-    }
+
+"GameChip":
+{
+"savedData":{
+    "rootDirectory": "/Workspace/FileSystemTest/ManualProject/",
+    "sessionID": "202004031232539809"
+}
+}
 }
