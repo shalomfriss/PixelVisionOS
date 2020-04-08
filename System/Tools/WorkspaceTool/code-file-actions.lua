@@ -75,59 +75,28 @@ function WorkspaceTool:OnDeleteFile()
     -- Always make sure anything going into the trash has a unique file name
     self:StartFileOperation(self.trashPath, "throw out")
 
-    -- if(path == nil) then
-
-    --     if(currentSelectedFile == nil) then
-    --         return
-    --     end
-
-    --     path = currentSelectedFile.path
-    -- end
-
-    -- filesToCopy = {}
-
-    -- fileActionSrc = self.currentPath
-
-    -- -- TODO need to find the base path
-    -- local srcPath = NewWorkspacePath(path)
-    -- if(srcPath.IsDirectory) then
-
-    --     -- Add all of the files that need to be copied to the list
-    --     filesToCopy = GetEntitiesRecursive(srcPath)
-
-    -- end
-
-    -- -- Make sure the selected directory is included
-    -- table.insert(filesToCopy, 1, srcPath)
-
-
-    -- local destPath = trashPath
-
-    -- local action = "throw out"
-
-    -- -- print("Delete Action", action, srcPath, destPath)
-
-    -- -- Perform the file action
-
-    -- selection = nil
-
-    -- -- Always make sure anything going into the trash has a unique file name
-    -- StartFileOperation(destPath, action)
-
 end
 
 function WorkspaceTool:StartFileOperation(destPath, action)
-    
 
-    local fileActionActiveTotal = #self.filesToCopy
-    
+    -- Clear the path filter (used to change base path if there is a duplicate)
+    local fileActionPathFilter = nil
+
+    local fileActionSrc = self.currentPath
+
+    if(action == "delete") then
+        self:OnRunFileAction(destPath, action)
+        -- invalidateTrashIcon = true
+        -- fileActionActive = true
+        return
+    end
+
     -- Modify the destPath with the first item for testing
-    
-    destPath = destPath.AppendPath(self.filesToCopy[1].Path:sub( #self.fileActionSrc.Path + 1))
-    
+    destPath = destPath.AppendPath(self.filesToCopy[1].Path:sub( #fileActionSrc.Path + 1))
+
     if(action == "throw out") then
-        self.fileActionPathFilter = UniqueFilePath(destPath)
-        self.invalidateTrashIcon = true
+        fileActionPathFilter = UniqueFilePath(destPath)
+        -- invalidateTrashIcon = true
     end
 
     if(self.filesToCopy[1].IsChildOf(destPath)) then
@@ -139,7 +108,7 @@ function WorkspaceTool:StartFileOperation(destPath, action)
         )
         return
 
-    elseif(PathExists(destPath) and self.fileActionPathFilter == nil) then
+    elseif(PathExists(destPath) and fileActionPathFilter == nil) then
 
         local duplicate = destPath.Path == self.filesToCopy[1].Path
 
@@ -156,19 +125,20 @@ function WorkspaceTool:StartFileOperation(destPath, action)
 
                     if(duplicate == true) then
 
-                        self.fileActionPathFilter = UniqueFilePath(destPath)
+                        fileActionPathFilter = UniqueFilePath(destPath)
 
                     else
                         -- print("Delete", destPath)
-                        SafeDelete(destPath)
+                        self:SafeDelete(destPath)
                     end
-
                     -- Start the file action process
-                    self:OnRunFileAction(destPath, action)
+                    -- fileActionActive = true
+                    self:OnRunFileAction(destPath, action, fileActionPathFilter)
 
                 else
                     self:CancelFileActions()
-                    RefreshWindow()
+                    self:RefreshWindow(true)
+
                 end
 
             end
@@ -178,7 +148,7 @@ function WorkspaceTool:StartFileOperation(destPath, action)
 
         pixelVisionOS:ShowMessageModal(
             "Workspace ".. action .." Action",
-            "Do you want to ".. action .. " " .. fileActionActiveTotal .. " files?",
+            "Do you want to ".. action .. " " .. #self.filesToCopy .. " files?",
             160,
             true,
             function()
@@ -187,13 +157,12 @@ function WorkspaceTool:StartFileOperation(destPath, action)
                 if(pixelVisionOS.messageModal.selectionValue) then
 
                     -- Start the file action process
-                    self:OnRunFileAction(destPath, action)
-                    -- Registere the file action update function with the tool so it updates
-                    -- self:RegisterUI({name = "FileAction"}, "FileActionUpdate", self)
+                    -- fileActionActive = true
+                    self:OnRunFileAction(destPath, action, fileActionPathFilter)
 
                 else
                     self:CancelFileActions()
-                    -- self:RefreshWindow(true)
+                    self:RefreshWindow(true)
                 end
 
             end
@@ -203,9 +172,9 @@ function WorkspaceTool:StartFileOperation(destPath, action)
     
 end
 
-function WorkspaceTool:OnRunFileAction(destPath, action)
+function WorkspaceTool:OnRunFileAction(destPath, action, fileActionPathFilter)
     
-    local args = { destPath, action }
+    local args = { self.currentPath, destPath, action, fileActionPathFilter or "" }
 
     for i = 1, #self.filesToCopy do
         table.insert(args, self.filesToCopy[i].Path)
@@ -213,7 +182,7 @@ function WorkspaceTool:OnRunFileAction(destPath, action)
 
     print("args", dump(args))
 
-    local success = ExportScript("code-process-file-actions.lua", self.rootPath, args)
+    local success = RunBackgroundScript("code-process-file-actions.lua", args)
     
     print("success", success)
     
@@ -268,7 +237,7 @@ function WorkspaceTool:UpdateFileActionProgress(data)
     local fileActionActiveTotal = self.progressModal.totalFiles
     local fileActionCounter = math.ceil(fileActionActiveTotal * (percent/100))
 
-    local message = self.progressModal.fileAction .. " "..string.lpad(tostring(fileActionCounter), string.len(tostring(fileActionActiveTotal)), "0") .. " of " .. fileActionActiveTotal .. ".\n\n\nDo not restart or shut down Pixel Vision 8."
+    local message = "test"--self.progressModal.fileAction .. " "..string.lpad(tostring(fileActionCounter), string.len(tostring(fileActionActiveTotal)), "0") .. " of " .. fileActionActiveTotal .. ".\n\n\nDo not restart or shut down Pixel Vision 8."
 
     self.progressModal:UpdateMessage(message, percent)
 
