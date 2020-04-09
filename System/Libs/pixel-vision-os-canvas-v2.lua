@@ -265,7 +265,7 @@ function EditorUI:UpdateCanvas(data, hitRect)
   end
 
   -- Capture keys to switch between different tools and options
-  if( Key(Keys.Backspace, InputState.Released) ) then
+  if( Key(Keys.Back, InputState.Released) ) then
 
     if(self.selectRect ~= nil) then
 

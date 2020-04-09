@@ -460,7 +460,7 @@ function OnInitCompleated()
             local tmpCol = string.lpad(tostring(tmpPos.x), #tostring(tmpData.columns), "0")
             local tmpRow = string.lpad(tostring(tmpPos.y), #tostring(tmpData.rows), "0")
 
-            print("Tool Mode", toolMode)
+            -- print("Tool Mode", toolMode)
 
             local action = "Select"
 
@@ -955,9 +955,9 @@ function Update(timeDelta)
                 local targetPicker = spritePickerData.picker.enabled == true and spritePickerData or flagPicker
 
                 -- Change the scale
-                if(Key(Keys.Minus, InputState.Released) and spriteSize > 1) then
+                if(Key(Keys.OemMinus, InputState.Released) and spriteSize > 1) then
                     OnNextSpriteSize(true)
-                elseif(Key(Keys.Plus, InputState.Released) and spriteSize < 4) then
+                elseif(Key(Keys.OemPlus, InputState.Released) and spriteSize < 4) then
                     OnNextSpriteSize()
                 end
 

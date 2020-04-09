@@ -29,6 +29,7 @@ local currentDirectory = nil
 local shuttingDown = false
 local files = nil
 local windowIconButtons = nil
+local workspacePath = NewWorkspacePath("/Workspace/")
 local trashPath = NewWorkspacePath("/Tmp/Trash/")
 local refreshTime = 0
 local refreshDelay = 5
@@ -311,57 +312,136 @@ function Init()
 
     desktopHitRect = NewRect(0, 12, 256, 229)
 
-    local newPath = ReadSaveData("lastPath", "none")
-    local showUpgrade = "true"
+    RestoreLastPath()
 
-    if(SessionID() == ReadSaveData("sessionID", "")) then
+    -- local newPath = ReadSaveData("lastPath", "none")
+    -- local showUpgrade = "true"
 
-        showUpgrade = ReadSaveData("showUpgrade", showUpgrade)
-        -- TODO need to convert this to a path from the start and pass into Open window
-        if(newPath ~= "none" and PathExists(NewWorkspacePath(newPath))) then
-            OpenWindow(newPath, tonumber(ReadSaveData("scrollPos", "0")), tonumber(ReadSaveData("selection", "0")))
-        end
+    -- if(SessionID() == ReadSaveData("sessionID", "")) then
 
-    end
+    --     showUpgrade = ReadSaveData("showUpgrade", showUpgrade)
+    --     -- TODO need to convert this to a path from the start and pass into Open window
+    --     if(newPath ~= "none" and PathExists(NewWorkspacePath(newPath))) then
+    --         OpenWindow(newPath, tonumber(ReadSaveData("scrollPos", "0")), tonumber(ReadSaveData("selection", "0")))
+    --     end
 
-    local installerPath = NewWorkspacePath("/PixelVisionOS/System/OSInstaller/")
+    -- end
 
-    -- Check for the installer
-    if(PathExists(installerPath) and showUpgrade == "true") then
+    -- local installerPath = NewWorkspacePath("/PixelVisionOS/System/OSInstaller/")
 
-        local versionFilePath = installerPath.AppendFile("pixel-vision-os-version.lua")
+    -- -- Check for the installer
+    -- if(PathExists(installerPath) and showUpgrade == "true") then
 
-        -- Make sure there is a version file
-        if(PathExists(versionFilePath)) then
+    --     local versionFilePath = installerPath.AppendFile("pixel-vision-os-version.lua")
 
-            local text = ReadTextFile(versionFilePath.Path)
+    --     -- Make sure there is a version file
+    --     if(PathExists(versionFilePath)) then
 
-            local ver = text:sub(#text - 6, #text - 3)
+    --         local text = ReadTextFile(versionFilePath.Path)
 
-            if(ver ~= pixelVisionOS.version) then
+    --         local ver = text:sub(#text - 6, #text - 3)
 
-                pixelVisionOS:ShowMessageModal("Upgrade to " .. ver, "It looks like you are running an older version of Pixel Vision 8. If you hit cancel you will not see this again until you restart Pixel Vision 8. You can upgrade at any time by selecting \"Install OS\" from the settings tool menu.\n\nDo you want to upgrade to the latest version? ", 168, true,
-                    function()
-                        if(pixelVisionOS.messageModal.selectionValue == true) then
+    --         if(ver ~= pixelVisionOS.version) then
 
-                            WriteSaveData("showUpgrade", "false")
+    --             pixelVisionOS:ShowMessageModal("Upgrade to " .. ver, "It looks like you are running an older version of Pixel Vision 8. If you hit cancel you will not see this again until you restart Pixel Vision 8. You can upgrade at any time by selecting \"Install OS\" from the settings tool menu.\n\nDo you want to upgrade to the latest version? ", 168, true,
+    --                 function()
+    --                     if(pixelVisionOS.messageModal.selectionValue == true) then
 
-                            LoadGame(installerPath.Path)
+    --                         WriteSaveData("showUpgrade", "false")
 
-                        else
-                            WriteSaveData("showUpgrade", "false")
-                        end
+    --                         LoadGame(installerPath.Path)
 
-                    end
-                )
+    --                     else
+    --                         WriteSaveData("showUpgrade", "false")
+    --                     end
 
-            end
+    --                 end
+    --             )
 
-        end
+    --         end
 
-    end
+    --     end
+
+    -- end
 
     -- print("Test", PathExists(NewWorkspacePath("/Disks/PixelVisionOS/")))
+
+end
+
+function RestoreLastPath()
+
+    local newPath = SessionID() == ReadSaveData("sessionID", "") and ReadSaveData("lastPath", "none") or "none"
+    local lastScrollPos = tonumber(ReadSaveData("scrollPos", "0"))
+    local lastSelection = tonumber(ReadSaveData("selection", "0"))
+
+    -- Read metadata last path and default to the newPath
+    local lastPath =  ReadMetadata("overrideLastPath", newPath)
+
+    if(lastPath ~= "none") then
+
+        -- Clear last path from metadata
+        WriteMetadata( "overrideLastPath", "none" )
+
+        -- override the default path to open
+        newPath = lastPath
+        lastScrollPos = 0
+        lastSelection = 0
+
+    end
+
+    -- Convert the path to a Workspace Path
+    newPath =  newPath == "none" and workspacePath or NewWorkspacePath(newPath)
+   
+    -- Open the window to the new path
+    
+    if(newPath.Path == workspacePath.Path and #GetEntities(workspacePath) == 0) then
+        AutoCreateFirstProject()
+    else
+        OpenWindow(newPath, lastScrollPos, lastSelection)
+    end
+
+end
+
+function AutoCreateFirstProject()
+
+    pixelVisionOS:ShowMessageModal("Welcome to Pixel Vision 8", "It looks like you are running Pixel Vision 8 for the first time. We have automatically created a new 'Workspace drive' for you on your computer at: \n\n" .. DocumentPath().."\n\nYou can learn more about the Workspace and using PV8 by reading the documentation at:\n\nhttps://www.pixelvision8.com/documentation\n\nBefore getting started, would you like to creating a new project?", 224, true,
+        function()
+            
+            local defaultPath = workspacePath
+
+            if(pixelVisionOS.messageModal.selectionValue == true) then
+
+                defaultPath = CreateNewProject("MyFirstGame", workspacePath)
+
+                local readmePath = NewWorkspacePath("/PixelVisionOS/README.txt")
+                
+                if(PathExists(readmePath)) then
+                    CopyTo(readmePath, workspacePath.AppendFile(readmePath.EntityName))
+                end
+            
+            end
+
+            OpenWindow(defaultPath)
+
+        end
+    )
+
+end
+
+function CreateNewProject(name, path)
+
+    print("New call")
+    if(fileTemplatePath == nil) then
+        return
+    end
+
+    name = name or "Untitled"
+    path = UniqueFilePath((path or workspacePath).AppendDirectory(name))
+
+    -- Copy the contents of the template path to the new unique path
+    CopyTo(fileTemplatePath, path)
+
+    return path
 
 end
 
@@ -1093,18 +1173,15 @@ function OnNewGame()
     pixelVisionOS:OpenModal(newFileModal,
         function()
 
-            if(newFileModal.selectionValue == false) then
-                return
+            print("Close Modal")
+
+            if(newFileModal.selectionValue == true) then
+                
+                CreateNewProject(newFileModal.inputField.text, currentDirectory)
+
+                RefreshWindow()
             end
-
-            -- Create a new workspace path
-            local newPath = currentDirectory.AppendDirectory(newFileModal.inputField.text)
-
-            -- Copy the contents of the template path to the new unique path
-            CopyTo(fileTemplatePath, UniqueFilePath(newPath))
-
-            RefreshWindow()
-
+            
         end
     )
 
@@ -1113,6 +1190,7 @@ end
 function OnNewFolder(name)
 
     if(currentDirectory == nil) then
+        pixelVisionOS:ShowMessageModal(toolName .. " Error", "There is no default template.", 160, false)
         return
     end
 
@@ -1270,11 +1348,11 @@ function OpenWindow(path, scrollTo, selection)
     vSliderData.value = scrollTo
 
     -- Create the close button
-    if(closeButton == nil) then
-        closeButton = editorUI:CreateButton({x = 192, y = 16}, "closewindow", "Close the window.")
-        closeButton.hitRect = {x = closeButton.rect.x + 2, y = closeButton.rect.y + 2, w = 10, h = 10}
-        closeButton.onAction = CloseWindow
-    end
+    -- if(closeButton == nil) then
+    --     closeButton = editorUI:CreateButton({x = 192, y = 16}, "closewindow", "Close the window.")
+    --     closeButton.hitRect = {x = closeButton.rect.x + 2, y = closeButton.rect.y + 2, w = 10, h = 10}
+    --     closeButton.onAction = CloseWindow
+    -- end
 
     -- Need to clear the previous button drop targets
     if(windowIconButtons ~= nil) then
@@ -1634,7 +1712,7 @@ function CloseWindow()
     -- Clear the previous scroll history
     windowScrollHistory = {}
 
-    closeButton = nil
+    -- closeButton = nil
 
     vSliderData = nil
 
@@ -2214,7 +2292,7 @@ function Update(timeDelta)
         editorUI:UpdateIconGroup(desktopIconButtons)
         editorUI:UpdateIconGroup(windowIconButtons)
 
-        editorUI:UpdateButton(closeButton)
+        -- editorUI:UpdateButton(closeButton)
 
         editorUI:UpdateSlider(vSliderData)
 
